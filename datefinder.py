@@ -1,7 +1,6 @@
 import dateparser
 # import re
 import regex as re
-import ipdb
 
 
 class DateFinder():
@@ -162,7 +161,6 @@ class DateFinder():
         index: also return the indices of the date string in the text
         """
         for match in self.DATE_REGEX.finditer(text):
-            ipdb.set_trace()
             match_str = match.group(0)
             indices = match.span(0)
 
