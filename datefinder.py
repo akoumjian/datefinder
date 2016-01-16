@@ -19,43 +19,40 @@ class DateFinder():
     DELIMITERS_PATTERN = '[/\:\-\,\s\_\+\@]+'
     TIME_PERIOD_PATTERN = 'a\.m\.|am|p\.m\.|pm'
     ## can be in date strings but not recognized by dateparser
-    EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|of|to|until'
+    EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|year|of|to|until|z|at'
 
-    ## The idea of the regex is to liberally match any natural language datetime phrases from beginning to end.
-    # DATES_PATTERN = """
-    # (
-    #     (
-    #         ## Grab any digits
-    #         {digits_modifier}
-    #         |
-    #         {digits}
-    #         |
-    #         {days}
-    #         |
-    #         {months}
-    #         |
-    #         ## Timezones
-    #         {timezones}
-    #         |
-    #         ## Delimiters, ie Tuesday[,] July 18 or 6[/]17[/]2008
-    #         ## as well as whitespace
-    #         {delimiters}
-    #         |
-    #         ## descriptions of time
-    #         {time_periods}
-    #         |
-    #         ## These tokens could be in phrases that dateparser does not yet recognize
-    #         ## Some are US Centric
-    #         {extra_tokens}
-    #     ## We need at least three items to match for minimal datetime parsing
-    #     ## ie 10pm
-    #     ){{3,}}
-    # )
-    # """
+    ## Time pattern is used independently, so specified here.
+    TIME_PATTERN = """
+    (?P<time>
+        (
+            (?P<hours>\d{{1,2}})
+            \:
+            (?P<minutes>\d{{1,2}})
+            (\:(?<seconds>\d{{1,2}}))?
+            \s*
+            (?P<time_periods>{time_periods})?
+            \s*
+            (?P<timezones>{timezones})?
+        )
+        |
+        (
+            (?P<hours>\d{{1,2}})
+            \s*
+            (?P<time_periods>{time_periods})
+            \s*
+            (?P<timezones>{timezones})*
+        )
+    )
+    """.format(
+        time_periods=TIME_PERIOD_PATTERN,
+        timezones=TIMEZONES_PATTERN
+    )
 
     DATES_PATTERN = """
     (
         (
+            {time}
+            |
             ## Grab any digits
             (?P<digits_modifier>{digits_modifier})
             |
@@ -65,15 +62,9 @@ class DateFinder():
             |
             (?P<months>{months})
             |
-            ## Timezones
-            (?P<timezones>{timezones})
-            |
             ## Delimiters, ie Tuesday[,] July 18 or 6[/]17[/]2008
             ## as well as whitespace
             (?P<delimiters>{delimiters})
-            |
-            ## descriptions of time
-            (?P<time_periods>{time_periods})
             |
             ## These tokens could be in phrases that dateparser does not yet recognize
             ## Some are US Centric
@@ -85,17 +76,19 @@ class DateFinder():
     """
 
     DATES_PATTERN = DATES_PATTERN.format(
+        time=TIME_PATTERN,
         digits=DIGITS_PATTERN,
         digits_modifier=DIGITS_MODIFIER_PATTERN,
         days=DAYS_PATTERN,
         months=MONTHS_PATTERN,
-        timezones=ALL_TIMEZONES_PATTERN,
         delimiters=DELIMITERS_PATTERN,
-        time_periods=TIME_PERIOD_PATTERN,
         extra_tokens=EXTRA_TOKENS_PATTERN
     )
+    print DATES_PATTERN
 
     DATE_REGEX = re.compile(DATES_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
+
+    TIME_REGEX = re.compile(TIME_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
     ## These tokens can be in original text but dateparser
     ## won't handle them without modification
@@ -120,7 +113,7 @@ class DateFinder():
 
     def find_dates(self, text, source=False, index=False, strict=False):
 
-        for date_string, indices in self.extract_date_strings(text):
+        for date_string, indices in self.extract_date_strings(text, strict=strict):
 
             as_dt = self.parse_date_string(date_string)
             if as_dt is None:
@@ -153,28 +146,47 @@ class DateFinder():
                 return as_dt
             return None
 
-    def extract_date_strings(self, text):
+    def extract_date_strings(self, text, strict=False):
         """
         Scans text for possible datetime strings and extracts them
 
         source: also return the original date string
         index: also return the indices of the date string in the text
+        strict: Strict mode will only return dates sourced with day, month, and year
         """
         for match in self.DATE_REGEX.finditer(text):
             match_str = match.group(0)
             indices = match.span(0)
 
-            ## Get individual group matches
-            # captures = match.capturesdict()
-            # digits=captures.get('digits')
-            # digits_modifier=DIGITS_MODIFIER_PATTERN,
-            # days=DAYS_PATTERN,
-            # months=MONTHS_PATTERN,
-            # timezones=ALL_TIMEZONES_PATTERN,
-            # delimiters=DELIMITERS_PATTERN,
-            # time_periods=TIME_PERIOD_PATTERN,
-            # extra_tokens=EXTRA_TOKENS_PATTERN
+            ## If strict, only match input strings that
 
+            # if strict:
+                # complete = False
+
+                ## Get individual group matches
+            captures = match.capturesdict()
+            time = captures.get('time')
+            digits = captures.get('digits')
+            digits_modifiers = captures.get('digits_modifiers')
+            days = captures.get('days')
+            months = captures.get('months')
+            timezones = captures.get('timezones')
+            delimiters = captures.get('delimiters')
+            time = captures.get('time)')
+            time_periods = captures.get('time_periods')
+            extra_tokens = captures.get('extra_tokens')
+
+            if strict:
+                complete = False
+                ## 12-05-2015
+                if len(digits) == 3:
+                    complete = True
+                ## 19 February 2013 year 09:10
+                elif (len(months) == 1) and (len(digits) == 2):
+                    complete = True
+
+                if not complete:
+                    continue
 
             ## sanitize date string
             ## replace unhelpful whitespace characters with single whitespace
@@ -185,9 +197,9 @@ class DateFinder():
             yield match_str, indices
 
 
-def find_dates(text, source=False, index=False):
+def find_dates(text, source=False, index=False, strict=False):
     """
     Create a top level function to for basic API accessibility
     """
     date_finder = DateFinder()
-    return date_finder.find_dates(text, source=source, index=index)
+    return date_finder.find_dates(text, source=source, index=index, strict=strict)
