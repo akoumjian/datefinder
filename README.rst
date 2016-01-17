@@ -12,7 +12,8 @@ Installation
 ------------
 
 
-.. code-block:: 
+.. code-block::
+
     pip install datefinder
 
 
