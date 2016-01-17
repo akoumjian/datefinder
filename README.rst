@@ -11,8 +11,9 @@ to the datetime object.
 Installation
 ------------
 
-```
-pip install datefinder
+
+.. code-block:: 
+    pip install datefinder
 
 
 How to Use
