@@ -12,8 +12,24 @@ Installation
 ------------
 
 
+.. code-block::
+
+    pip install datefinder
+
+
 How to Use
 ----------
 
+.. code-block:: python
 
+    >>> import datefinder
+    >>> matches = datefinder.find_dates(string_with_dates)
+
+    >>> for match in matches:
+        print match
+
+    2016-01-13 11:00:00
+    2016-01-05 00:00:00
+    2014-01-02 00:00:00
+    2014-01-02 00:00:00
 
