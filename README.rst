@@ -1,15 +1,15 @@
 datefinder - extract dates from text
 ====================================
 
-.. image:: https://img.shields.io/travis/akoumjian/datefinder/master.svg?style=flat-square
+.. image:: https://img.shields.io/travis/akoumjian/datefinder/master.svg
     :target: https://travis-ci.org/akoumjian/datefinder
     :alt: travis build status
 
-.. image:: https://img.shields.io/pypi/dd/datefinder.svg?style=flat-square
+.. image:: https://img.shields.io/pypi/dd/datefinder.svg
     :target: https://pypi.python.org/pypi/datefinder/
     :alt: pypi downloads per day
 
-.. image:: https://img.shields.io/pypi/v/datefinder.svg?style=flat-square
+.. image:: https://img.shields.io/pypi/v/datefinder.svg
     :target: https://pypi.python.org/pypi/datefinder
     :alt: pypi version
 
