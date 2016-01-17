@@ -14,6 +14,7 @@ def test_tz_gettz_for_all_patterns():
     dateutil.tz.gettz will not handle
 
     :warning: currently tz.gettz only matches 14 of regex timezones of our ~400
+    [ GOOD MATCHES ]: ['PST', 'EST', 'MST', 'CET', 'EET', 'EST', 'GMT', 'HST', 'MET', 'MST', 'PDT', 'PST', 'UTC', 'WET']
     """
     bad_tz_strings = []
     good_tz_strings = []
