@@ -35,18 +35,3 @@ logger = logging.getLogger(__name__)
 def test_find_date_strings(input_text, expected_date):
     for return_date in datefinder.find_dates(input_text):
         assert return_date == expected_date
-
-@pytest.mark.parametrize('date_string, expected_replace_string, expected_date', [
-    ## English Dates
-    #('due on Tuesday Jul 22, 2014 eastern standard time', 'Tuesday Jul 22, 2014', datetime(2014, 7, 22)),
-    #('Friday pAcific stanDard time', 'Friday', datetime(2012, 11, 9)),
-
-    # Numeric dates
-    ('13/03/2014 Central Daylight Savings Time', '13/03/2014 cst', datetime(2014, 3, 13)),
-])
-def test_parse_date_string_find_replace(date_string, expected_replace_string, expected_date):
-    dt = datefinder.DateFinder()
-    with mock.patch.object(dateparser, 'parse', wraps=dateparser.parse) as spy:
-        return_date = dt.parse_date_string(date_string)
-        spy.assert_called_with(expected_replace_string)
-        assert return_date == expected_date

@@ -1,6 +1,7 @@
 import dateparser
 # import re
 import regex as re
+import pytz # for easy tzinfo access
 
 
 class DateFinder():
@@ -107,6 +108,19 @@ class DateFinder():
         ",": "",
     }
 
+    ## when these timezone tokens are passed into
+    ## dateparser it will apply some odd offset calculations
+    ## https://github.com/scrapinghub/dateparser/blob/master/dateparser/timezone_parser.py#L19
+    ## we expect something more sane to happen:
+    ## >>> parse("03/13/2015 cst")
+    ## >>> "03/13/2015 00:00:00.000 CST"
+    TIMEZONE_TOKENS = {
+        "pst": "US/Pacific",
+        "est": "US/Eastern",
+        "mst": "US/Mountain",
+        "cst": "US/Central",
+    }
+
     ## Characters that can be removed from ends of matched strings
     STRIP_CHARS = ' \n\t:-.,_'
 
@@ -130,11 +144,39 @@ class DateFinder():
                 returnables = returnables[0]
             yield returnables
 
+    def _find_and_replace_timezones(self, date_string):
+        """
+        replace TIMEZONE_TOKENS and return last match
+
+        :param date_string: with timezone info
+        :return: (date_string, timezone_string)
+        """
+        timezone_string = ''
+        for token in sorted(self.TIMEZONE_TOKENS.keys()):
+            for match in re.findall( re.sub('','','({})'.format(token)), date_string ):
+                timezone_string = self.TIMEZONE_TOKENS[match]
+                date_string = date_string.replace(token, '')
+        return date_string, timezone_string
+
+    def _add_tzinfo(self, datetime_obj, timezone_string):
+        """
+        take a naive datetime and add pytz.tzinfo object
+
+        :param datetime_obj: naive datetime object
+        :return: datetime object with tzinfo
+        """
+        tzinfo_match = pytz.timezone(timezone_string)
+        return datetime_obj.replace(tzinfo=tzinfo_match)
+
+
     def parse_date_string(self, date_string):
             ## replace strings which are allowable to help us match but for which dateparser can't read
             date_string = date_string.lower()
             for key, replacement in self.REPLACEMENTS.items():
                 date_string = date_string.replace(key, replacement)
+
+            ## check for timezones, replace and return them separately
+            date_string, timezone_string = self._find_and_replace_timezones(date_string)
 
             ## One last sweep after removing
             date_string = date_string.strip(self.STRIP_CHARS)
@@ -142,6 +184,8 @@ class DateFinder():
             ## < 3 tends to be garbage
             if len(date_string) > 3:
                 as_dt = dateparser.parse(date_string)
+                if timezone_string is not None:
+                    as_dt = self._add_tzinfo(as_dt,timezone_string)
                 return as_dt
             return None
 
