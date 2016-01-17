@@ -84,7 +84,6 @@ class DateFinder():
         delimiters=DELIMITERS_PATTERN,
         extra_tokens=EXTRA_TOKENS_PATTERN
     )
-    print DATES_PATTERN
 
     DATE_REGEX = re.compile(DATES_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
