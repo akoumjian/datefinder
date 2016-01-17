@@ -1,7 +1,7 @@
 import dateparser
 # import re
 import regex as re
-import pytz # for easy tzinfo access
+from dateutil import tz
 
 
 class DateFinder():
@@ -46,7 +46,7 @@ class DateFinder():
     )
     """.format(
         time_periods=TIME_PERIOD_PATTERN,
-        timezones=TIMEZONES_PATTERN
+        timezones=ALL_TIMEZONES_PATTERN
     )
 
     DATES_PATTERN = """
@@ -93,10 +93,6 @@ class DateFinder():
     ## These tokens can be in original text but dateparser
     ## won't handle them without modification
     REPLACEMENTS = {
-        "pacific": "pst",
-        "eastern": "est",
-        "mountain": "mst",
-        "central": "cst",
         "standard": "",
         "daylight": "",
         "savings": "",
@@ -108,17 +104,11 @@ class DateFinder():
         ",": "",
     }
 
-    ## when these timezone tokens are passed into
-    ## dateparser it will apply some odd offset calculations
-    ## https://github.com/scrapinghub/dateparser/blob/master/dateparser/timezone_parser.py#L19
-    ## we expect something more sane to happen:
-    ## >>> parse("03/13/2015 cst")
-    ## >>> "03/13/2015 00:00:00.000 CST"
-    TIMEZONE_TOKENS = {
-        "pst": "US/Pacific",
-        "est": "US/Eastern",
-        "mst": "US/Mountain",
-        "cst": "US/Central",
+    TIMEZONE_REPLACEMENTS = {
+        "pacific": "PST",
+        "eastern": "EST",
+        "mountain": "MST",
+        "central": "CST",
     }
 
     ## Characters that can be removed from ends of matched strings
@@ -126,9 +116,9 @@ class DateFinder():
 
     def find_dates(self, text, source=False, index=False, strict=False):
 
-        for date_string, indices in self.extract_date_strings(text, strict=strict):
+        for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
 
-            as_dt = self.parse_date_string(date_string)
+            as_dt = self.parse_date_string(date_string,captures)
             if as_dt is None:
                 ## Dateparser couldn't make heads or tails of it
                 ## move on to next
@@ -144,50 +134,67 @@ class DateFinder():
                 returnables = returnables[0]
             yield returnables
 
-    def _find_and_replace_timezones(self, date_string):
+    def _find_and_replace(self, date_string, captures):
         """
-        replace TIMEZONE_TOKENS and return last match
+        replace strings which helped us do matching but dateparser can't read.
+        also replace captured timezones and return tz_string separately
+        so that dateparser.parse doesn't do weirdo auto tzoffset conversions
+        https://github.com/scrapinghub/dateparser/blob/master/dateparser/timezone_parser.py#L19
 
-        :param date_string: with timezone info
-        :return: (date_string, timezone_string)
+        :warning: when multiple tz matches exist the last sorted capture will trump
+        :param date_string:
+        :return: date_string, tz_string
         """
-        timezone_string = ''
-        for token in sorted(self.TIMEZONE_TOKENS.keys()):
-            for match in re.findall( re.sub('','','({})'.format(token)), date_string ):
-                timezone_string = self.TIMEZONE_TOKENS[match]
-                date_string = date_string.replace(token, '')
-        return date_string, timezone_string
 
-    def _add_tzinfo(self, datetime_obj, timezone_string):
+        # add timezones to replace
+        for tz_string in captures.get('timezones',[]):
+            self.REPLACEMENTS.update({tz_string:''})
+
+        date_string = date_string.lower()
+        for key, replacement in self.REPLACEMENTS.items():
+            date_string = date_string.replace(key, replacement)
+
+        return date_string, self._pop_tz_string(sorted(captures.get('timezones',[])))
+
+
+    def _pop_tz_string(self, list_of_timezones):
+        try:
+            tz_string = list_of_timezones.pop()
+            # make sure it's not a timezone we
+            # want replaced with better abbreviation
+            return self.TIMEZONE_REPLACEMENTS.get(tz_string, tz_string)
+        except IndexError:
+            return ''
+
+    def _add_tzinfo(self, datetime_obj, tz_string):
         """
-        take a naive datetime and add pytz.tzinfo object
+        take a naive datetime and add dateutil.tz.tzinfo object
 
         :param datetime_obj: naive datetime object
         :return: datetime object with tzinfo
         """
-        tzinfo_match = pytz.timezone(timezone_string)
+        if datetime_obj is None:
+            return None
+
+        tzinfo_match = tz.gettz(tz_string)
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
 
-    def parse_date_string(self, date_string):
-            ## replace strings which are allowable to help us match but for which dateparser can't read
-            date_string = date_string.lower()
-            for key, replacement in self.REPLACEMENTS.items():
-                date_string = date_string.replace(key, replacement)
+    def parse_date_string(self, date_string, captures):
+        # replace tokens that are problematic for dateparser
+        date_string, tz_string = self._find_and_replace(date_string, captures)
 
-            ## check for timezones, replace and return them separately
-            date_string, timezone_string = self._find_and_replace_timezones(date_string)
-
-            ## One last sweep after removing
-            date_string = date_string.strip(self.STRIP_CHARS)
-            ## Match strings must be at least 3 characters long
-            ## < 3 tends to be garbage
-            if len(date_string) > 3:
-                as_dt = dateparser.parse(date_string)
-                if timezone_string is not None:
-                    as_dt = self._add_tzinfo(as_dt,timezone_string)
-                return as_dt
+        ## One last sweep after removing
+        date_string = date_string.strip(self.STRIP_CHARS)
+        ## Match strings must be at least 3 characters long
+        ## < 3 tends to be garbage
+        if len(date_string) < 3:
             return None
+
+        as_dt = dateparser.parse(date_string)
+        if tz_string:
+            as_dt = self._add_tzinfo(as_dt,tz_string)
+        return as_dt
 
     def extract_date_strings(self, text, strict=False):
         """
@@ -237,7 +244,7 @@ class DateFinder():
             match_str = match_str.strip(self.STRIP_CHARS)
 
             ## Save sanitized source string
-            yield match_str, indices
+            yield match_str, indices, captures
 
 
 def find_dates(text, source=False, index=False, strict=False):

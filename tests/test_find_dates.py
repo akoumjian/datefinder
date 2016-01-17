@@ -35,3 +35,4 @@ logger = logging.getLogger(__name__)
 def test_find_date_strings(input_text, expected_date):
     for return_date in datefinder.find_dates(input_text):
         assert return_date == expected_date
+
