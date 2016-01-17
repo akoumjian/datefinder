@@ -1,5 +1,4 @@
 import dateparser
-# import re
 import regex as re
 
 
@@ -24,6 +23,7 @@ class DateFinder():
     ## Time pattern is used independently, so specified here.
     TIME_PATTERN = """
     (?P<time>
+        ## Captures in format XX:YY(:ZZ) (PM) (EST)
         (
             (?P<hours>\d{{1,2}})
             \:
@@ -35,6 +35,8 @@ class DateFinder():
             (?P<timezones>{timezones})?
         )
         |
+        ## Captures in format 11 AM (EST)
+        ## Note with single digit capture requires time period
         (
             (?P<hours>\d{{1,2}})
             \s*
@@ -157,12 +159,7 @@ class DateFinder():
             match_str = match.group(0)
             indices = match.span(0)
 
-            ## If strict, only match input strings that
-
-            # if strict:
-                # complete = False
-
-                ## Get individual group matches
+            ## Get individual group matches
             captures = match.capturesdict()
             time = captures.get('time')
             digits = captures.get('digits')
