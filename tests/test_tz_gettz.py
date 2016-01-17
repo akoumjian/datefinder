@@ -13,7 +13,7 @@ def test_tz_gettz_for_all_patterns():
     determine which pattern matching tz_strings
     dateutil.tz.gettz will not handle
 
-    :return:
+    :warning: currently tz.gettz only matches 14 of regex timezones of our ~400
     """
     bad_tz_strings = []
     good_tz_strings = []
