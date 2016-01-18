@@ -5,7 +5,7 @@ datefinder - extract dates from text
     :target: https://travis-ci.org/akoumjian/datefinder
     :alt: travis build status
 
-.. image:: https://img.shields.io/pypi/dd/datefinder.svg
+.. image:: https://img.shields.io/pypi/dm/datefinder.svg
     :target: https://pypi.python.org/pypi/datefinder/
     :alt: pypi downloads per day
 
