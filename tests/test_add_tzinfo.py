@@ -1,9 +1,7 @@
 import pytest
 from dateutil import tz
 import datefinder
-import dateparser
 from datetime import datetime
-from unittest import mock
 import sys, logging
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)

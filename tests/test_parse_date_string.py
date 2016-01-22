@@ -3,7 +3,10 @@ import datefinder
 import dateparser
 from dateutil import tz
 from datetime import datetime
-from unittest import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import sys, logging
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)

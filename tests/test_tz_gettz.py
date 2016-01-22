@@ -1,8 +1,4 @@
-import pytest
 import datefinder
-import dateparser
-from datetime import datetime
-from unittest import mock
 from dateutil import tz
 import sys, logging
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
