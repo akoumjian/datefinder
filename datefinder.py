@@ -195,7 +195,26 @@ class DateFinder():
 
 def find_dates(text, source=False, index=False, strict=False):
     """
-    Create a top level function to for basic API accessibility
+    Extract datetime strings from text
+
+    :param text:
+        A string that contains one or more natural language or literal
+        datetime strings
+    :type text: str|unicode
+    :param source:
+        Return the original string segment
+    :type source: boolean
+    :param index:
+        Return the indices where the datetime string was located in text
+    :type index: boolean
+    :param strict:
+        Only return datetimes with complete date information. For example:
+        `July 2016` of `Monday` will not return datetimes.
+        `May 16, 2015` will return datetimes.
+    :type strict: boolean
+
+    :return: Returns a generator that produces :mod:`datetime.datetime` objects,
+        or a tuple with the source text and index, if requested
     """
     date_finder = DateFinder()
     return date_finder.find_dates(text, source=source, index=index, strict=strict)

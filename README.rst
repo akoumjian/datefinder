@@ -32,6 +32,11 @@ Installation
 How to Use
 ----------
 
+
+.. automodule:: datefinder
+   :members: find_dates
+
+
 .. code-block:: python
 
     >>> import datefinder
