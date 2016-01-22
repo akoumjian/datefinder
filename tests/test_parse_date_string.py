@@ -30,6 +30,18 @@ logger = logging.getLogger(__name__)
      {'timezones':['central']},
      datetime(2014, 3, 13).replace(tzinfo=tz.gettz('CST'))
     ),
+    (' on 12/24/2015 at 2pm ',
+     'on 12/24/2015 at 2pm',
+     '12/24/2015 at 2pm',
+     {'timezones':[]},
+     datetime(2015, 12, 24, 14, 0) # we're making sure it's naive
+    ),
+    (' on 11-20-2015 4pm IRST ', # test an abbreviation that tz.gettz will return None for
+     'on 11-20-2015 4pm IRST',
+     '11-20-2015 4pm irst',
+     {'timezones':['CST']},
+     datetime(2015, 11, 20, 14, 0) # we're making sure it's naive
+    )
 ])
 def test_parse_date_string_find_replace(date_string, expected_replace_string, expected_parse_arg, expected_captures, expected_date):
     dt = datefinder.DateFinder()
