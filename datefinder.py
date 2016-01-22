@@ -152,7 +152,7 @@ class DateFinder():
 
         date_string = date_string.lower()
         for key, replacement in self.REPLACEMENTS.items():
-            date_string = date_string.replace(key, replacement)
+            date_string = re.sub(key,replacement,date_string,flags=re.IGNORECASE)
 
         return date_string, self._pop_tz_string(sorted(captures.get('timezones',[])))
 
