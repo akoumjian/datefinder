@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>datefinder &mdash; datefinder 0.0.1dev2 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1dev2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="datefinder 0.0.1dev2 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for datefinder</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">dateparser</span>
+<span class="kn">import</span> <span class="nn">regex</span> <span class="kn">as</span> <span class="nn">re</span>
+
+
+<span class="k">class</span> <span class="nc">DateFinder</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locates dates in a text</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DIGITS_MODIFIER_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;\d+st|\d+th|\d+rd|first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth|next|last&#39;</span>
+    <span class="n">DIGITS_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;\d+&#39;</span>
+    <span class="n">DAYS_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thur|thurs|fri|sat|sun&#39;</span>
+    <span class="n">MONTHS_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec&#39;</span>
+    <span class="n">TIMEZONES_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;\sACDT|\sACST|\sACT|\sACWDT|\sACWST|\sADDT|\sADMT|\sADT|\sAEDT|\sAEST|\sAFT|\sAHDT|\sAHST|\sAKDT|\sAKST|\sAKTST|\sAKTT|\sALMST|\sALMT|\sAMST|\sAMT|\sANAST|\sANAT|\sANT|\sAPT|\sAQTST|\sAQTT|\sARST|\sART|\sASHST|\sASHT|\sAST|\sAWDT|\sAWST|\sAWT|\sAZOMT|\sAZOST|\sAZOT|\sAZST|\sAZT|\sBAKST|\sBAKT|\sBDST|\sBDT|\sBEAT|\sBEAUT|\sBIOT|\sBMT|\sBNT|\sBORT|\sBOST|\sBOT|\sBRST|\sBRT|\sBST|\sBTT|\sBURT|\sCANT|\sCAPT|\sCAST|\sCAT|\sCAWT|\sCCT|\sCDDT|\sCDT|\sCEDT|\sCEMT|\sCEST|\sCET|\sCGST|\sCGT|\sCHADT|\sCHAST|\sCHDT|\sCHOST|\sCHOT|\sCIST|\sCKHST|\sCKT|\sCLST|\sCLT|\sCMT|\sCOST|\sCOT|\sCPT|\sCST|\sCUT|\sCVST|\sCVT|\sCWT|\sCXT|\sChST|\sDACT|\sDAVT|\sDDUT|\sDFT|\sDMT|\sDUSST|\sDUST|\sEASST|\sEAST|\sEAT|\sECT|\sEDDT|\sEDT|\sEEDT|\sEEST|\sEET|\sEGST|\sEGT|\sEHDT|\sEMT|\sEPT|\sEST|\sET|\sEWT|\sFET|\sFFMT|\sFJST|\sFJT|\sFKST|\sFKT|\sFMT|\sFNST|\sFNT|\sFORT|\sFRUST|\sFRUT|\sGALT|\sGAMT|\sGBGT|\sGEST|\sGET|\sGFT|\sGHST|\sGILT|\sGIT|\sGMT|\sGST|\sGYT|\sHAA|\sHAC|\sHADT|\sHAE|\sHAP|\sHAR|\sHAST|\sHAT|\sHAY|\sHDT|\sHKST|\sHKT|\sHLV|\sHMT|\sHNA|\sHNC|\sHNE|\sHNP|\sHNR|\sHNT|\sHNY|\sHOVST|\sHOVT|\sHST|\sICT|\sIDDT|\sIDT|\sIHST|\sIMT|\sIOT|\sIRDT|\sIRKST|\sIRKT|\sIRST|\sISST|\sIST|\sJAVT|\sJCST|\sJDT|\sJMT|\sJST|\sJWST|\sKART|\sKDT|\sKGST|\sKGT|\sKIZST|\sKIZT|\sKMT|\sKOST|\sKRAST|\sKRAT|\sKST|\sKUYST|\sKUYT|\sKWAT|\sLHDT|\sLHST|\sLINT|\sLKT|\sLMT|\sLMT|\sLMT|\sLMT|\sLRT|\sLST|\sMADMT|\sMADST|\sMADT|\sMAGST|\sMAGT|\sMALST|\sMALT|\sMART|\sMAWT|\sMDDT|\sMDST|\sMDT|\sMEST|\sMET|\sMHT|\sMIST|\sMIT|\sMMT|\sMOST|\sMOT|\sMPT|\sMSD|\sMSK|\sMSM|\sMST|\sMUST|\sMUT|\sMVT|\sMWT|\sMYT|\sNCST|\sNCT|\sNDDT|\sNDT|\sNEGT|\sNEST|\sNET|\sNFT|\sNMT|\sNOVST|\sNOVT|\sNPT|\sNRT|\sNST|\sNT|\sNUT|\sNWT|\sNZDT|\sNZMT|\sNZST|\sOMSST|\sOMST|\sORAST|\sORAT|\sPDDT|\sPDT|\sPEST|\sPET|\sPETST|\sPETT|\sPGT|\sPHOT|\sPHST|\sPHT|\sPKST|\sPKT|\sPLMT|\sPMDT|\sPMMT|\sPMST|\sPMT|\sPNT|\sPONT|\sPPMT|\sPPT|\sPST|\sPT|\sPWT|\sPYST|\sPYT|\sQMT|\sQYZST|\sQYZT|\sRET|\sRMT|\sROTT|\sSAKST|\sSAKT|\sSAMT|\sSAST|\sSBT|\sSCT|\sSDMT|\sSDT|\sSET|\sSGT|\sSHEST|\sSHET|\sSJMT|\sSLT|\sSMT|\sSRET|\sSRT|\sSST|\sSTAT|\sSVEST|\sSVET|\sSWAT|\sSYOT|\sTAHT|\sTASST|\sTAST|\sTBIST|\sTBIT|\sTBMT|\sTFT|\sTHA|\sTJT|\sTKT|\sTLT|\sTMT|\sTOST|\sTOT|\sTRST|\sTRT|\sTSAT|\sTVT|\sULAST|\sULAT|\sURAST|\sURAT|\sUTC|\sUYHST|\sUYST|\sUYT|\sUZST|\sUZT|\sVET|\sVLAST|\sVLAT|\sVOLST|\sVOLT|\sVOST|\sVUST|\sVUT|\sWARST|\sWART|\sWAST|\sWAT|\sWDT|\sWEDT|\sWEMT|\sWEST|\sWET|\sWFT|\sWGST|\sWGT|\sWIB|\sWIT|\sWITA|\sWMT|\sWSDT|\sWSST|\sWST|\sWT|\sXJT|\sYAKST|\sYAKT|\sYAPT|\sYDDT|\sYDT|\sYEKST|\sYEKST|\sYEKT|\sYEKT|\sYERST|\sYERT|\sYPT|\sYST|\sYWT|\szzz&#39;</span>
+    <span class="c1">## explicit north american timezones that get replaced</span>
+    <span class="n">NA_TIMEZONES_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;pacific|eastern|mountain|central&#39;</span>
+    <span class="n">ALL_TIMEZONES_PATTERN</span> <span class="o">=</span> <span class="n">TIMEZONES_PATTERN</span> <span class="o">+</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="n">NA_TIMEZONES_PATTERN</span>
+    <span class="n">DELIMITERS_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;[/\:\-\,\s\_\+\@]+&#39;</span>
+    <span class="n">TIME_PERIOD_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;a\.m\.|am|p\.m\.|pm&#39;</span>
+    <span class="c1">## can be in date strings but not recognized by dateparser</span>
+    <span class="n">EXTRA_TOKENS_PATTERN</span> <span class="o">=</span> <span class="s1">&#39;due|by|on|standard|daylight|savings|time|date|year|of|to|until|z|at&#39;</span>
+
+    <span class="c1">## Time pattern is used independently, so specified here.</span>
+    <span class="n">TIME_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    (?P&lt;time&gt;</span>
+<span class="s2">        ## Captures in format XX:YY(:ZZ) (PM) (EST)</span>
+<span class="s2">        (</span>
+<span class="s2">            (?P&lt;hours&gt;\d{{1,2}})</span>
+<span class="s2">            \:</span>
+<span class="s2">            (?P&lt;minutes&gt;\d{{1,2}})</span>
+<span class="s2">            (\:(?&lt;seconds&gt;\d{{1,2}}))?</span>
+<span class="s2">            \s*</span>
+<span class="s2">            (?P&lt;time_periods&gt;{time_periods})?</span>
+<span class="s2">            \s*</span>
+<span class="s2">            (?P&lt;timezones&gt;{timezones})?</span>
+<span class="s2">        )</span>
+<span class="s2">        |</span>
+<span class="s2">        ## Captures in format 11 AM (EST)</span>
+<span class="s2">        ## Note with single digit capture requires time period</span>
+<span class="s2">        (</span>
+<span class="s2">            (?P&lt;hours&gt;\d{{1,2}})</span>
+<span class="s2">            \s*</span>
+<span class="s2">            (?P&lt;time_periods&gt;{time_periods})</span>
+<span class="s2">            \s*</span>
+<span class="s2">            (?P&lt;timezones&gt;{timezones})*</span>
+<span class="s2">        )</span>
+<span class="s2">    )</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">time_periods</span><span class="o">=</span><span class="n">TIME_PERIOD_PATTERN</span><span class="p">,</span>
+        <span class="n">timezones</span><span class="o">=</span><span class="n">TIMEZONES_PATTERN</span>
+    <span class="p">)</span>
+
+    <span class="n">DATES_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    (</span>
+<span class="s2">        (</span>
+<span class="s2">            {time}</span>
+<span class="s2">            |</span>
+<span class="s2">            ## Grab any digits</span>
+<span class="s2">            (?P&lt;digits_modifier&gt;{digits_modifier})</span>
+<span class="s2">            |</span>
+<span class="s2">            (?P&lt;digits&gt;{digits})</span>
+<span class="s2">            |</span>
+<span class="s2">            (?P&lt;days&gt;{days})</span>
+<span class="s2">            |</span>
+<span class="s2">            (?P&lt;months&gt;{months})</span>
+<span class="s2">            |</span>
+<span class="s2">            ## Delimiters, ie Tuesday[,] July 18 or 6[/]17[/]2008</span>
+<span class="s2">            ## as well as whitespace</span>
+<span class="s2">            (?P&lt;delimiters&gt;{delimiters})</span>
+<span class="s2">            |</span>
+<span class="s2">            ## These tokens could be in phrases that dateparser does not yet recognize</span>
+<span class="s2">            ## Some are US Centric</span>
+<span class="s2">            (?P&lt;extra_tokens&gt;{extra_tokens})</span>
+<span class="s2">        ## We need at least three items to match for minimal datetime parsing</span>
+<span class="s2">        ## ie 10pm</span>
+<span class="s2">        ){{3,}}</span>
+<span class="s2">    )</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="n">DATES_PATTERN</span> <span class="o">=</span> <span class="n">DATES_PATTERN</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">time</span><span class="o">=</span><span class="n">TIME_PATTERN</span><span class="p">,</span>
+        <span class="n">digits</span><span class="o">=</span><span class="n">DIGITS_PATTERN</span><span class="p">,</span>
+        <span class="n">digits_modifier</span><span class="o">=</span><span class="n">DIGITS_MODIFIER_PATTERN</span><span class="p">,</span>
+        <span class="n">days</span><span class="o">=</span><span class="n">DAYS_PATTERN</span><span class="p">,</span>
+        <span class="n">months</span><span class="o">=</span><span class="n">MONTHS_PATTERN</span><span class="p">,</span>
+        <span class="n">delimiters</span><span class="o">=</span><span class="n">DELIMITERS_PATTERN</span><span class="p">,</span>
+        <span class="n">extra_tokens</span><span class="o">=</span><span class="n">EXTRA_TOKENS_PATTERN</span>
+    <span class="p">)</span>
+
+    <span class="n">DATE_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">DATES_PATTERN</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">UNICODE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+    <span class="n">TIME_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">TIME_PATTERN</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">UNICODE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+    <span class="c1">## These tokens can be in original text but dateparser</span>
+    <span class="c1">## won&#39;t handle them without modification</span>
+    <span class="n">REPLACEMENTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;pacific&quot;</span><span class="p">:</span> <span class="s2">&quot;pst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eastern&quot;</span><span class="p">:</span> <span class="s2">&quot;est&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mountain&quot;</span><span class="p">:</span> <span class="s2">&quot;mst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;central&quot;</span><span class="p">:</span> <span class="s2">&quot;cst&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;standard&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;daylight&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;savings&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;by&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;due&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;on&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;,&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1">## Characters that can be removed from ends of matched strings</span>
+    <span class="n">STRIP_CHARS</span> <span class="o">=</span> <span class="s1">&#39; </span><span class="se">\n\t</span><span class="s1">:-.,_&#39;</span>
+
+    <span class="k">def</span> <span class="nf">find_dates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">date_string</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_date_strings</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">):</span>
+
+            <span class="n">as_dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="n">date_string</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">as_dt</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="c1">## Dateparser couldn&#39;t make heads or tails of it</span>
+                <span class="c1">## move on to next</span>
+                <span class="k">continue</span>
+
+            <span class="n">returnables</span> <span class="o">=</span> <span class="p">(</span><span class="n">as_dt</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">source</span><span class="p">:</span>
+                <span class="n">returnables</span> <span class="o">=</span> <span class="n">returnables</span> <span class="o">+</span> <span class="p">(</span><span class="n">date_string</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
+                <span class="n">returnables</span> <span class="o">=</span> <span class="n">returnables</span> <span class="o">+</span> <span class="p">(</span><span class="n">indices</span><span class="p">,)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">returnables</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">returnables</span> <span class="o">=</span> <span class="n">returnables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">yield</span> <span class="n">returnables</span>
+
+    <span class="k">def</span> <span class="nf">parse_date_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_string</span><span class="p">):</span>
+            <span class="c1">## replace strings which are allowable to help us match but for which dateparser can&#39;t read</span>
+            <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_string</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">replacement</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPLACEMENTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">replacement</span><span class="p">)</span>
+
+            <span class="c1">## One last sweep after removing</span>
+            <span class="n">date_string</span> <span class="o">=</span> <span class="n">date_string</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">STRIP_CHARS</span><span class="p">)</span>
+            <span class="c1">## Match strings must be at least 3 characters long</span>
+            <span class="c1">## &lt; 3 tends to be garbage</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_string</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">as_dt</span> <span class="o">=</span> <span class="n">dateparser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">date_string</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">as_dt</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">extract_date_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scans text for possible datetime strings and extracts them</span>
+
+<span class="sd">        source: also return the original date string</span>
+<span class="sd">        index: also return the indices of the date string in the text</span>
+<span class="sd">        strict: Strict mode will only return dates sourced with day, month, and year</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATE_REGEX</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">match_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1">## Get individual group matches</span>
+            <span class="n">captures</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">capturesdict</span><span class="p">()</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+            <span class="n">digits</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;digits&#39;</span><span class="p">)</span>
+            <span class="n">digits_modifiers</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;digits_modifiers&#39;</span><span class="p">)</span>
+            <span class="n">days</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;days&#39;</span><span class="p">)</span>
+            <span class="n">months</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;months&#39;</span><span class="p">)</span>
+            <span class="n">timezones</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timezones&#39;</span><span class="p">)</span>
+            <span class="n">delimiters</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;delimiters&#39;</span><span class="p">)</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time)&#39;</span><span class="p">)</span>
+            <span class="n">time_periods</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;time_periods&#39;</span><span class="p">)</span>
+            <span class="n">extra_tokens</span> <span class="o">=</span> <span class="n">captures</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;extra_tokens&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">strict</span><span class="p">:</span>
+                <span class="n">complete</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="c1">## 12-05-2015</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">complete</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="c1">## 19 February 2013 year 09:10</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="n">complete</span> <span class="o">=</span> <span class="bp">True</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">complete</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+            <span class="c1">## sanitize date string</span>
+            <span class="c1">## replace unhelpful whitespace characters with single whitespace</span>
+            <span class="n">match_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[</span><span class="se">\n\t</span><span class="s1">\s</span><span class="se">\xa0</span><span class="s1">]+&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">match_str</span><span class="p">)</span>
+            <span class="n">match_str</span> <span class="o">=</span> <span class="n">match_str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">STRIP_CHARS</span><span class="p">)</span>
+
+            <span class="c1">## Save sanitized source string</span>
+            <span class="k">yield</span> <span class="n">match_str</span><span class="p">,</span> <span class="n">indices</span>
+
+
+<div class="viewcode-block" id="find_dates"><a class="viewcode-back" href="../index.html#datefinder.find_dates">[docs]</a><span class="k">def</span> <span class="nf">find_dates</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract datetime strings from text</span>
+
+<span class="sd">    :param text:</span>
+<span class="sd">        A string that contains one or more natural language or literal</span>
+<span class="sd">        datetime strings</span>
+<span class="sd">    :type text: str|unicode</span>
+<span class="sd">    :param source:</span>
+<span class="sd">        Return the original string segment</span>
+<span class="sd">    :type source: boolean</span>
+<span class="sd">    :param index:</span>
+<span class="sd">        Return the indices where the datetime string was located in text</span>
+<span class="sd">    :type index: boolean</span>
+<span class="sd">    :param strict:</span>
+<span class="sd">        Only return datetimes with complete date information. For example:</span>
+<span class="sd">        `July 2016` of `Monday` will not return datetimes.</span>
+<span class="sd">        `May 16, 2015` will return datetimes.</span>
+<span class="sd">    :type strict: boolean</span>
+
+<span class="sd">    :return: Returns a generator that produces :mod:`datetime.datetime` objects,</span>
+<span class="sd">        or a tuple with the source text and index, if requested</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date_finder</span> <span class="o">=</span> <span class="n">DateFinder</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">date_finder</span><span class="o">.</span><span class="n">find_dates</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Alec Koumjian, Greg Corradini.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,6 +1,5 @@
 import copy
 import dateparser
-# import re
 import regex as re
 from dateutil import tz
 
@@ -26,6 +25,7 @@ class DateFinder():
     ## Time pattern is used independently, so specified here.
     TIME_PATTERN = """
     (?P<time>
+        ## Captures in format XX:YY(:ZZ) (PM) (EST)
         (
             (?P<hours>\d{{1,2}})
             \:
@@ -37,6 +37,8 @@ class DateFinder():
             (?P<timezones>{timezones})?
         )
         |
+        ## Captures in format 11 AM (EST)
+        ## Note with single digit capture requires time period
         (
             (?P<hours>\d{{1,2}})
             \s*
@@ -212,12 +214,7 @@ class DateFinder():
             match_str = match.group(0)
             indices = match.span(0)
 
-            ## If strict, only match input strings that
-
-            # if strict:
-                # complete = False
-
-                ## Get individual group matches
+            ## Get individual group matches
             captures = match.capturesdict()
             time = captures.get('time')
             digits = captures.get('digits')
@@ -253,7 +250,26 @@ class DateFinder():
 
 def find_dates(text, source=False, index=False, strict=False):
     """
-    Create a top level function to for basic API accessibility
+    Extract datetime strings from text
+
+    :param text:
+        A string that contains one or more natural language or literal
+        datetime strings
+    :type text: str|unicode
+    :param source:
+        Return the original string segment
+    :type source: boolean
+    :param index:
+        Return the indices where the datetime string was located in text
+    :type index: boolean
+    :param strict:
+        Only return datetimes with complete date information. For example:
+        `July 2016` of `Monday` will not return datetimes.
+        `May 16, 2015` will return datetimes.
+    :type strict: boolean
+
+    :return: Returns a generator that produces :mod:`datetime.datetime` objects,
+        or a tuple with the source text and index, if requested
     """
     date_finder = DateFinder()
     return date_finder.find_dates(text, source=source, index=index, strict=strict)

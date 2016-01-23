@@ -1,5 +1,18 @@
-datefinder
-==========
+datefinder - extract dates from text
+====================================
+
+.. image:: https://img.shields.io/travis/akoumjian/datefinder/master.svg
+    :target: https://travis-ci.org/akoumjian/datefinder
+    :alt: travis build status
+
+.. image:: https://img.shields.io/pypi/dm/datefinder.svg
+    :target: https://pypi.python.org/pypi/datefinder/
+    :alt: pypi downloads per day
+
+.. image:: https://img.shields.io/pypi/v/datefinder.svg
+    :target: https://pypi.python.org/pypi/datefinder
+    :alt: pypi version
+
 
 A module for locating dates inside text. Use this package to extract all sorts 
 of date like strings from a document and turn them into datetime objects.
@@ -12,7 +25,6 @@ to the datetime object.
 Installation
 ------------
 
-
 .. code-block::
 
     pip install datefinder
@@ -20,6 +32,11 @@ Installation
 
 How to Use
 ----------
+
+
+.. automodule:: datefinder
+   :members: find_dates
+
 
 .. code-block:: python
 
