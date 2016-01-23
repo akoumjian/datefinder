@@ -19,3 +19,24 @@ def test_extract_date_strings(date_string, expected_match_date_string):
         logger.debug("acutal={}  expected={}".format(actual_date_string, expected_match_date_string))
         assert actual_date_string == expected_match_date_string
         assert len(captures.get('timezones',[])) > 0
+
+
+@pytest.mark.parametrize('date_string, expected_match_date_string', [
+    ['the Friday after next Tuesday the 20th', ''], # no matches
+    ['This Tuesday March 2015 in the evening', ''], # no matches
+    ['They said it was on 01-03-2015', 'on 01-03-2015'], # 3 digits strict match
+    ['May 20th 2015 is nowhere near the other date', 'May 20 2015'], # one month two digit match
+])
+def test_extract_date_strings(date_string, expected_match_date_string):
+    """
+    make sure that `strict` mode works for the dates we care about
+    and doesn't work for others
+
+    :param date_string:
+    :param expected_match_date_string:
+    :return:
+    """
+    dt = datefinder.DateFinder()
+    for actual_date_string, indexes, captures in dt.extract_date_strings(date_string,strict=True):
+        logger.debug("acutal={}  expected={}".format(actual_date_string, expected_match_date_string))
+        assert actual_date_string == expected_match_date_string
