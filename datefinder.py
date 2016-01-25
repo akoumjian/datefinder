@@ -1,5 +1,6 @@
 import dateparser
 import regex as re
+from dateutil import tz
 
 
 class DateFinder():
@@ -11,7 +12,7 @@ class DateFinder():
     DIGITS_PATTERN = '\d+'
     DAYS_PATTERN = 'monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thur|thurs|fri|sat|sun'
     MONTHS_PATTERN = 'january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec'
-    TIMEZONES_PATTERN = '\sACDT|\sACST|\sACT|\sACWDT|\sACWST|\sADDT|\sADMT|\sADT|\sAEDT|\sAEST|\sAFT|\sAHDT|\sAHST|\sAKDT|\sAKST|\sAKTST|\sAKTT|\sALMST|\sALMT|\sAMST|\sAMT|\sANAST|\sANAT|\sANT|\sAPT|\sAQTST|\sAQTT|\sARST|\sART|\sASHST|\sASHT|\sAST|\sAWDT|\sAWST|\sAWT|\sAZOMT|\sAZOST|\sAZOT|\sAZST|\sAZT|\sBAKST|\sBAKT|\sBDST|\sBDT|\sBEAT|\sBEAUT|\sBIOT|\sBMT|\sBNT|\sBORT|\sBOST|\sBOT|\sBRST|\sBRT|\sBST|\sBTT|\sBURT|\sCANT|\sCAPT|\sCAST|\sCAT|\sCAWT|\sCCT|\sCDDT|\sCDT|\sCEDT|\sCEMT|\sCEST|\sCET|\sCGST|\sCGT|\sCHADT|\sCHAST|\sCHDT|\sCHOST|\sCHOT|\sCIST|\sCKHST|\sCKT|\sCLST|\sCLT|\sCMT|\sCOST|\sCOT|\sCPT|\sCST|\sCUT|\sCVST|\sCVT|\sCWT|\sCXT|\sChST|\sDACT|\sDAVT|\sDDUT|\sDFT|\sDMT|\sDUSST|\sDUST|\sEASST|\sEAST|\sEAT|\sECT|\sEDDT|\sEDT|\sEEDT|\sEEST|\sEET|\sEGST|\sEGT|\sEHDT|\sEMT|\sEPT|\sEST|\sET|\sEWT|\sFET|\sFFMT|\sFJST|\sFJT|\sFKST|\sFKT|\sFMT|\sFNST|\sFNT|\sFORT|\sFRUST|\sFRUT|\sGALT|\sGAMT|\sGBGT|\sGEST|\sGET|\sGFT|\sGHST|\sGILT|\sGIT|\sGMT|\sGST|\sGYT|\sHAA|\sHAC|\sHADT|\sHAE|\sHAP|\sHAR|\sHAST|\sHAT|\sHAY|\sHDT|\sHKST|\sHKT|\sHLV|\sHMT|\sHNA|\sHNC|\sHNE|\sHNP|\sHNR|\sHNT|\sHNY|\sHOVST|\sHOVT|\sHST|\sICT|\sIDDT|\sIDT|\sIHST|\sIMT|\sIOT|\sIRDT|\sIRKST|\sIRKT|\sIRST|\sISST|\sIST|\sJAVT|\sJCST|\sJDT|\sJMT|\sJST|\sJWST|\sKART|\sKDT|\sKGST|\sKGT|\sKIZST|\sKIZT|\sKMT|\sKOST|\sKRAST|\sKRAT|\sKST|\sKUYST|\sKUYT|\sKWAT|\sLHDT|\sLHST|\sLINT|\sLKT|\sLMT|\sLMT|\sLMT|\sLMT|\sLRT|\sLST|\sMADMT|\sMADST|\sMADT|\sMAGST|\sMAGT|\sMALST|\sMALT|\sMART|\sMAWT|\sMDDT|\sMDST|\sMDT|\sMEST|\sMET|\sMHT|\sMIST|\sMIT|\sMMT|\sMOST|\sMOT|\sMPT|\sMSD|\sMSK|\sMSM|\sMST|\sMUST|\sMUT|\sMVT|\sMWT|\sMYT|\sNCST|\sNCT|\sNDDT|\sNDT|\sNEGT|\sNEST|\sNET|\sNFT|\sNMT|\sNOVST|\sNOVT|\sNPT|\sNRT|\sNST|\sNT|\sNUT|\sNWT|\sNZDT|\sNZMT|\sNZST|\sOMSST|\sOMST|\sORAST|\sORAT|\sPDDT|\sPDT|\sPEST|\sPET|\sPETST|\sPETT|\sPGT|\sPHOT|\sPHST|\sPHT|\sPKST|\sPKT|\sPLMT|\sPMDT|\sPMMT|\sPMST|\sPMT|\sPNT|\sPONT|\sPPMT|\sPPT|\sPST|\sPT|\sPWT|\sPYST|\sPYT|\sQMT|\sQYZST|\sQYZT|\sRET|\sRMT|\sROTT|\sSAKST|\sSAKT|\sSAMT|\sSAST|\sSBT|\sSCT|\sSDMT|\sSDT|\sSET|\sSGT|\sSHEST|\sSHET|\sSJMT|\sSLT|\sSMT|\sSRET|\sSRT|\sSST|\sSTAT|\sSVEST|\sSVET|\sSWAT|\sSYOT|\sTAHT|\sTASST|\sTAST|\sTBIST|\sTBIT|\sTBMT|\sTFT|\sTHA|\sTJT|\sTKT|\sTLT|\sTMT|\sTOST|\sTOT|\sTRST|\sTRT|\sTSAT|\sTVT|\sULAST|\sULAT|\sURAST|\sURAT|\sUTC|\sUYHST|\sUYST|\sUYT|\sUZST|\sUZT|\sVET|\sVLAST|\sVLAT|\sVOLST|\sVOLT|\sVOST|\sVUST|\sVUT|\sWARST|\sWART|\sWAST|\sWAT|\sWDT|\sWEDT|\sWEMT|\sWEST|\sWET|\sWFT|\sWGST|\sWGT|\sWIB|\sWIT|\sWITA|\sWMT|\sWSDT|\sWSST|\sWST|\sWT|\sXJT|\sYAKST|\sYAKT|\sYAPT|\sYDDT|\sYDT|\sYEKST|\sYEKST|\sYEKT|\sYEKT|\sYERST|\sYERT|\sYPT|\sYST|\sYWT|\szzz'
+    TIMEZONES_PATTERN = 'ACDT|ACST|ACT|ACWDT|ACWST|ADDT|ADMT|ADT|AEDT|AEST|AFT|AHDT|AHST|AKDT|AKST|AKTST|AKTT|ALMST|ALMT|AMST|AMT|ANAST|ANAT|ANT|APT|AQTST|AQTT|ARST|ART|ASHST|ASHT|AST|AWDT|AWST|AWT|AZOMT|AZOST|AZOT|AZST|AZT|BAKST|BAKT|BDST|BDT|BEAT|BEAUT|BIOT|BMT|BNT|BORT|BOST|BOT|BRST|BRT|BST|BTT|BURT|CANT|CAPT|CAST|CAT|CAWT|CCT|CDDT|CDT|CEDT|CEMT|CEST|CET|CGST|CGT|CHADT|CHAST|CHDT|CHOST|CHOT|CIST|CKHST|CKT|CLST|CLT|CMT|COST|COT|CPT|CST|CUT|CVST|CVT|CWT|CXT|ChST|DACT|DAVT|DDUT|DFT|DMT|DUSST|DUST|EASST|EAST|EAT|ECT|EDDT|EDT|EEDT|EEST|EET|EGST|EGT|EHDT|EMT|EPT|EST|ET|EWT|FET|FFMT|FJST|FJT|FKST|FKT|FMT|FNST|FNT|FORT|FRUST|FRUT|GALT|GAMT|GBGT|GEST|GET|GFT|GHST|GILT|GIT|GMT|GST|GYT|HAA|HAC|HADT|HAE|HAP|HAR|HAST|HAT|HAY|HDT|HKST|HKT|HLV|HMT|HNA|HNC|HNE|HNP|HNR|HNT|HNY|HOVST|HOVT|HST|ICT|IDDT|IDT|IHST|IMT|IOT|IRDT|IRKST|IRKT|IRST|ISST|IST|JAVT|JCST|JDT|JMT|JST|JWST|KART|KDT|KGST|KGT|KIZST|KIZT|KMT|KOST|KRAST|KRAT|KST|KUYST|KUYT|KWAT|LHDT|LHST|LINT|LKT|LMT|LMT|LMT|LMT|LRT|LST|MADMT|MADST|MADT|MAGST|MAGT|MALST|MALT|MART|MAWT|MDDT|MDST|MDT|MEST|MET|MHT|MIST|MIT|MMT|MOST|MOT|MPT|MSD|MSK|MSM|MST|MUST|MUT|MVT|MWT|MYT|NCST|NCT|NDDT|NDT|NEGT|NEST|NET|NFT|NMT|NOVST|NOVT|NPT|NRT|NST|NT|NUT|NWT|NZDT|NZMT|NZST|OMSST|OMST|ORAST|ORAT|PDDT|PDT|PEST|PET|PETST|PETT|PGT|PHOT|PHST|PHT|PKST|PKT|PLMT|PMDT|PMMT|PMST|PMT|PNT|PONT|PPMT|PPT|PST|PT|PWT|PYST|PYT|QMT|QYZST|QYZT|RET|RMT|ROTT|SAKST|SAKT|SAMT|SAST|SBT|SCT|SDMT|SDT|SET|SGT|SHEST|SHET|SJMT|SLT|SMT|SRET|SRT|SST|STAT|SVEST|SVET|SWAT|SYOT|TAHT|TASST|TAST|TBIST|TBIT|TBMT|TFT|THA|TJT|TKT|TLT|TMT|TOST|TOT|TRST|TRT|TSAT|TVT|ULAST|ULAT|URAST|URAT|UTC|UYHST|UYST|UYT|UZST|UZT|VET|VLAST|VLAT|VOLST|VOLT|VOST|VUST|VUT|WARST|WART|WAST|WAT|WDT|WEDT|WEMT|WEST|WET|WFT|WGST|WGT|WIB|WIT|WITA|WMT|WSDT|WSST|WST|WT|XJT|YAKST|YAKT|YAPT|YDDT|YDT|YEKST|YEKST|YEKT|YEKT|YERST|YERT|YPT|YST|YWT|zzz'
     ## explicit north american timezones that get replaced
     NA_TIMEZONES_PATTERN = 'pacific|eastern|mountain|central'
     ALL_TIMEZONES_PATTERN = TIMEZONES_PATTERN + '|' + NA_TIMEZONES_PATTERN
@@ -47,7 +48,7 @@ class DateFinder():
     )
     """.format(
         time_periods=TIME_PERIOD_PATTERN,
-        timezones=TIMEZONES_PATTERN
+        timezones=ALL_TIMEZONES_PATTERN
     )
 
     DATES_PATTERN = """
@@ -94,10 +95,6 @@ class DateFinder():
     ## These tokens can be in original text but dateparser
     ## won't handle them without modification
     REPLACEMENTS = {
-        "pacific": "pst",
-        "eastern": "est",
-        "mountain": "mst",
-        "central": "cst",
         "standard": "",
         "daylight": "",
         "savings": "",
@@ -109,14 +106,21 @@ class DateFinder():
         ",": "",
     }
 
+    TIMEZONE_REPLACEMENTS = {
+        "pacific": "PST",
+        "eastern": "EST",
+        "mountain": "MST",
+        "central": "CST",
+    }
+
     ## Characters that can be removed from ends of matched strings
     STRIP_CHARS = ' \n\t:-.,_'
 
     def find_dates(self, text, source=False, index=False, strict=False):
 
-        for date_string, indices in self.extract_date_strings(text, strict=strict):
+        for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
 
-            as_dt = self.parse_date_string(date_string)
+            as_dt = self.parse_date_string(date_string,captures)
             if as_dt is None:
                 ## Dateparser couldn't make heads or tails of it
                 ## move on to next
@@ -132,20 +136,67 @@ class DateFinder():
                 returnables = returnables[0]
             yield returnables
 
-    def parse_date_string(self, date_string):
-            ## replace strings which are allowable to help us match but for which dateparser can't read
-            date_string = date_string.lower()
-            for key, replacement in self.REPLACEMENTS.items():
-                date_string = date_string.replace(key, replacement)
+    def _find_and_replace(self, date_string, captures):
+        """
+        replace strings which helped us do matching but dateparser can't read.
+        also replace captured timezones and return tz_string separately
+        so that dateparser.parse doesn't do weirdo auto tzoffset conversions
+        https://github.com/scrapinghub/dateparser/blob/master/dateparser/timezone_parser.py#L19
 
-            ## One last sweep after removing
-            date_string = date_string.strip(self.STRIP_CHARS)
-            ## Match strings must be at least 3 characters long
-            ## < 3 tends to be garbage
-            if len(date_string) > 3:
-                as_dt = dateparser.parse(date_string)
-                return as_dt
+        :warning: when multiple tz matches exist the last sorted capture will trump
+        :param date_string:
+        :return: date_string, tz_string
+        """
+
+        # add timezones to replace
+        for tz_string in captures.get('timezones',[]):
+            self.REPLACEMENTS.update({tz_string:''})
+
+        date_string = date_string.lower()
+        for key, replacement in self.REPLACEMENTS.items():
+            date_string = re.sub(key,replacement,date_string,flags=re.IGNORECASE)
+
+        return date_string, self._pop_tz_string(sorted(captures.get('timezones',[])))
+
+
+    def _pop_tz_string(self, list_of_timezones):
+        try:
+            tz_string = list_of_timezones.pop()
+            # make sure it's not a timezone we
+            # want replaced with better abbreviation
+            return self.TIMEZONE_REPLACEMENTS.get(tz_string, tz_string)
+        except IndexError:
+            return ''
+
+    def _add_tzinfo(self, datetime_obj, tz_string):
+        """
+        take a naive datetime and add dateutil.tz.tzinfo object
+
+        :param datetime_obj: naive datetime object
+        :return: datetime object with tzinfo
+        """
+        if datetime_obj is None:
             return None
+
+        tzinfo_match = tz.gettz(tz_string)
+        return datetime_obj.replace(tzinfo=tzinfo_match)
+
+
+    def parse_date_string(self, date_string, captures):
+        # replace tokens that are problematic for dateparser
+        date_string, tz_string = self._find_and_replace(date_string, captures)
+
+        ## One last sweep after removing
+        date_string = date_string.strip(self.STRIP_CHARS)
+        ## Match strings must be at least 3 characters long
+        ## < 3 tends to be garbage
+        if len(date_string) < 3:
+            return None
+
+        as_dt = dateparser.parse(date_string)
+        if tz_string:
+            as_dt = self._add_tzinfo(as_dt,tz_string)
+        return as_dt
 
     def extract_date_strings(self, text, strict=False):
         """
@@ -190,7 +241,7 @@ class DateFinder():
             match_str = match_str.strip(self.STRIP_CHARS)
 
             ## Save sanitized source string
-            yield match_str, indices
+            yield match_str, indices, captures
 
 
 def find_dates(text, source=False, index=False, strict=False):

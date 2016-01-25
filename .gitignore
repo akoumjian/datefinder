@@ -7,6 +7,8 @@ dist/
 __pycache__/
 *.so
 *~
+venv/
+.idea/
 
 # due to using tox and pytest
 .tox
