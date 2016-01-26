@@ -41,13 +41,16 @@
 <a class="reference external image-reference" href="https://travis-ci.org/akoumjian/datefinder"><img alt="travis build status" src="https://img.shields.io/travis/akoumjian/datefinder/master.svg" /></a>
 <a class="reference external image-reference" href="https://pypi.python.org/pypi/datefinder/"><img alt="pypi downloads per day" src="https://img.shields.io/pypi/dm/datefinder.svg" /></a>
 <a class="reference external image-reference" href="https://pypi.python.org/pypi/datefinder"><img alt="pypi version" src="https://img.shields.io/pypi/v/datefinder.svg" /></a>
-<p>A module for locating dates inside text. Use this package to extract all sorts
+<p>A python module for locating dates inside text. Use this package to extract all sorts
 of date like strings from a document and turn them into datetime objects.</p>
 <p>This module finds the likely datetime strings and then uses the
 <a class="reference external" href="https://github.com/scrapinghub/dateparser">dateparser</a> package to convert
 to the datetime object.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh"><div class="highlight"><pre>pip install datefinder
+</pre></div>
+</div>
 </div>
 <div class="section" id="module-datefinder">
 <span id="how-to-use"></span><h2>How to Use<a class="headerlink" href="#module-datefinder" title="Permalink to this headline">¶</a></h2>
@@ -78,16 +81,23 @@ or a tuple with the source text and index, if requested</p>
 </table>
 </dd></dl>
 
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">datefinder</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">matches</span> <span class="o">=</span> <span class="n">datefinder</span><span class="o">.</span><span class="n">find_dates</span><span class="p">(</span><span class="n">string_with_dates</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">string_with_dates</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">   ...: ...</span>
+<span class="s2">   ...: entries are due by January 4th, 2017 at 8:00pm</span>
+<span class="s2">   ...: ...</span>
+<span class="s2">   ...: created 01/15/2005 by ACME Inc. and associates.</span>
+<span class="s2">   ...: ...</span>
+<span class="s2">   ...: &quot;&quot;&quot;</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-<span class="go">    print match</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">datefinder</span>
 
-<span class="go">2016-01-13 11:00:00</span>
-<span class="go">2016-01-05 00:00:00</span>
-<span class="go">2014-01-02 00:00:00</span>
-<span class="go">2014-01-02 00:00:00</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">matches</span> <span class="o">=</span> <span class="n">datefinder</span><span class="o">.</span><span class="n">find_dates</span><span class="p">(</span><span class="n">string_with_dates</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">print</span> <span class="n">match</span>
+   <span class="o">...</span><span class="p">:</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mo">04</span> <span class="mi">20</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mo">00</span>
+<span class="mi">2005</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mi">15</span> <span class="mo">00</span><span class="p">:</span><span class="mo">00</span><span class="p">:</span><span class="mo">00</span>
 </pre></div>
 </div>
 </div>
