@@ -1,3 +1,4 @@
+import copy
 import dateparser
 import regex as re
 from dateutil import tz
@@ -148,12 +149,14 @@ class DateFinder():
         :return: date_string, tz_string
         """
 
+
         # add timezones to replace
+        cloned_replacements = copy.copy(self.REPLACEMENTS) # don't mutate
         for tz_string in captures.get('timezones',[]):
-            self.REPLACEMENTS.update({tz_string:''})
+            cloned_replacements.update({tz_string:''})
 
         date_string = date_string.lower()
-        for key, replacement in self.REPLACEMENTS.items():
+        for key, replacement in cloned_replacements.items():
             date_string = re.sub(key,replacement,date_string,flags=re.IGNORECASE)
 
         return date_string, self._pop_tz_string(sorted(captures.get('timezones',[])))
