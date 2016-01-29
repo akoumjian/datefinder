@@ -4,7 +4,7 @@ import regex as re
 from dateutil import tz
 
 
-class DateFinder():
+class DateFinder(object):
     """
     Locates dates in a text
     """
