@@ -58,3 +58,9 @@ How to Use
     2017-01-04 20:00:00
     2005-01-15 00:00:00
 
+
+Support
+-------
+
+You can talk to us on `Freenode IRC #python-datefinder <https://webchat.freenode.net/?channels=python-datefinder>`_ or just submit an issue on `github <https://github.com/akoumjian/datefinder/issues/>`_. 
+
