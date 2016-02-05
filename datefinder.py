@@ -121,7 +121,7 @@ class DateFinder(object):
 
         for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
 
-            as_dt = self.parse_date_string(date_string,captures)
+            as_dt = self.parse_date_string(date_string, captures)
             if as_dt is None:
                 ## Dateparser couldn't make heads or tails of it
                 ## move on to next
@@ -151,16 +151,15 @@ class DateFinder(object):
 
 
         # add timezones to replace
-        cloned_replacements = copy.copy(self.REPLACEMENTS) # don't mutate
-        for tz_string in captures.get('timezones',[]):
-            cloned_replacements.update({tz_string:''})
+        cloned_replacements = copy.copy(self.REPLACEMENTS)  ## don't mutate
+        for tz_string in captures.get('timezones', []):
+            cloned_replacements.update({tz_string: ''})
 
         date_string = date_string.lower()
         for key, replacement in cloned_replacements.items():
-            date_string = re.sub(key,replacement,date_string,flags=re.IGNORECASE)
+            date_string = re.sub(key,replacement, date_string, flags=re.IGNORECASE)
 
-        return date_string, self._pop_tz_string(sorted(captures.get('timezones',[])))
-
+        return date_string, self._pop_tz_string(sorted(captures.get('timezones', [])))
 
     def _pop_tz_string(self, list_of_timezones):
         try:
@@ -184,7 +183,6 @@ class DateFinder(object):
         tzinfo_match = tz.gettz(tz_string)
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
-
     def parse_date_string(self, date_string, captures):
         # replace tokens that are problematic for dateparser
         date_string, tz_string = self._find_and_replace(date_string, captures)
@@ -198,7 +196,7 @@ class DateFinder(object):
 
         as_dt = dateparser.parse(date_string)
         if tz_string:
-            as_dt = self._add_tzinfo(as_dt,tz_string)
+            as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt
 
     def extract_date_strings(self, text, strict=False):
