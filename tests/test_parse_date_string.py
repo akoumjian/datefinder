@@ -1,7 +1,7 @@
 import pytest
 import datefinder
 import dateparser
-from dateutil import tz
+from dateutil import tz, parser
 from datetime import datetime
 try:
     from unittest import mock
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
     ('Friday pAcific stanDard time',
     'friday',
     {'timezones':['pacific']},
-    dateparser.parse('friday').replace(tzinfo=tz.gettz('PST'))
+    parser.parse('friday').replace(tzinfo=tz.gettz('PST'))
     ),
     ('13/03/2014 Central Daylight Savings Time',
     '13/03/2014',
@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 ])
 def test_parse_date_string_find_replace(date_string, expected_parse_arg, expected_captures, expected_date):
     dt = datefinder.DateFinder()
-    with mock.patch.object(dateparser, 'parse', wraps=dateparser.parse) as spy:
+    with mock.patch.object(parser, 'parse', wraps=parser.parse) as spy:
         actual_datetime = dt.parse_date_string(date_string, expected_captures)
         spy.assert_called_with(expected_parse_arg)
         logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))

@@ -1,7 +1,7 @@
 import copy
 import dateparser
 import regex as re
-from dateutil import tz
+from dateutil import tz, parser
 
 
 class DateFinder(object):
@@ -202,7 +202,8 @@ class DateFinder(object):
         if len(date_string) < 3:
             return None
 
-        as_dt = dateparser.parse(date_string)
+        # as_dt = dateparser.parse(date_string)
+        as_dt = parser.parse(date_string)
         if tz_string:
             as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt
