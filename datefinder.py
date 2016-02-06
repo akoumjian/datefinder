@@ -20,7 +20,15 @@ class DateFinder(object):
     DELIMITERS_PATTERN = '[/\:\-\,\s\_\+\@]+'
     TIME_PERIOD_PATTERN = 'a\.m\.|am|p\.m\.|pm'
     ## can be in date strings but not recognized by dateparser
-    EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|year|of|to|until|z|at'
+    EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|of|to|until|z|at|t'
+
+    ## TODO: Get english numbers?
+    ## http://www.rexegg.com/regex-trick-numbers-in-english.html
+
+    RELATIVE_PATTERN = 'before|after|next|last|ago'
+    TIME_SHORTHAND_PATTERN = 'noon|midnight|today|yesterday'
+    UNIT_PATTERN = 'second|minute|hour|day|week|month|year'
+
 
     ## Time pattern is used independently, so specified here.
     TIME_PATTERN = """
