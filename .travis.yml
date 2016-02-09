@@ -8,10 +8,11 @@ python:
   - "3.5"
   - "3.5-dev" # 3.5 development branch
   - "nightly" # currently points to 3.6-dev
+before_install:
+  - export TZ=America/Los_Angeles
+before_script:
+  - export TZ=America/Los_Angeles
 # command to install dependencies
 install: "python setup.py install"
-before_script:
-  - echo 'America/Los_Angeles' | sudo tee /etc/timezone
-  - sudo dpkg-reconfigure --frontend noninteractive tzdata
 # command to run tests
 script: py.test
