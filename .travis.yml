@@ -10,9 +10,8 @@ python:
   - "nightly" # currently points to 3.6-dev
 # command to install dependencies
 install: "python setup.py install"
-before_script:
-  - echo 'America/Los_Angeles' | sudo tee /etc/timezone
-  - sudo dpkg-reconfigure --frontend noninteractive tzdata
-  - sudo ntpdate ntp.ubuntu.com
+before_install:
+  - export TZ=America/Los_Angeles
+  - date
 # command to run tests
 script: py.test
