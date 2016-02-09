@@ -8,12 +8,6 @@ python:
   - "3.5"
   - "3.5-dev" # 3.5 development branch
   - "nightly" # currently points to 3.6-dev
-before_install:
-  - sudo rm /etc/localtime
-  - sudo ln -s /usr/share/zoneinfo/US/Pacific /etc/localtime
-before_script:
-  - sudo rm /etc/localtime
-  - sudo ln -s /usr/share/zoneinfo/US/Pacific /etc/localtime
 # command to install dependencies
 install: "python setup.py install"
 # command to run tests
