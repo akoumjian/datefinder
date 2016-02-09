@@ -12,3 +12,5 @@ python:
 install: "python setup.py install"
 # command to run tests
 script: py.test
+before_install:
+- export TZ=America/Los_Angeles
