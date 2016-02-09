@@ -10,8 +10,7 @@ python:
   - "nightly" # currently points to 3.6-dev
 # command to install dependencies
 install: "python setup.py install"
-before_install:
-  - export TZ=America/Los_Angeles
-  - date
+before_script:
+  - echo 'America/Los_Angeles' | sudo tee /etc/timezone
 # command to run tests
 script: py.test
