@@ -12,5 +12,6 @@ python:
 install: "python setup.py install"
 before_script:
   - echo 'America/Los_Angeles' | sudo tee /etc/timezone
+  - sudo dpkg-reconfigure --frontend noninteractive tzdata
 # command to run tests
 script: py.test
