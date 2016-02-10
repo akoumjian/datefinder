@@ -82,15 +82,15 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['dateparser', 'regex', 'python-dateutil'],
+    install_requires=['dateparser==0.3.2', 'regex==2016.01.10', 'python-dateutil==2.4.2'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['pytest', 'mock'],
-        'test': ['pytest', 'mock'],
+        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
+        'test': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
     },
 
     # If there are data files included in your packages that need to be
