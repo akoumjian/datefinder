@@ -39,21 +39,21 @@ logger = logging.getLogger(__name__)
         datetime(2015, 12, 24, 14, 0)
     ),
     # test a tz abbreviation that
-    # dateutil.tz.gettz cannot find
+    # dateutil.tz.gettz cannot find on ANY operating system
     # and will return None for
     (
-        ' on 11-20-2015 6pm CST ',
+        ' on 11-20-2015 6pm NATZABBRV ', # stands for 'not a timezone abbreviation'
         '11-20-2015 6pm',
-        { 'timezones': ['CST'] },
+        { 'timezones': ['NATZABBRV'] },
         datetime(2015, 11, 20, 18, 0)
     ),
     # test a tz abbreviation that
-    # dateutil.tz.gettz cannot find
+    # dateutil.tz.gettz cannot find on ANY operating system
     # and will return None for
     (
-        ' on 11-20-2015 6am IRST ',
+        ' on 11-20-2015 6am NATZABBRV ', # stands for 'not a timezone abbreviation'
         '11-20-2015 6am',
-        { 'timezones': ['IRST'] },
+        { 'timezones': ['NATZABBRV'] },
         datetime(2015, 11, 20, 6, 0)
     )
 ])
