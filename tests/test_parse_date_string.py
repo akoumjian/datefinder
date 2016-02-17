@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
         datetime(2015, 12, 24, 14, 0)
     ),
     # test a tz abbreviation that
-    # dateutile.tz.gettz cannot find
+    # dateutil.tz.gettz cannot find
     # and will return None for
     (
         ' on 11-20-2015 6pm CST ',
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
         datetime(2015, 11, 20, 18, 0)
     ),
     # test a tz abbreviation that
-    # dateutile.tz.gettz cannot find
+    # dateutil.tz.gettz cannot find
     # and will return None for
     (
         ' on 11-20-2015 6am IRST ',
