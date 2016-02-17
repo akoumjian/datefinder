@@ -1,15 +1,15 @@
-import re
-import pytz
-from datetime import datetime
-import dateparser
-from dateparser.timezone_parser import (
-    _tz_offsets,
-    local_tz_offset as my_local_os_tzoffset
-)
-import logging, sys
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logger = logging.getLogger(__name__)
-import pytest
+# import re
+# import pytz
+# from datetime import datetime
+# import dateparser
+# from dateparser.timezone_parser import (
+#     _tz_offsets,
+#     local_tz_offset as my_local_os_tzoffset
+# )
+# import logging, sys
+# logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+# logger = logging.getLogger(__name__)
+# import pytest
 
 
 # @pytest.mark.parametrize('date_string, expected_datetime',[
@@ -47,41 +47,41 @@ import pytest
 
 
 
-def expected_tz_conversion(datetime_obj, pytz_tzinfo_offset):
-    # keep the day and time, just give it tzinfo
-    return pytz_tzinfo_offset.localize(datetime_obj)
+# def expected_tz_conversion(datetime_obj, pytz_tzinfo_offset):
+#     # keep the day and time, just give it tzinfo
+#     return pytz_tzinfo_offset.localize(datetime_obj)
 
-@pytest.mark.parametrize('date_string, expected_datetime',[
-    ['13/03/2014 MST', datetime(2014, 3, 13, 0, 0).replace(tzinfo=pytz.timezone('MST')),]
-])
-def test_parse_with_expected_conversion(date_string, expected_datetime):
-    '''
-    parsing a date string such as "13/03/2014 MST" has many potential meanings.
-    one reasonable expectation would be to keep the day and time the same
-    and just add the tzinfo to the datetime object
-    '''
-    date_string, tzinfo_string = re.findall(r'[0-9\/]+',date_string)[0], re.findall(r'[a-zA-Z]+',date_string)[0]
-    datetime_obj = dateparser.parse(date_string)
-    assert expected_tz_conversion(datetime_obj, pytz.timezone(tzinfo_string)) == expected_datetime
-
-
+# @pytest.mark.parametrize('date_string, expected_datetime',[
+#     ['13/03/2014 MST', datetime(2014, 3, 13, 0, 0).replace(tzinfo=pytz.timezone('MST')),]
+# ])
+# def test_parse_with_expected_conversion(date_string, expected_datetime):
+#     '''
+#     parsing a date string such as "13/03/2014 MST" has many potential meanings.
+#     one reasonable expectation would be to keep the day and time the same
+#     and just add the tzinfo to the datetime object
+#     '''
+#     date_string, tzinfo_string = re.findall(r'[0-9\/]+',date_string)[0], re.findall(r'[a-zA-Z]+',date_string)[0]
+#     datetime_obj = dateparser.parse(date_string)
+#     assert expected_tz_conversion(datetime_obj, pytz.timezone(tzinfo_string)) == expected_datetime
 
 
-def another_expected_tz_conversion(datetime_obj, pytz_tzinfo_offset):
-    # use the subtraction operator to calc the tzinfo offset
-    datetime_obj_as_gmt = pytz.timezone('GMT').localize(datetime_obj)
-    return datetime_obj_as_gmt.astimezone(pytz_tzinfo_offset)
 
-@pytest.mark.parametrize('date_string, expected_datetime',[
-    ['13/03/2014 MST', datetime(2014, 3, 12, 17, 0).replace(tzinfo=pytz.timezone('MST')),]
-])
-def test_parse_with_another_expected_conversion(date_string, expected_datetime):
-    '''
-    parsing a date string such as "13/03/2014 MST" has many potential meanings.
-    another reasonable expectation would be to calculate only the tzinfo offset
-    '''
-    date_string, tzinfo_string = re.findall(r'[0-9\/]+',date_string)[0], re.findall(r'[a-zA-Z]+',date_string)[0]
-    datetime_obj = dateparser.parse(date_string)
-    assert another_expected_tz_conversion(datetime_obj, pytz.timezone(tzinfo_string)) == expected_datetime
+
+# def another_expected_tz_conversion(datetime_obj, pytz_tzinfo_offset):
+#     # use the subtraction operator to calc the tzinfo offset
+#     datetime_obj_as_gmt = pytz.timezone('GMT').localize(datetime_obj)
+#     return datetime_obj_as_gmt.astimezone(pytz_tzinfo_offset)
+
+# @pytest.mark.parametrize('date_string, expected_datetime',[
+#     ['13/03/2014 MST', datetime(2014, 3, 12, 17, 0).replace(tzinfo=pytz.timezone('MST')),]
+# ])
+# def test_parse_with_another_expected_conversion(date_string, expected_datetime):
+#     '''
+#     parsing a date string such as "13/03/2014 MST" has many potential meanings.
+#     another reasonable expectation would be to calculate only the tzinfo offset
+#     '''
+#     date_string, tzinfo_string = re.findall(r'[0-9\/]+',date_string)[0], re.findall(r'[a-zA-Z]+',date_string)[0]
+#     datetime_obj = dateparser.parse(date_string)
+#     assert another_expected_tz_conversion(datetime_obj, pytz.timezone(tzinfo_string)) == expected_datetime
 
 
