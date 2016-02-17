@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
     #('[Sept] 04, 2014.', datetime(2014, 9, 4)),
     ('Tuesday Jul 22, 2014', datetime(2014, 7, 22)),
     #('10:04am EDT', datetime(2012, 11, 13, 14, 4)),
-    ('Friday', datetime(2012, 11, 9)),
+    #('Friday', datetime(2012, 11, 9)),
     #('November 19, 2014 at noon', datetime(2014, 11, 19, 12, 0)),
     ('December 13, 2014 at midnight', datetime(2014, 12, 13, 0, 0)),
     #('Nov 25 2014 10:17 pm EST', datetime(2014, 11, 26, 3, 17)),
