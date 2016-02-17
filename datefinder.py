@@ -1,5 +1,4 @@
 import copy
-import dateparser
 import regex as re
 from dateutil import tz, parser
 
@@ -19,7 +18,7 @@ class DateFinder(object):
     ALL_TIMEZONES_PATTERN = TIMEZONES_PATTERN + '|' + NA_TIMEZONES_PATTERN
     DELIMITERS_PATTERN = '[/\:\-\,\s\_\+\@]+'
     TIME_PERIOD_PATTERN = 'a\.m\.|am|p\.m\.|pm'
-    ## can be in date strings but not recognized by dateparser
+    ## can be in date strings but not recognized by dateutils
     EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|of|to|until|z|at|t'
 
     ## TODO: Get english numbers?
@@ -78,7 +77,7 @@ class DateFinder(object):
             ## as well as whitespace
             (?P<delimiters>{delimiters})
             |
-            ## These tokens could be in phrases that dateparser does not yet recognize
+            ## These tokens could be in phrases that dateutil does not yet recognize
             ## Some are US Centric
             (?P<extra_tokens>{extra_tokens})
         ## We need at least three items to match for minimal datetime parsing
@@ -101,7 +100,7 @@ class DateFinder(object):
 
     TIME_REGEX = re.compile(TIME_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
-    ## These tokens can be in original text but dateparser
+    ## These tokens can be in original text but dateutil
     ## won't handle them without modification
     REPLACEMENTS = {
         "standard": "",
@@ -131,7 +130,7 @@ class DateFinder(object):
 
             as_dt = self.parse_date_string(date_string, captures)
             if as_dt is None:
-                ## Dateparser couldn't make heads or tails of it
+                ## Dateutil couldn't make heads or tails of it
                 ## move on to next
                 continue
 
@@ -147,11 +146,6 @@ class DateFinder(object):
 
     def _find_and_replace(self, date_string, captures):
         """
-        replace strings which helped us do matching but dateparser can't read.
-        also replace captured timezones and return tz_string separately
-        so that dateparser.parse doesn't do weirdo auto tzoffset conversions
-        https://github.com/scrapinghub/dateparser/blob/master/dateparser/timezone_parser.py#L19
-
         :warning: when multiple tz matches exist the last sorted capture will trump
         :param date_string:
         :return: date_string, tz_string
@@ -192,7 +186,7 @@ class DateFinder(object):
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
     def parse_date_string(self, date_string, captures):
-        # replace tokens that are problematic for dateparser
+        # replace tokens that are problematic for dateutil
         date_string, tz_string = self._find_and_replace(date_string, captures)
 
         ## One last sweep after removing
@@ -202,7 +196,6 @@ class DateFinder(object):
         if len(date_string) < 3:
             return None
 
-        # as_dt = dateparser.parse(date_string)
         as_dt = parser.parse(date_string)
         if tz_string:
             as_dt = self._add_tzinfo(as_dt, tz_string)
