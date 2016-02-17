@@ -89,8 +89,8 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7', 'dateparser==0.3.2'],
-        'test': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7', 'dateparser==0.3.2'],
+        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
+        'test': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
     },
 
     # If there are data files included in your packages that need to be

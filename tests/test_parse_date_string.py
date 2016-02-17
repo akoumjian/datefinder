@@ -1,6 +1,5 @@
 import pytest
 import datefinder
-import dateparser
 from dateutil import tz, parser
 from datetime import datetime
 try:
@@ -30,7 +29,7 @@ logger = logging.getLogger(__name__)
         { 'timezones': ['central'] },
         datetime(2014, 3, 13).replace(tzinfo=tz.gettz('CST'))
     ),
-    # assert dateparser.parse successfully
+    # assert dateutil.parse successfully
     # handles tz-naive date strings
     # and returns naive datetime objects
     (
