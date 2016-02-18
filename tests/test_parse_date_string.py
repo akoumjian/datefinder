@@ -83,7 +83,7 @@ def test_parse_date_string_find_replace_nonexistent_tzinfo(date_string, expected
     '''
     dt = datefinder.DateFinder()
     with mock.patch.object(tz, 'gettz', wraps=tz.gettz) as mock_gettz:
-        mock_gettz.side_effect = lambda name: None
+        mock_gettz.return_value = None
         actual_datetime = dt.parse_date_string(date_string, expected_captures)
         mock_gettz.assert_called_with(expected_captures['timezones'][0])
         logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))
