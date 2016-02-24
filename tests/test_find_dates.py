@@ -38,4 +38,4 @@ def test_find_date_strings(input_text, expected_date):
     return_date = None
     for return_date in datefinder.find_dates(input_text):
         assert return_date == expected_date
-    assert ((return_date is not None) or (expected_date is None))
+    assert return_date is not None
