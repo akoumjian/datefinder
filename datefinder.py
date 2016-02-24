@@ -112,7 +112,6 @@ class DateFinder(object):
         "due": " ",
         "on": " ",
         "to": " ",
-        ",": " ",
     }
 
     TIMEZONE_REPLACEMENTS = {
@@ -166,10 +165,7 @@ class DateFinder(object):
             # 2. match ' to'
             # 3. match ' to '
             # but never match r'(\s|)to(\s|)' which would make 'october' > 'ocber'
-            date_string = re.sub(r'(\s|)'+key+'\s',replacement, date_string, flags=re.IGNORECASE)
-            date_string = re.sub(r'\s'+key+'(\s|)',replacement, date_string, flags=re.IGNORECASE)
-            date_string = re.sub(r'\s'+key+'\s',replacement, date_string, flags=re.IGNORECASE)
-
+            date_string = re.sub(r'(^|\s)'+ key +'(\s|$)',replacement, date_string, flags=re.IGNORECASE)
 
         return date_string, self._pop_tz_string(sorted(captures.get('timezones', [])))
 
@@ -206,12 +202,7 @@ class DateFinder(object):
         if len(date_string) < 3:
             return None
 
-        try:
-            as_dt = parser.parse(date_string)
-        except ValueError:
-            # dateutil.parser.parse throws "unknown string format" for things it doesn't understand
-            return None
-
+        as_dt = parser.parse(date_string)
         if tz_string:
             as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt

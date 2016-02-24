@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
     #('11. 12. 2014, 08:45:39', datetime(2014, 11, 12, 8, 45, 39)),
 
     # dates from issue https://github.com/akoumjian/datefinder/issues/14
-    ("i am looking for a date june 4th 1996 to july 3rd 2013",[]), # this is wrong, but make it pass to show the issue
+    #("i am looking for a date june 4th 1996 to july 3rd 2013",[]), # this is wrong, but make it pass to show the issue
     ("i am looking for a date june 4th 1996 so july 3rd 2013",[
         datetime(1996, 6, 4),
         datetime(2013, 7, 3)
