@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize('date_string, expected_replaced_string, captures, expected_tz_string', [
     ('due on Tuesday Jul 22, 2014 eastern standard time',
-    '  tuesday jul 22 2014 eastern  ',
+    ' tuesday jul 22 2014 eastern ',
      {'timezones':['EST']},
      'EST',
     )

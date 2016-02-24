@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
     # and return None
     (
         'to blah',
-        'to blah',
+        'blah',
         {},
         None
     ),
