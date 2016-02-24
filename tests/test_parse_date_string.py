@@ -38,7 +38,16 @@ logger = logging.getLogger(__name__)
         '12/24/2015 at 2pm',
         { 'timezones': [] },
         datetime(2015, 12, 24, 14, 0)
-    )
+    ),
+    # assert dateutil.parser.parse
+    # will throw ValueError on bad date strings
+    # and return None
+    (
+        'to blah',
+        'to blah',
+        {},
+        None
+    ),
 ])
 def test_parse_date_string_find_replace(date_string, expected_parse_arg, expected_captures, expected_date):
     dt = datefinder.DateFinder()
