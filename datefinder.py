@@ -103,15 +103,16 @@ class DateFinder(object):
     ## These tokens can be in original text but dateutil
     ## won't handle them without modification
     REPLACEMENTS = {
-        "standard": "",
-        "daylight": "",
-        "savings": "",
-        "time": "",
-        "date": "",
-        "by": "",
-        "due": "",
-        "on": "",
-        ",": "",
+        "standard": " ",
+        "daylight": " ",
+        "savings": " ",
+        "time": " ",
+        "date": " ",
+        "by": " ",
+        "due": " ",
+        "on": " ",
+        "to": " ",
+        ",": " ",
     }
 
     TIMEZONE_REPLACEMENTS = {
@@ -159,7 +160,16 @@ class DateFinder(object):
 
         date_string = date_string.lower()
         for key, replacement in cloned_replacements.items():
-            date_string = re.sub(key,replacement, date_string, flags=re.IGNORECASE)
+            # we really want to match all permutations of the key surrounded by whitespace chars except one
+            # for example: consider the key = 'to'
+            # 1. match 'to '
+            # 2. match ' to'
+            # 3. match ' to '
+            # but never match r'(\s|)to(\s|)' which would make 'october' > 'ocber'
+            date_string = re.sub(r'(\s|)'+key+'\s',replacement, date_string, flags=re.IGNORECASE)
+            date_string = re.sub(r'\s'+key+'(\s|)',replacement, date_string, flags=re.IGNORECASE)
+            date_string = re.sub(r'\s'+key+'\s',replacement, date_string, flags=re.IGNORECASE)
+
 
         return date_string, self._pop_tz_string(sorted(captures.get('timezones', [])))
 
@@ -196,7 +206,12 @@ class DateFinder(object):
         if len(date_string) < 3:
             return None
 
-        as_dt = parser.parse(date_string)
+        try:
+            as_dt = parser.parse(date_string)
+        except ValueError:
+            # dateutil.parser.parse throws "unknown string format" for things it doesn't understand
+            return None
+
         if tz_string:
             as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt

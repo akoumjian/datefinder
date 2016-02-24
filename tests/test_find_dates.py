@@ -31,11 +31,29 @@ logger = logging.getLogger(__name__)
     # Numeric dates
     ('06-17-2014', datetime(2014, 6, 17)),
     ('13/03/2014', datetime(2014, 3, 13)),
-    ('2016-02-04T20:16:26+00:00', datetime(2016, 2, 4, 20, 16, 26, tzinfo=pytz.utc))
+    ('2016-02-04T20:16:26+00:00', datetime(2016, 2, 4, 20, 16, 26, tzinfo=pytz.utc)),
     #('11. 12. 2014, 08:45:39', datetime(2014, 11, 12, 8, 45, 39)),
+
+    # dates from issue https://github.com/akoumjian/datefinder/issues/14
+    # ("i am looking for a date june 4th 1996 to july 3rd 2013",[
+    #     datetime(1996, 6, 4),
+    #     datetime(2013, 7, 3)
+    # ]),
+    ("i am looking for a date june 4th 1996 so july 3rd 2013",[
+        datetime(1996, 6, 4),
+        datetime(2013, 7, 3)
+    ]),
+    ("october 27 1994 to be put into effect on june 1 1995",[
+        datetime(1994, 10, 27),
+        datetime(1995,  6,  1)
+    ]),
 ])
 def test_find_date_strings(input_text, expected_date):
-    return_date = None
-    for return_date in datefinder.find_dates(input_text):
-        assert return_date == expected_date
-    assert return_date is not None
+    if isinstance(expected_date,list):
+        matches = list(datefinder.find_dates(input_text))
+        assert matches == expected_date
+    else:
+        return_date = None
+        for return_date in datefinder.find_dates(input_text):
+            assert return_date == expected_date
+        assert return_date is not None # handles dates that were never matched
