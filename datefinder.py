@@ -103,15 +103,15 @@ class DateFinder(object):
     ## These tokens can be in original text but dateutil
     ## won't handle them without modification
     REPLACEMENTS = {
-        "standard": "",
-        "daylight": "",
-        "savings": "",
-        "time": "",
-        "date": "",
-        "by": "",
-        "due": "",
-        "on": "",
-        ",": "",
+        "standard": " ",
+        "daylight": " ",
+        "savings": " ",
+        "time": " ",
+        "date": " ",
+        "by": " ",
+        "due": " ",
+        "on": " ",
+        "to": " ",
     }
 
     TIMEZONE_REPLACEMENTS = {
@@ -155,11 +155,17 @@ class DateFinder(object):
         # add timezones to replace
         cloned_replacements = copy.copy(self.REPLACEMENTS)  ## don't mutate
         for tz_string in captures.get('timezones', []):
-            cloned_replacements.update({tz_string: ''})
+            cloned_replacements.update({tz_string: ' '})
 
         date_string = date_string.lower()
         for key, replacement in cloned_replacements.items():
-            date_string = re.sub(key,replacement, date_string, flags=re.IGNORECASE)
+            # we really want to match all permutations of the key surrounded by whitespace chars except one
+            # for example: consider the key = 'to'
+            # 1. match 'to '
+            # 2. match ' to'
+            # 3. match ' to '
+            # but never match r'(\s|)to(\s|)' which would make 'october' > 'ocber'
+            date_string = re.sub(r'(^|\s)'+ key +'(\s|$)',replacement, date_string, flags=re.IGNORECASE)
 
         return date_string, self._pop_tz_string(sorted(captures.get('timezones', [])))
 

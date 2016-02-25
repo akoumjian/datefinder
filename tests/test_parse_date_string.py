@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.parametrize('date_string, expected_parse_arg, expected_captures, expected_date', [
     (
         'due on Tuesday Jul 22, 2014 eastern standard time',
-        'tuesday jul 22 2014',
+        'tuesday jul 22, 2014',
         { 'timezones': ['eastern'] },
         datetime(2014, 7, 22).replace(tzinfo=tz.gettz('EST'))
     ),
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
         '12/24/2015 at 2pm',
         { 'timezones': [] },
         datetime(2015, 12, 24, 14, 0)
-    )
+    ),
 ])
 def test_parse_date_string_find_replace(date_string, expected_parse_arg, expected_captures, expected_date):
     dt = datefinder.DateFinder()
@@ -47,7 +47,6 @@ def test_parse_date_string_find_replace(date_string, expected_parse_arg, expecte
         spy.assert_called_with(expected_parse_arg)
         logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))
         assert actual_datetime == expected_date
-
 
 @pytest.mark.parametrize('date_string, expected_parse_arg, expected_captures, expected_date', [
     # test a tz abbreviation that
@@ -88,3 +87,16 @@ def test_parse_date_string_find_replace_nonexistent_tzinfo(date_string, expected
         mock_gettz.assert_called_with(expected_captures['timezones'][0])
         logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))
         assert actual_datetime == expected_date
+
+@pytest.mark.parametrize('date_string, expected_exception', [
+    # assert dateutil.parser.parse
+    # throws ValueError on bad date string input
+    (
+        'to barf',
+        ValueError
+    ),
+])
+def test_dateutil_parse_throws_value_error(date_string, expected_exception):
+    dt = datefinder.DateFinder()
+    pytest.raises(expected_exception, dt.parse_date_string, *[date_string], **{'captures':{}})
+
