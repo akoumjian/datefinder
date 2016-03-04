@@ -28,7 +28,6 @@ class DateFinder(object):
     TIME_SHORTHAND_PATTERN = 'noon|midnight|today|yesterday'
     UNIT_PATTERN = 'second|minute|hour|day|week|month|year'
 
-
     ## Time pattern is used independently, so specified here.
     TIME_PATTERN = """
     (?P<time>
@@ -150,10 +149,8 @@ class DateFinder(object):
         :param date_string:
         :return: date_string, tz_string
         """
-
-
         # add timezones to replace
-        cloned_replacements = copy.copy(self.REPLACEMENTS)  ## don't mutate
+        cloned_replacements = copy.copy(self.REPLACEMENTS)  # don't mutate
         for tz_string in captures.get('timezones', []):
             cloned_replacements.update({tz_string: ' '})
 
@@ -165,7 +162,7 @@ class DateFinder(object):
             # 2. match ' to'
             # 3. match ' to '
             # but never match r'(\s|)to(\s|)' which would make 'october' > 'ocber'
-            date_string = re.sub(r'(^|\s)'+ key +'(\s|$)',replacement, date_string, flags=re.IGNORECASE)
+            date_string = re.sub(r'(^|\s)' + key + '(\s|$)', replacement, date_string, flags=re.IGNORECASE)
 
         return date_string, self._pop_tz_string(sorted(captures.get('timezones', [])))
 
