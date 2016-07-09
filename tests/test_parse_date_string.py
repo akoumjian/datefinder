@@ -88,15 +88,14 @@ def test_parse_date_string_find_replace_nonexistent_tzinfo(date_string, expected
         logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))
         assert actual_datetime == expected_date
 
-@pytest.mark.parametrize('date_string, expected_exception', [
-    # assert dateutil.parser.parse
-    # throws ValueError on bad date string input
-    (
-        'to barf',
-        ValueError
-    ),
-])
-def test_dateutil_parse_throws_value_error(date_string, expected_exception):
-    dt = datefinder.DateFinder()
-    pytest.raises(expected_exception, dt.parse_date_string, *[date_string], **{'captures':{}})
-
+# @pytest.mark.parametrize('date_string, expected_exception', [
+#     # assert dateutil.parser.parse
+#     # throws ValueError on bad date string input
+#     (
+#         'to barf',
+#         ValueError
+#     ),
+# ])
+# def test_dateutil_parse_throws_value_error(date_string, expected_exception):
+#     dt = datefinder.DateFinder()
+#     pytest.raises(expected_exception, dt.parse_date_string, *[date_string], **{'captures':{}})
