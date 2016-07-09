@@ -1,6 +1,10 @@
 import copy
+import logging
 import regex as re
 from dateutil import tz, parser
+
+
+logger = logging.getLogger('datefinder')
 
 
 class DateFinder(object):
@@ -199,7 +203,12 @@ class DateFinder(object):
         if len(date_string) < 3:
             return None
 
-        as_dt = parser.parse(date_string)
+        try:
+            logger.debug('Parsing {0} with dateutil'.format(date_string))
+            as_dt = parser.parse(date_string)
+        except Exception as e:
+            logger.debug(e)
+            as_dt = None
         if tz_string:
             as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt
