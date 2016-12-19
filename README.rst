@@ -13,6 +13,10 @@ datefinder - extract dates from text
     :target: https://pypi.python.org/pypi/datefinder
     :alt: pypi version
 
+.. image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg
+    :target: https://gitter.im/datefinder/Lobby
+    :alt: gitter chat
+
 
 A python module for locating dates inside text. Use this package to extract all sorts 
 of date like strings from a document and turn them into datetime objects.
@@ -62,5 +66,5 @@ How to Use
 Support
 -------
 
-You can talk to us on `Freenode IRC #python-datefinder <https://webchat.freenode.net/?channels=python-datefinder>`_ or just submit an issue on `github <https://github.com/akoumjian/datefinder/issues/>`_. 
+You can talk to us on `Gitter <https://gitter.im/datefinder/Lobby>`_ or just submit an issue on `github <https://github.com/akoumjian/datefinder/issues/>`_. 
 
