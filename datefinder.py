@@ -127,6 +127,9 @@ class DateFinder(object):
     ## Characters that can be removed from ends of matched strings
     STRIP_CHARS = ' \n\t:-.,_'
 
+    def __init__(self, base_date=None):
+        self.base_date = base_date
+
     def find_dates(self, text, source=False, index=False, strict=False):
 
         for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
@@ -205,7 +208,7 @@ class DateFinder(object):
 
         try:
             logger.debug('Parsing {0} with dateutil'.format(date_string))
-            as_dt = parser.parse(date_string)
+            as_dt = parser.parse(date_string, default=self.base_date)
         except Exception as e:
             logger.debug(e)
             as_dt = None
@@ -259,7 +262,13 @@ class DateFinder(object):
             yield match_str, indices, captures
 
 
-def find_dates(text, source=False, index=False, strict=False):
+def find_dates(
+    text,
+    source=False,
+    index=False,
+    strict=False,
+    base_date=None
+    ):
     """
     Extract datetime strings from text
 
@@ -278,9 +287,12 @@ def find_dates(text, source=False, index=False, strict=False):
         `July 2016` of `Monday` will not return datetimes.
         `May 16, 2015` will return datetimes.
     :type strict: boolean
+    :param base_date:
+        Set a default base datetime when parsing incomplete dates
+    :type base_date: datetime
 
     :return: Returns a generator that produces :mod:`datetime.datetime` objects,
         or a tuple with the source text and index, if requested
     """
-    date_finder = DateFinder()
+    date_finder = DateFinder(base_date=base_date)
     return date_finder.find_dates(text, source=source, index=index, strict=strict)
