@@ -237,7 +237,6 @@ class DateFinder(object):
             months = captures.get('months')
             timezones = captures.get('timezones')
             delimiters = captures.get('delimiters')
-            time = captures.get('time)')
             time_periods = captures.get('time_periods')
             extra_tokens = captures.get('extra_tokens')
 
