@@ -44,6 +44,10 @@ logger = logging.getLogger(__name__)
         datetime(1994, 10, 27),
         datetime(1995,  6,  1)
     ]),
+    # Z dates with and without millis, from https://github.com/akoumjian/datefinder/issues/37
+    ("2017-02-03T09:04:08.001Z", datetime(2017, 2, 3, 9, 4, 8, 1000, tzinfo=pytz.utc)),
+    ("2017-02-03T09:04:08.00123Z", datetime(2017, 2, 3, 9, 4, 8, 1230, tzinfo=pytz.utc)),
+    ("2017-02-03T09:04:08Z", datetime(2017, 2, 3, 9, 4, 8, tzinfo=pytz.utc)),
 ])
 def test_find_date_strings(input_text, expected_date):
     if isinstance(expected_date,list):
@@ -53,4 +57,4 @@ def test_find_date_strings(input_text, expected_date):
         return_date = None
         for return_date in datefinder.find_dates(input_text):
             assert return_date == expected_date
-        assert return_date is not None # handles dates that were never matched
+        assert return_date is not None, 'Did not find date for test line: "{}"'.format(input_text) # handles dates that were never matched
