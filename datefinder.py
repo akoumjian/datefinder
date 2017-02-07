@@ -196,24 +196,29 @@ class DateFinder(object):
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
     def parse_date_string(self, date_string, captures):
-        # replace tokens that are problematic for dateutil
-        date_string, tz_string = self._find_and_replace(date_string, captures)
-
-        ## One last sweep after removing
-        date_string = date_string.strip(self.STRIP_CHARS)
-        ## Match strings must be at least 3 characters long
-        ## < 3 tends to be garbage
-        if len(date_string) < 3:
-            return None
-
+        # For well formatted string, we can already let dateutils parse them
+        # otherwise self._find_and_replace method might corrupt them
         try:
-            logger.debug('Parsing {0} with dateutil'.format(date_string))
             as_dt = parser.parse(date_string, default=self.base_date)
-        except Exception as e:
-            logger.debug(e)
-            as_dt = None
-        if tz_string:
-            as_dt = self._add_tzinfo(as_dt, tz_string)
+        except ValueError:
+            # replace tokens that are problematic for dateutil
+            date_string, tz_string = self._find_and_replace(date_string, captures)
+
+            ## One last sweep after removing
+            date_string = date_string.strip(self.STRIP_CHARS)
+            ## Match strings must be at least 3 characters long
+            ## < 3 tends to be garbage
+            if len(date_string) < 3:
+                return None
+
+            try:
+                logger.debug('Parsing {0} with dateutil'.format(date_string))
+                as_dt = parser.parse(date_string, default=self.base_date)
+            except Exception as e:
+                logger.debug(e)
+                as_dt = None
+            if tz_string:
+                as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt
 
     def extract_date_strings(self, text, strict=False):
