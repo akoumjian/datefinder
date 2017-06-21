@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
+
+import os
 import copy
 import logging
 import regex as re
 from dateutil import tz, parser
 
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+logging.basicConfig(level=getattr(logging, LOG_LEVEL))
 logger = logging.getLogger('datefinder')
 
 
