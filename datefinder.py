@@ -40,8 +40,8 @@ class DateFinder(object):
             (?P<hours>\d{{1,2}})
             \:
             (?P<minutes>\d{{1,2}})
-            (\:(?<seconds>\d{{1,2}}))?
-            ([\.\,](?<microseconds>\d{{1,6}}))?
+            (\:(?P<seconds>\d{{1,2}}))?
+            ([\.\,](?P<microseconds>\d{{1,6}}))?
             \s*
             (?P<time_periods>{time_periods})?
             \s*
