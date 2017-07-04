@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
     #('19 February 2013 year 09:10', datetime(2013, 2, 19, 9, 10)),
 
     # Numeric dates
+    # Different microsecond separaters
+    ('2017-06-27 09:51:46,509', datetime(2017, 6, 27, 9, 51, 46, 509000)),
+    ('2017-06-27 09:51:46.509', datetime(2017, 6, 27, 9, 51, 46, 509000)),
     ('06-17-2014', datetime(2014, 6, 17)),
     ('13/03/2014', datetime(2014, 3, 13)),
     ('2016-02-04T20:16:26+00:00', datetime(2016, 2, 4, 20, 16, 26, tzinfo=pytz.utc)),
