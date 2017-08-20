@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
     ('Fri, 12 Dec 2014 10:55:50', datetime(2014, 12, 12, 10, 55, 50)),
     #('20 Mar 2013 10h11', datetime(2013, 3, 20, 10, 11)),
     ('10:06am Dec 11, 2014', datetime(2014, 12, 11, 10, 6)),
+    ('May 5, 2010 to July 10, 2011', [datetime(2010, 5, 5), datetime(2011, 7, 10)]),
     #('19 February 2013 year 09:10', datetime(2013, 2, 19, 9, 10)),
 
     # Numeric dates
