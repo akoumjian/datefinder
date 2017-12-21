@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
         datetime(1994, 10, 27),
         datetime(1995,  6,  1)
     ]),
+    ('September 2nd, 1988', datetime(1998, 9, 2)),
     # Z dates with and without millis, from https://github.com/akoumjian/datefinder/issues/37
     ("2017-02-03T09:04:08.001Z", datetime(2017, 2, 3, 9, 4, 8, 1000, tzinfo=pytz.utc)),
     ("2017-02-03T09:04:08,00123Z", datetime(2017, 2, 3, 9, 4, 8, 1230, tzinfo=pytz.utc)),
