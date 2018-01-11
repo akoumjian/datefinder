@@ -144,10 +144,9 @@ class DateFinder(object):
         self.base_date = base_date
 
     def find_dates(self, text, source=False, index=False, strict=False):
-        print('finding dates')
 
         for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
-            print('date_string:', date_string)
+
             as_dt = self.parse_date_string(date_string, captures)
             if as_dt is None:
                 ## Dateutil couldn't make heads or tails of it
@@ -238,35 +237,31 @@ class DateFinder(object):
     def extract_date_strings(self, text, strict=False):
         """
         Scans text for possible datetime strings and extracts them
-
-        source: also return the original date string
-        index: also return the indices of the date string in the text
-        strict: Strict mode will only return dates sourced with day, month, and year
+        :param strict: Strict mode will only return dates sourced with day, month, and year
         """
         for match in self.DATE_REGEX.finditer(text):
             match_str = match.group(0)
             indices = match.span(0)
 
-            ## Get individual group matches
+            # Get individual group matches
             captures = match.capturesdict()
-            time = captures.get('time')
+            # time = captures.get('time')
             digits = captures.get('digits')
-            digits_modifiers = captures.get('digits_modifiers')
-            days = captures.get('days')
+            # digits_modifiers = captures.get('digits_modifiers')
+            # days = captures.get('days')
             months = captures.get('months')
-            timezones = captures.get('timezones')
-            delimiters = captures.get('delimiters')
-            time_periods = captures.get('time_periods')
-            extra_tokens = captures.get('extra_tokens')
+            # timezones = captures.get('timezones')
+            # delimiters = captures.get('delimiters')
+            # time_periods = captures.get('time_periods')
+            # extra_tokens = captures.get('extra_tokens')
             undelimited_stamps = captures.get('undelimited_stamps')
 
-            print(captures)
             if strict:
                 complete = False
-                ## 12-05-2015
+                # eg 12-05-2015
                 if len(digits) == 3:
                     complete = True
-                ## 19 February 2013 year 09:10
+                # eg 19 February 2013 year 09:10
                 elif (len(months) == 1) and (len(digits) == 2):
                     complete = True
                 elif all([len(stamp) > 5 for stamp in undelimited_stamps]):
@@ -274,8 +269,8 @@ class DateFinder(object):
                 if not complete:
                     continue
 
-            ## sanitize date string
-            ## replace unhelpful whitespace characters with single whitespace
+            # Sanitize date_string
+            # Replace unhelpful whitespace characters with single whitespace
             match_str = re.sub('[\n\t\s\xa0]+', ' ', match_str)
 
             # Add whitespace delimiters to undelimited stamps
@@ -288,7 +283,7 @@ class DateFinder(object):
             # Strip the output
             match_str = match_str.strip(self.STRIP_CHARS)
 
-            ## Save sanitized source string
+            # Save sanitized source string
             yield match_str, indices, captures
 
 
