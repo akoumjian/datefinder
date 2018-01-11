@@ -25,6 +25,14 @@ class DateFinder(object):
     ## can be in date strings but not recognized by dateutils
     EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|of|to|until|z|at|t'
 
+    # Allows for straightforward datestamps e.g 2017, 201712, 20171223. Created with:
+    #  YYYYMM_PATTERN = '|'.join(['19\d\d'+'{:0>2}'.format(mon)+'|20\d\d'+'{:0>2}'.format(mon) for mon in range(1, 13)])
+    #  YYYYMMDD_PATTERN = '|'.join(['19\d\d'+'{:0>2}'.format(mon)+'[0123]\d|20\d\d'+'{:0>2}'.format(mon)+'[0123]\d' for mon in range(1, 13)])
+    YYYY_PATTERN = '19\d\d|20\d\d'
+    YYYYMM_PATTERN = '19\d\d01|20\d\d01|19\d\d02|20\d\d02|19\d\d03|20\d\d03|19\d\d04|20\d\d04|19\d\d05|20\d\d05|19\d\d06|20\d\d06|19\d\d07|20\d\d07|19\d\d08|20\d\d08|19\d\d09|20\d\d09|19\d\d10|20\d\d10|19\d\d11|20\d\d11|19\d\d12|20\d\d12'
+    YYYYMMDD_PATTERN = '19\d\d01[0123]\d|20\d\d01[0123]\d|19\d\d02[0123]\d|20\d\d02[0123]\d|19\d\d03[0123]\d|20\d\d03[0123]\d|19\d\d04[0123]\d|20\d\d04[0123]\d|19\d\d05[0123]\d|20\d\d05[0123]\d|19\d\d06[0123]\d|20\d\d06[0123]\d|19\d\d07[0123]\d|20\d\d07[0123]\d|19\d\d08[0123]\d|20\d\d08[0123]\d|19\d\d09[0123]\d|20\d\d09[0123]\d|19\d\d10[0123]\d|20\d\d10[0123]\d|19\d\d11[0123]\d|20\d\d11[0123]\d|19\d\d12[0123]\d|20\d\d12[0123]\d'
+    UNDELIMITED_STAMPS_PATTERN = '|'.join([YYYYMMDD_PATTERN, YYYYMM_PATTERN])
+
     ## TODO: Get english numbers?
     ## http://www.rexegg.com/regex-trick-numbers-in-english.html
 
@@ -68,6 +76,9 @@ class DateFinder(object):
         (
             {time}
             |
+            ## Undelimited datestamps (treated prior to digits)
+            (?P<undelimited_stamps>{undelimited_stamps})
+            |
             ## Grab any digits
             (?P<digits_modifier>{digits_modifier})
             |
@@ -92,6 +103,7 @@ class DateFinder(object):
 
     DATES_PATTERN = DATES_PATTERN.format(
         time=TIME_PATTERN,
+        undelimited_stamps=UNDELIMITED_STAMPS_PATTERN,
         digits=DIGITS_PATTERN,
         digits_modifier=DIGITS_MODIFIER_PATTERN,
         days=DAYS_PATTERN,
@@ -225,45 +237,53 @@ class DateFinder(object):
     def extract_date_strings(self, text, strict=False):
         """
         Scans text for possible datetime strings and extracts them
-
-        source: also return the original date string
-        index: also return the indices of the date string in the text
-        strict: Strict mode will only return dates sourced with day, month, and year
+        :param strict: Strict mode will only return dates sourced with day, month, and year
         """
         for match in self.DATE_REGEX.finditer(text):
             match_str = match.group(0)
             indices = match.span(0)
 
-            ## Get individual group matches
+            # Get individual group matches
             captures = match.capturesdict()
-            time = captures.get('time')
+            # time = captures.get('time')
             digits = captures.get('digits')
-            digits_modifiers = captures.get('digits_modifiers')
-            days = captures.get('days')
+            # digits_modifiers = captures.get('digits_modifiers')
+            # days = captures.get('days')
             months = captures.get('months')
-            timezones = captures.get('timezones')
-            delimiters = captures.get('delimiters')
-            time_periods = captures.get('time_periods')
-            extra_tokens = captures.get('extra_tokens')
+            # timezones = captures.get('timezones')
+            # delimiters = captures.get('delimiters')
+            # time_periods = captures.get('time_periods')
+            # extra_tokens = captures.get('extra_tokens')
+            undelimited_stamps = captures.get('undelimited_stamps')
 
             if strict:
                 complete = False
-                ## 12-05-2015
+                # eg 12-05-2015
                 if len(digits) == 3:
                     complete = True
-                ## 19 February 2013 year 09:10
+                # eg 19 February 2013 year 09:10
                 elif (len(months) == 1) and (len(digits) == 2):
                     complete = True
-
+                elif all([len(stamp) > 5 for stamp in undelimited_stamps]):
+                    complete = True
                 if not complete:
                     continue
 
-            ## sanitize date string
-            ## replace unhelpful whitespace characters with single whitespace
+            # Sanitize date_string
+            # Replace unhelpful whitespace characters with single whitespace
             match_str = re.sub('[\n\t\s\xa0]+', ' ', match_str)
+
+            # Add whitespace delimiters to undelimited stamps
+            for stamp in undelimited_stamps:
+                if len(stamp) > 7:
+                    match_str = re.sub(stamp, stamp[0:4] + ' ' + stamp[4:6] + ' ' + stamp[6:], match_str)
+                elif len(stamp) > 5:
+                    match_str = re.sub(stamp, stamp[0:4] + ' ' + stamp[4:6] + ' ', match_str)
+
+            # Strip the output
             match_str = match_str.strip(self.STRIP_CHARS)
 
-            ## Save sanitized source string
+            # Save sanitized source string
             yield match_str, indices, captures
 
 
