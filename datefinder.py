@@ -277,6 +277,15 @@ class DateFinder(object):
             ## sanitize date string
             ## replace unhelpful whitespace characters with single whitespace
             match_str = re.sub('[\n\t\s\xa0]+', ' ', match_str)
+
+            # Add whitespace delimiters to undelimited stamps
+            for stamp in undelimited_stamps:
+                if len(stamp) > 7:
+                    match_str = re.sub(stamp, stamp[0:4] + ' ' + stamp[4:6] + ' ' + stamp[6:], match_str)
+                elif len(stamp) > 5:
+                    match_str = re.sub(stamp, stamp[0:4] + ' ' + stamp[4:6] + ' ', match_str)
+
+            # Strip the output
             match_str = match_str.strip(self.STRIP_CHARS)
 
             ## Save sanitized source string
