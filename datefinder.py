@@ -25,6 +25,14 @@ class DateFinder(object):
     ## can be in date strings but not recognized by dateutils
     EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|of|to|until|z|at|t'
 
+    # Allows for straightforward datestamps e.g 2017, 201712, 20171223. Created with:
+    #  YYYYMM_PATTERN = '|'.join(['19\d\d'+'{:0>2}'.format(mon)+'|20\d\d'+'{:0>2}'.format(mon) for mon in range(1, 13)])
+    #  YYYYMMDD_PATTERN = '|'.join(['19\d\d'+'{:0>2}'.format(mon)+'[0123]\d|20\d\d'+'{:0>2}'.format(mon)+'[0123]\d' for mon in range(1, 13)])
+    YYYY_PATTERN = '19\d\d|20\d\d'
+    YYYYMM_PATTERN = '19\d\d01|20\d\d01|19\d\d02|20\d\d02|19\d\d03|20\d\d03|19\d\d04|20\d\d04|19\d\d05|20\d\d05|19\d\d06|20\d\d06|19\d\d07|20\d\d07|19\d\d08|20\d\d08|19\d\d09|20\d\d09|19\d\d10|20\d\d10|19\d\d11|20\d\d11|19\d\d12|20\d\d12'
+    YYYYMMDD_PATTERN = '19\d\d01[0123]\d|20\d\d01[0123]\d|19\d\d02[0123]\d|20\d\d02[0123]\d|19\d\d03[0123]\d|20\d\d03[0123]\d|19\d\d04[0123]\d|20\d\d04[0123]\d|19\d\d05[0123]\d|20\d\d05[0123]\d|19\d\d06[0123]\d|20\d\d06[0123]\d|19\d\d07[0123]\d|20\d\d07[0123]\d|19\d\d08[0123]\d|20\d\d08[0123]\d|19\d\d09[0123]\d|20\d\d09[0123]\d|19\d\d10[0123]\d|20\d\d10[0123]\d|19\d\d11[0123]\d|20\d\d11[0123]\d|19\d\d12[0123]\d|20\d\d12[0123]\d'
+    UNDELIMITED_STAMPS_PATTERN = '|'.join([YYYYMMDD_PATTERN, YYYYMM_PATTERN])
+
     ## TODO: Get english numbers?
     ## http://www.rexegg.com/regex-trick-numbers-in-english.html
 
@@ -68,6 +76,9 @@ class DateFinder(object):
         (
             {time}
             |
+            ## Undelimited datestamps (treated prior to digits)
+            (?P<undelimited_stamps>{undelimited_stamps})
+            |
             ## Grab any digits
             (?P<digits_modifier>{digits_modifier})
             |
@@ -92,6 +103,7 @@ class DateFinder(object):
 
     DATES_PATTERN = DATES_PATTERN.format(
         time=TIME_PATTERN,
+        undelimited_stamps=UNDELIMITED_STAMPS_PATTERN,
         digits=DIGITS_PATTERN,
         digits_modifier=DIGITS_MODIFIER_PATTERN,
         days=DAYS_PATTERN,
@@ -132,9 +144,10 @@ class DateFinder(object):
         self.base_date = base_date
 
     def find_dates(self, text, source=False, index=False, strict=False):
+        print('finding dates')
 
         for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
-
+            print('date_string:', date_string)
             as_dt = self.parse_date_string(date_string, captures)
             if as_dt is None:
                 ## Dateutil couldn't make heads or tails of it
@@ -245,7 +258,9 @@ class DateFinder(object):
             delimiters = captures.get('delimiters')
             time_periods = captures.get('time_periods')
             extra_tokens = captures.get('extra_tokens')
+            undelimited_stamps = captures.get('undelimited_stamps')
 
+            print(captures)
             if strict:
                 complete = False
                 ## 12-05-2015
@@ -254,7 +269,8 @@ class DateFinder(object):
                 ## 19 February 2013 year 09:10
                 elif (len(months) == 1) and (len(digits) == 2):
                     complete = True
-
+                elif all([len(stamp) > 5 for stamp in undelimited_stamps]):
+                    complete = True
                 if not complete:
                     continue
 
