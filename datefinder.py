@@ -1,6 +1,7 @@
 import copy
 import logging
 import regex as re
+# import re
 from dateutil import tz, parser
 
 
@@ -131,11 +132,11 @@ class DateFinder(object):
     def __init__(self, base_date=None):
         self.base_date = base_date
 
-    def find_dates(self, text, source=False, index=False, strict=False):
+    def find_dates(self, text, source=False, index=False, strict=False, dayfirst=False):
 
         for date_string, indices, captures in self.extract_date_strings(text, strict=strict):
 
-            as_dt = self.parse_date_string(date_string, captures)
+            as_dt = self.parse_date_string(date_string, captures, dayfirst)
             if as_dt is None:
                 ## Dateutil couldn't make heads or tails of it
                 ## move on to next
@@ -196,11 +197,11 @@ class DateFinder(object):
         tzinfo_match = tz.gettz(tz_string)
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
-    def parse_date_string(self, date_string, captures):
+    def parse_date_string(self, date_string, captures, dayfirst=False):
         # For well formatted string, we can already let dateutils parse them
         # otherwise self._find_and_replace method might corrupt them
         try:
-            as_dt = parser.parse(date_string, default=self.base_date)
+            as_dt = parser.parse(date_string, default=self.base_date, dayfirst=dayfirst)
         except ValueError:
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
@@ -214,7 +215,7 @@ class DateFinder(object):
 
             try:
                 logger.debug('Parsing {0} with dateutil'.format(date_string))
-                as_dt = parser.parse(date_string, default=self.base_date)
+                as_dt = parser.parse(date_string, default=self.base_date, dayfirst=dayfirst)
             except Exception as e:
                 logger.debug(e)
                 as_dt = None
@@ -272,7 +273,8 @@ def find_dates(
     source=False,
     index=False,
     strict=False,
-    base_date=None
+    base_date=None,
+    dayfirst=False
     ):
     """
     Extract datetime strings from text
@@ -300,4 +302,4 @@ def find_dates(
         or a tuple with the source text and index, if requested
     """
     date_finder = DateFinder(base_date=base_date)
-    return date_finder.find_dates(text, source=source, index=index, strict=strict)
+    return date_finder.find_dates(text, source=source, index=index, strict=strict, dayfirst=dayfirst)
