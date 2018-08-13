@@ -271,7 +271,7 @@ class DateFinder(object):
 
 def find_dates(
     text,
-    source=True,
+    source=False,
     index=False,
     strict=False,
     base_date=None
