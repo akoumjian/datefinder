@@ -1,3 +1,4 @@
+
 import copy
 import logging
 import regex as re
@@ -238,7 +239,7 @@ class DateFinder(object):
             captures = match.capturesdict()
             time = captures.get('time')
             digits = captures.get('digits')
-            digits_modifiers = captures.get('digits_modifiers')
+            digits_modifiers = captures.get('digits_modifier')
             days = captures.get('days')
             months = captures.get('months')
             timezones = captures.get('timezones')
@@ -252,7 +253,8 @@ class DateFinder(object):
                 if len(digits) == 3:
                     complete = True
                 ## 19 February 2013 year 09:10
-                elif (len(months) == 1) and (len(digits) == 2):
+                ## 19th February 2013 year 09:10
+                elif (len(months) == 1) and (len(digits) + len(digits_modifiers) == 2):
                     complete = True
 
                 if not complete:
@@ -269,7 +271,7 @@ class DateFinder(object):
 
 def find_dates(
     text,
-    source=False,
+    source=True,
     index=False,
     strict=False,
     base_date=None
