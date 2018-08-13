@@ -1,3 +1,4 @@
+
 import copy
 import logging
 import regex as re
@@ -12,7 +13,7 @@ class DateFinder(object):
     Locates dates in a text
     """
 
-    DIGITS_MODIFIER_PATTERN = '\d+st|\d+th|\d+rd|first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth|next|last'
+    DIGITS_MODIFIER_PATTERN = '\d+st|\d+th|\d+rd|\d+nd|first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth|next|last'
     DIGITS_PATTERN = '\d+'
     DAYS_PATTERN = 'monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thur|thurs|fri|sat|sun'
     MONTHS_PATTERN = 'january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec'
@@ -238,7 +239,7 @@ class DateFinder(object):
             captures = match.capturesdict()
             time = captures.get('time')
             digits = captures.get('digits')
-            digits_modifiers = captures.get('digits_modifiers')
+            digits_modifiers = captures.get('digits_modifier')
             days = captures.get('days')
             months = captures.get('months')
             timezones = captures.get('timezones')
@@ -252,7 +253,8 @@ class DateFinder(object):
                 if len(digits) == 3:
                     complete = True
                 ## 19 February 2013 year 09:10
-                elif (len(months) == 1) and (len(digits) == 2):
+                ## 19th February 2013 year 09:10
+                elif (len(months) == 1) and (len(digits) + len(digits_modifiers) == 2):
                     complete = True
 
                 if not complete:
