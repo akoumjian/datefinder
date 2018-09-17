@@ -20,7 +20,7 @@ class DateFinder(object):
     ## explicit north american timezones that get replaced
     NA_TIMEZONES_PATTERN = 'pacific|eastern|mountain|central'
     ALL_TIMEZONES_PATTERN = TIMEZONES_PATTERN + '|' + NA_TIMEZONES_PATTERN
-    DELIMITERS_PATTERN = '[/\:\-\,\s\_\+\@]+'
+    DELIMITERS_PATTERN = '[/\:\-\,\.\s\_\+\@]+'
     TIME_PERIOD_PATTERN = 'a\.m\.|am|p\.m\.|pm'
     ## can be in date strings but not recognized by dateutils
     EXTRA_TOKENS_PATTERN = 'due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|z|at|t'
@@ -278,6 +278,9 @@ class DateFinder(object):
                 delimiters = captures.get('delimiters')
                 time_periods = captures.get('time_periods')
                 extra_tokens = captures.get('extra_tokens')
+
+                if delimiters and match_str.endswith(delimiters[-1]):
+                    captures['delimiters'] = captures['delimiters'][:-1]
 
                 if strict:
                     complete = False
