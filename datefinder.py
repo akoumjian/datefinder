@@ -20,10 +20,10 @@ class DateFinder(object):
     ## explicit north american timezones that get replaced
     NA_TIMEZONES_PATTERN = 'pacific|eastern|mountain|central'
     ALL_TIMEZONES_PATTERN = TIMEZONES_PATTERN + '|' + NA_TIMEZONES_PATTERN
-    DELIMITERS_PATTERN = '[/\:\-\,\s\_\+\@]+'
+    DELIMITERS_PATTERN = '[/\:\-\,\.\s\_\+\@]+'
     TIME_PERIOD_PATTERN = 'a\.m\.|am|p\.m\.|pm'
     ## can be in date strings but not recognized by dateutils
-    EXTRA_TOKENS_PATTERN = 'due|by|on|standard|daylight|savings|time|date|of|to|until|z|at|t'
+    EXTRA_TOKENS_PATTERN = 'due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|z|at|t'
 
     ## TODO: Get english numbers?
     ## http://www.rexegg.com/regex-trick-numbers-in-english.html
@@ -100,9 +100,21 @@ class DateFinder(object):
         extra_tokens=EXTRA_TOKENS_PATTERN
     )
 
+    RANGE_PATTERN = r"""
+    (
+        (
+            (?P<date_1>{date_pattern}){{1,}}
+            (to|through){{1,}}
+            (?P<date_2>{date_pattern}){{1,}}
+        ){{1,}}
+    )
+    """.format(date_pattern=DATES_PATTERN)
+
     DATE_REGEX = re.compile(DATES_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
     TIME_REGEX = re.compile(TIME_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
+
+    RANGE_REGEX = re.compile(RANGE_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE)
 
     ## These tokens can be in original text but dateutil
     ## won't handle them without modification
@@ -230,41 +242,65 @@ class DateFinder(object):
         index: also return the indices of the date string in the text
         strict: Strict mode will only return dates sourced with day, month, and year
         """
+        # Begin by trying to match ranges
         for match in self.DATE_REGEX.finditer(text):
             match_str = match.group(0)
             indices = match.span(0)
 
-            ## Get individual group matches
-            captures = match.capturesdict()
-            time = captures.get('time')
-            digits = captures.get('digits')
-            digits_modifiers = captures.get('digits_modifiers')
-            days = captures.get('days')
-            months = captures.get('months')
-            timezones = captures.get('timezones')
-            delimiters = captures.get('delimiters')
-            time_periods = captures.get('time_periods')
-            extra_tokens = captures.get('extra_tokens')
+            # Check if we match a range too
+            found_range = False
+            range_strings = []
+            for range_match in self.RANGE_REGEX.finditer(match_str):
+                # Parse date 1 and date 2 recursively
+                range_captures = range_match.capturesdict()
+                date_1 = range_captures.get("date_1", [])
+                date_2 = range_captures.get("date_2", [])
 
-            if strict:
-                complete = False
-                ## 12-05-2015
-                if len(digits) == 3:
-                    complete = True
-                ## 19 February 2013 year 09:10
-                elif (len(months) == 1) and (len(digits) == 2):
-                    complete = True
+                for date_1_str in date_1:
+                    range_strings.extend(self.extract_date_strings(date_1_str, strict=strict))
 
-                if not complete:
-                    continue
+                for date_2_str in date_2:
+                    range_strings.extend(self.extract_date_strings(date_2_str, strict=strict))
 
-            ## sanitize date string
-            ## replace unhelpful whitespace characters with single whitespace
-            match_str = re.sub('[\n\t\s\xa0]+', ' ', match_str)
-            match_str = match_str.strip(self.STRIP_CHARS)
 
-            ## Save sanitized source string
-            yield match_str, indices, captures
+            for range_string in range_strings:
+                yield range_string
+
+            if not found_range:
+                ## Get individual group matches
+                captures = match.capturesdict()
+                time = captures.get('time')
+                digits = captures.get('digits')
+                digits_modifiers = captures.get('digits_modifiers')
+                days = captures.get('days')
+                months = captures.get('months')
+                timezones = captures.get('timezones')
+                delimiters = captures.get('delimiters')
+                time_periods = captures.get('time_periods')
+                extra_tokens = captures.get('extra_tokens')
+
+                if delimiters and match_str.endswith(delimiters[-1]):
+                    captures['delimiters'] = captures['delimiters'][:-1]
+
+                if strict:
+                    complete = False
+                    ## 12-05-2015
+                    if len(digits) == 3:
+                        complete = True
+                        ## 19 February 2013 year 09:10
+                    elif (len(months) == 1) and (len(digits) == 2):
+                        complete = True
+                        
+                    if not complete:
+                        continue
+
+                ## sanitize date string
+                ## replace unhelpful whitespace characters with single whitespace
+                match_str = re.sub('[\n\t\s\xa0]+', ' ', match_str)
+                match_str = match_str.strip(self.STRIP_CHARS)
+
+                ## Save sanitized source string
+                yield match_str, indices, captures
 
 
 def find_dates(
