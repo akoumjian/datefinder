@@ -1,4 +1,5 @@
 import pytest
+import warnings
 import datefinder
 from dateutil import tz, parser
 from datetime import datetime
@@ -11,22 +12,25 @@ logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.parametrize('date_string, expected_parse_arg, expected_captures, expected_date', [
+@pytest.mark.parametrize('date_string, expected_parse_args, expected_parse_kwargs, expected_captures, expected_date', [
     (
         'due on Tuesday Jul 22, 2014 eastern standard time',
-        'tuesday jul 22, 2014',
+        ['tuesday jul 22, 2014',],
+        {'default': None},
         { 'timezones': ['eastern'] },
         datetime(2014, 7, 22).replace(tzinfo=tz.gettz('EST'))
     ),
     (
         'Friday pAcific stanDard time',
-        'friday',
+        ['friday',],
+        {'default': None},
         { 'timezones': ['pacific'] },
         parser.parse('friday').replace(tzinfo=tz.gettz('PST'))
     ),
     (
         '13/03/2014 Central Daylight Savings Time',
-        '13/03/2014',
+        ['13/03/2014',],
+        {'default': None},
         { 'timezones': ['central'] },
         datetime(2014, 3, 13).replace(tzinfo=tz.gettz('CST'))
     ),
@@ -34,18 +38,19 @@ logger = logging.getLogger(__name__)
     # handles tz-naive date strings
     # and returns naive datetime objects
     (
-        ' on 12/24/2015 at 2pm ',
         '12/24/2015 at 2pm',
+        ['12/24/2015 at 2pm',],
+        {'default': None},
         { 'timezones': [] },
         datetime(2015, 12, 24, 14, 0)
     ),
 ])
-def test_parse_date_string_find_replace(date_string, expected_parse_arg, expected_captures, expected_date):
+def test_parse_date_string_find_replace(date_string, expected_parse_args, expected_parse_kwargs, expected_captures, expected_date):
     dt = datefinder.DateFinder()
     with mock.patch.object(parser, 'parse', wraps=parser.parse) as spy:
         actual_datetime = dt.parse_date_string(date_string, expected_captures)
-        spy.assert_called_with(expected_parse_arg)
-        logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))
+        spy.assert_called_with(*expected_parse_args, **expected_parse_kwargs)
+        logger.debug("actual={}  expected={}".format(actual_datetime, expected_date))
         assert actual_datetime == expected_date
 
 @pytest.mark.parametrize('date_string, expected_parse_arg, expected_captures, expected_date', [
@@ -70,9 +75,9 @@ def test_parse_date_string_find_replace(date_string, expected_parse_arg, expecte
 ])
 def test_parse_date_string_find_replace_nonexistent_tzinfo(date_string, expected_parse_arg, expected_captures, expected_date):
     '''
-    mimic what happens when dateutil.tz.gettz tries
-    to find a non-existent tzinfo string with mocks
-    because some operating systems might resolve 'CST' and 'IRST'
+    mimic what happens when dateutil tries
+    to find a non-existent tzinfo string
+    because some operating systems might resolve 'CST' and 'IRST' this should raise a warning.
 
     :param date_string:
     :param expected_parse_arg:
@@ -80,12 +85,11 @@ def test_parse_date_string_find_replace_nonexistent_tzinfo(date_string, expected
     :param expected_date:
     :return:
     '''
-    dt = datefinder.DateFinder()
-    with mock.patch.object(tz, 'gettz', wraps=tz.gettz) as mock_gettz:
-        mock_gettz.return_value = None
+    with pytest.warns(parser.UnknownTimezoneWarning):
+        warnings.simplefilter('always')
+        dt = datefinder.DateFinder()
         actual_datetime = dt.parse_date_string(date_string, expected_captures)
-        mock_gettz.assert_called_with(expected_captures['timezones'][0])
-        logger.debug("acutal={}  expected={}".format(actual_datetime, expected_date))
+        logger.debug("actual={}  expected={}".format(actual_datetime, expected_date))
         assert actual_datetime == expected_date
 
 # @pytest.mark.parametrize('date_string, expected_exception', [
