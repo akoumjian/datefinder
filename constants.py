@@ -1,4 +1,4 @@
-import re
+import regex as re
 
 DIGITS_MODIFIER_PATTERN = r'\d+st|\d+th|\d+rd|first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth|next|last'
 DIGITS_PATTERN = r'\d+'
