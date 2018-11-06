@@ -58,11 +58,10 @@ setup(
         # 'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         # Topics
         'Natural Language :: English',
     ],
@@ -89,7 +88,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
+        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7', 'pylint==2.1.1'],
         'test': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
     },
 
