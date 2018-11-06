@@ -3,7 +3,7 @@ import logging
 import regex as re
 from dateutil import tz, parser
 
-from constants import REPLACEMENTS, TIMEZONE_REPLACEMENTS, STRIP_CHARS, DATE_REGEX, RANGE_REGEX
+from .constants import REPLACEMENTS, TIMEZONE_REPLACEMENTS, STRIP_CHARS, DATE_REGEX, RANGE_REGEX
 
 logger = logging.getLogger('datefinder')
 

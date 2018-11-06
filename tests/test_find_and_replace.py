@@ -3,7 +3,7 @@ import datefinder
 import copy
 import sys, logging
 
-from constants import REPLACEMENTS
+from datefinder.constants import REPLACEMENTS
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)
