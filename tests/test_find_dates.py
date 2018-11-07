@@ -50,6 +50,11 @@ logger = logging.getLogger(__name__)
         datetime(1994, 10, 27),
         datetime(1995,  6,  1)
     ]),
+    # Simple date range
+    ("31/08/2012 to 30/08/2013",[
+        datetime(2012, 8, 31),
+        datetime(2013,  8,  30)
+    ]),
     # Z dates with and without millis, from https://github.com/akoumjian/datefinder/issues/37
     ("2017-02-03T09:04:08.001Z", datetime(2017, 2, 3, 9, 4, 8, 1000, tzinfo=pytz.utc)),
     ("2017-02-03T09:04:08,00123Z", datetime(2017, 2, 3, 9, 4, 8, 1230, tzinfo=pytz.utc)),
