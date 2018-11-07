@@ -17,11 +17,12 @@ YYYY_PATTERN = r'19\d\d|20\d\d'
 YYYYMM_PATTERN = r'19\d\d01|20\d\d01|19\d\d02|20\d\d02|19\d\d03|20\d\d03|19\d\d04|20\d\d04|19\d\d05|20\d\d05|19\d\d06|20\d\d06|19\d\d07|20\d\d07|19\d\d08|20\d\d08|19\d\d09|20\d\d09|19\d\d10|20\d\d10|19\d\d11|20\d\d11|19\d\d12|20\d\d12'
 YYYYMMDD_PATTERN = r'19\d\d01[0123]\d|20\d\d01[0123]\d|19\d\d02[0123]\d|20\d\d02[0123]\d|19\d\d03[0123]\d|20\d\d03[0123]\d|19\d\d04[0123]\d|20\d\d04[0123]\d|19\d\d05[0123]\d|20\d\d05[0123]\d|19\d\d06[0123]\d|20\d\d06[0123]\d|19\d\d07[0123]\d|20\d\d07[0123]\d|19\d\d08[0123]\d|20\d\d08[0123]\d|19\d\d09[0123]\d|20\d\d09[0123]\d|19\d\d10[0123]\d|20\d\d10[0123]\d|19\d\d11[0123]\d|20\d\d11[0123]\d|19\d\d12[0123]\d|20\d\d12[0123]\d'
 YYYYMMDDHHMMSS_PATTERN = '|'.join([r'19\d\d' + '{:0>2}'.format(mon) + r'[0-3]\d[0-5]\d[0-5]\d[0-5]\d|20\d\d' + '{:0>2}'.format(mon) + r'[0-3]\d[0-5]\d[0-5]\d[0-5]\d' for mon in range(1, 13)])
-UNDELIMITED_STAMPS_PATTERN = '|'.join([YYYYMMDDHHMMSS_PATTERN, YYYYMMDD_PATTERN, YYYYMM_PATTERN])
+ISO8601_PATTERN = r'(?P<years>-?(\:[1-9][0-9]*)?[0-9]{4})\-(?P<months>1[0-2]|0[1-9])\-(?P<days>3[01]|0[1-9]|[12][0-9])T(?P<hours>2[0-3]|[01][0-9])\:(?P<minutes>[0-5][0-9]):(?P<seconds>[0-5][0-9])(?:[\.,]+(?P<microseconds>[0-9]+))?(?P<timezone>Z|[+-](?:2[0-3]|[01][0-9])\:[0-5][0-9])?'
+UNDELIMITED_STAMPS_PATTERN = '|'.join([YYYYMMDDHHMMSS_PATTERN, YYYYMMDD_PATTERN, YYYYMM_PATTERN, ISO8601_PATTERN])
 DELIMITERS_PATTERN = r'[/\:\-\,\.\s\_\+\@]+'
 TIME_PERIOD_PATTERN = r'a\.m\.|am|p\.m\.|pm'
 ## can be in date strings but not recognized by dateutils
-EXTRA_TOKENS_PATTERN = 'due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|z|at|t'
+EXTRA_TOKENS_PATTERN = r'due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|at|z'
 
 ## TODO: Get english numbers?
 ## http://www.rexegg.com/regex-trick-numbers-in-english.html
