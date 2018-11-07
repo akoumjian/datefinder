@@ -35,6 +35,11 @@ logger = logging.getLogger(__name__)
     ('2016-02-04T20:16:26+00:00', datetime(2016, 2, 4, 20, 16, 26, tzinfo=pytz.utc)),
     #('11. 12. 2014, 08:45:39', datetime(2014, 11, 12, 8, 45, 39)),
 
+    ("2017-02-03T09:04:08Z to 2017-02-03T09:04:09Z", [
+        datetime(2017, 2, 3, 9, 4, 8, tzinfo=pytz.utc),
+        datetime(2017, 2, 3, 9, 4, 9, tzinfo=pytz.utc)
+    ]),
+
     # dates from issue https://github.com/akoumjian/datefinder/issues/14
     #("i am looking for a date june 4th 1996 to july 3rd 2013",[]), # this is wrong, but make it pass to show the issue
     ("i am looking for a date june 4th 1996 so july 3rd 2013",[
