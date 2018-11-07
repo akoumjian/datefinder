@@ -1,7 +1,9 @@
 import regex as re
 
-DIGITS_MODIFIER_PATTERN = r'\d+st|\d+th|\d+rd|first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth|next|last'
+NUMBERS_PATTERN = r'first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth'
+POSITIONNAL_TOKENS= r'next|last'
 DIGITS_PATTERN = r'\d+'
+DIGITS_SUFFIXES= r'st|th|rd'
 DAYS_PATTERN = 'monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thur|thurs|fri|sat|sun'
 MONTHS_PATTERN = r'january|february|march|april|may|june|july|august|september|october|november|december|jan\.?|feb\.?|mar\.?|apr\.?|may\.?|jun\.?|jul\.?|aug\.?|sep\.?|sept\.?|oct\.?|nov\.?|dec\.?'
 TIMEZONES_PATTERN = 'ACDT|ACST|ACT|ACWDT|ACWST|ADDT|ADMT|ADT|AEDT|AEST|AFT|AHDT|AHST|AKDT|AKST|AKTST|AKTT|ALMST|ALMT|AMST|AMT|ANAST|ANAT|ANT|APT|AQTST|AQTT|ARST|ART|ASHST|ASHT|AST|AWDT|AWST|AWT|AZOMT|AZOST|AZOT|AZST|AZT|BAKST|BAKT|BDST|BDT|BEAT|BEAUT|BIOT|BMT|BNT|BORT|BOST|BOT|BRST|BRT|BST|BTT|BURT|CANT|CAPT|CAST|CAT|CAWT|CCT|CDDT|CDT|CEDT|CEMT|CEST|CET|CGST|CGT|CHADT|CHAST|CHDT|CHOST|CHOT|CIST|CKHST|CKT|CLST|CLT|CMT|COST|COT|CPT|CST|CUT|CVST|CVT|CWT|CXT|ChST|DACT|DAVT|DDUT|DFT|DMT|DUSST|DUST|EASST|EAST|EAT|ECT|EDDT|EDT|EEDT|EEST|EET|EGST|EGT|EHDT|EMT|EPT|EST|ET|EWT|FET|FFMT|FJST|FJT|FKST|FKT|FMT|FNST|FNT|FORT|FRUST|FRUT|GALT|GAMT|GBGT|GEST|GET|GFT|GHST|GILT|GIT|GMT|GST|GYT|HAA|HAC|HADT|HAE|HAP|HAR|HAST|HAT|HAY|HDT|HKST|HKT|HLV|HMT|HNA|HNC|HNE|HNP|HNR|HNT|HNY|HOVST|HOVT|HST|ICT|IDDT|IDT|IHST|IMT|IOT|IRDT|IRKST|IRKT|IRST|ISST|IST|JAVT|JCST|JDT|JMT|JST|JWST|KART|KDT|KGST|KGT|KIZST|KIZT|KMT|KOST|KRAST|KRAT|KST|KUYST|KUYT|KWAT|LHDT|LHST|LINT|LKT|LMT|LMT|LMT|LMT|LRT|LST|MADMT|MADST|MADT|MAGST|MAGT|MALST|MALT|MART|MAWT|MDDT|MDST|MDT|MEST|MET|MHT|MIST|MIT|MMT|MOST|MOT|MPT|MSD|MSK|MSM|MST|MUST|MUT|MVT|MWT|MYT|NCST|NCT|NDDT|NDT|NEGT|NEST|NET|NFT|NMT|NOVST|NOVT|NPT|NRT|NST|NT|NUT|NWT|NZDT|NZMT|NZST|OMSST|OMST|ORAST|ORAT|PDDT|PDT|PEST|PET|PETST|PETT|PGT|PHOT|PHST|PHT|PKST|PKT|PLMT|PMDT|PMMT|PMST|PMT|PNT|PONT|PPMT|PPT|PST|PT|PWT|PYST|PYT|QMT|QYZST|QYZT|RET|RMT|ROTT|SAKST|SAKT|SAMT|SAST|SBT|SCT|SDMT|SDT|SET|SGT|SHEST|SHET|SJMT|SLT|SMT|SRET|SRT|SST|STAT|SVEST|SVET|SWAT|SYOT|TAHT|TASST|TAST|TBIST|TBIT|TBMT|TFT|THA|TJT|TKT|TLT|TMT|TOST|TOT|TRST|TRT|TSAT|TVT|ULAST|ULAT|URAST|URAT|UTC|UYHST|UYST|UYT|UZST|UZT|VET|VLAST|VLAT|VOLST|VOLT|VOST|VUST|VUT|WARST|WART|WAST|WAT|WDT|WEDT|WEMT|WEST|WET|WFT|WGST|WGT|WIB|WIT|WITA|WMT|WSDT|WSST|WST|WT|XJT|YAKST|YAKT|YAPT|YDDT|YDT|YEKST|YEKST|YEKT|YEKT|YERST|YERT|YPT|YST|YWT|zzz'
@@ -22,7 +24,7 @@ UNDELIMITED_STAMPS_PATTERN = '|'.join([YYYYMMDDHHMMSS_PATTERN, YYYYMMDD_PATTERN,
 DELIMITERS_PATTERN = r'[/\:\-\,\.\s\_\+\@]+'
 TIME_PERIOD_PATTERN = r'a\.m\.|am|p\.m\.|pm'
 ## can be in date strings but not recognized by dateutils
-EXTRA_TOKENS_PATTERN = r'due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|at'
+EXTRA_TOKENS_PATTERN = r'due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|at|day'
 
 ## TODO: Get english numbers?
 ## http://www.rexegg.com/regex-trick-numbers-in-english.html
@@ -73,10 +75,11 @@ DATES_PATTERN = """
         ## Grab any four digit years
         (?P<years>{years})
         |
+        ## Numbers
+        (?P<numbers>{numbers})
         ## Grab any digits
-        (?P<digits_modifier>{digits_modifier})
         |
-        (?P<digits>{digits})
+        (?P<digits>{digits})(?P<digits_suffixes>{digits_suffixes})?
         |
         (?P<days>{days})
         |
@@ -85,6 +88,8 @@ DATES_PATTERN = """
         ## Delimiters, ie Tuesday[,] July 18 or 6[/]17[/]2008
         ## as well as whitespace
         (?P<delimiters>{delimiters})
+        |
+        (?P<positionnal_tokens>{positionnal_tokens})
         |
         ## These tokens could be in phrases that dateutil does not yet recognize
         ## Some are US Centric
@@ -99,11 +104,13 @@ DATES_PATTERN = DATES_PATTERN.format(
     time=TIME_PATTERN,
     undelimited_stamps=UNDELIMITED_STAMPS_PATTERN,
     years=YYYY_PATTERN,
+    numbers=NUMBERS_PATTERN,
     digits=DIGITS_PATTERN,
-    digits_modifier=DIGITS_MODIFIER_PATTERN,
+    digits_suffixes=DIGITS_SUFFIXES,
     days=DAYS_PATTERN,
     months=MONTHS_PATTERN,
     delimiters=DELIMITERS_PATTERN,
+    positionnal_tokens=POSITIONNAL_TOKENS,
     extra_tokens=EXTRA_TOKENS_PATTERN
 )
 
@@ -133,6 +140,7 @@ REPLACEMENTS = {
     "due": " ",
     "on": " ",
     "to": " ",
+    "day": " ",
 }
 
 TIMEZONE_REPLACEMENTS = {

@@ -43,8 +43,7 @@ today = datetime.today()
     ]),
 
     # dates from issue https://github.com/akoumjian/datefinder/issues/14
-    #("i am looking for a date june 4th 1996 to july 3rd 2013",[]), # this is wrong, but make it pass to show the issue
-    ("i am looking for a date june 4th 1996 so july 3rd 2013",[
+    ("i am looking for a date june 4th 1996 to july 3rd 2013",[
         datetime(1996, 6, 4),
         datetime(2013, 7, 3)
     ]),
@@ -64,6 +63,9 @@ today = datetime.today()
     # Year only strings, from https://github.com/akoumjian/datefinder/issues/96
     ("Dutta is the recipient of Femina Miss India Universe title in 2004.", datetime(2004, today.month, today.day)),
     ("she said that she hit depression after being traumatized on the sets of \"Horn OK\" in 2008.", datetime(2008, today.month, today.day)),
+    # https://github.com/akoumjian/datefinder/issues/63
+    ("12th day of December, 2001", datetime(2001, 12, 12)),
+    
 ])
 def test_find_date_strings(input_text, expected_date):
     if isinstance(expected_date,list):
