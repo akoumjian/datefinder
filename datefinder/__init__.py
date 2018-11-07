@@ -110,10 +110,7 @@ class DateFinder(object):
     def extract_date_strings(self, text, strict=False):
         """
         Scans text for possible datetime strings and extracts them
-
-        source: also return the original date string
-        index: also return the indices of the date string in the text
-        strict: Strict mode will only return dates sourced with day, month, and year
+        :param strict: Strict mode will only return dates sourced with day, month, and year
         """
 
         # Try to find ranges first
