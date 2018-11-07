@@ -7,6 +7,8 @@ import logging
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
+today = datetime.today()
+
 
 @pytest.mark.parametrize('input_text, expected_date', [
     ## English Dates
@@ -59,6 +61,9 @@ logger = logging.getLogger(__name__)
     ("2017-02-03T09:04:08.001Z", datetime(2017, 2, 3, 9, 4, 8, 1000, tzinfo=pytz.utc)),
     ("2017-02-03T09:04:08,00123Z", datetime(2017, 2, 3, 9, 4, 8, 1230, tzinfo=pytz.utc)),
     ("2017-02-03T09:04:08Z", datetime(2017, 2, 3, 9, 4, 8, tzinfo=pytz.utc)),
+    # Year only strings, from https://github.com/akoumjian/datefinder/issues/96
+    ("Dutta is the recipient of Femina Miss India Universe title in 2004.", datetime(2004, today.month, today.day)),
+    ("she said that she hit depression after being traumatized on the sets of \"Horn OK\" in 2008.", datetime(2008, today.month, today.day)),
 ])
 def test_find_date_strings(input_text, expected_date):
     if isinstance(expected_date,list):
