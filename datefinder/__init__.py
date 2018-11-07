@@ -115,55 +115,52 @@ class DateFinder(object):
         index: also return the indices of the date string in the text
         strict: Strict mode will only return dates sourced with day, month, and year
         """
-        # Begin by trying to match ranges
-        for match in DATE_REGEX.finditer(text):
-            match_str = match.group(0)
-            indices = match.span(0)
 
-            # Check if we match a range too
-            found_range = False
-            range_strings = []
-            for range_match in RANGE_REGEX.finditer(match_str):
-                # Parse date 1 and date 2 recursively
-                range_captures = range_match.capturesdict()
-                date_1 = range_captures.get("date_1", [])
-                date_2 = range_captures.get("date_2", [])
+        # Try to find ranges first
+        range_strings = list()
+        found_range = False
+        for range_match in RANGE_REGEX.finditer(text):
+            # Parse datetime 1 and datetime 2 recursively
+            range_captures = range_match.capturesdict()
+            dt1 = range_captures.get("dt1", [])
+            dt2 = range_captures.get("dt2", [])
 
-                for date_1_str in date_1:
-                    range_strings.extend(self.extract_date_strings(date_1_str, strict=strict))
+            for dt1_str in dt1:
+                range_strings.extend(self.extract_date_strings(dt1_str, strict=strict))
 
-                for date_2_str in date_2:
-                    range_strings.extend(self.extract_date_strings(date_2_str, strict=strict))
+            for dt2_str in dt2:
+                range_strings.extend(self.extract_date_strings(dt2_str, strict=strict))
+            
+            found_range = True
 
+        for range_string in range_strings:
+            yield range_string
+        
+        # Try to match regular datetimes if no ranges have been found
+        if not found_range:
+            for match in DATE_REGEX.finditer(text):
+                match_str = match.group(0)
+                indices = match.span(0)
 
-            for range_string in range_strings:
-                yield range_string
-
-            if not found_range:
                 ## Get individual group matches
                 captures = match.capturesdict()
-                time = captures.get('time')
+                # time = captures.get('time')
                 digits = captures.get('digits')
-                digits_modifiers = captures.get('digits_modifiers')
-                days = captures.get('days')
+                # digits_modifiers = captures.get('digits_modifiers')
+                # days = captures.get('days')
                 months = captures.get('months')
-                timezones = captures.get('timezones')
-                delimiters = captures.get('delimiters')
-                time_periods = captures.get('time_periods')
-                extra_tokens = captures.get('extra_tokens')
-
-                if delimiters and match_str.endswith(delimiters[-1]):
-                    captures['delimiters'] = captures['delimiters'][:-1]
+                # timezones = captures.get('timezones')
+                # delimiters = captures.get('delimiters')
+                # time_periods = captures.get('time_periods')
+                # extra_tokens = captures.get('extra_tokens')
 
                 if strict:
                     complete = False
-                    ## 12-05-2015
-                    if len(digits) == 3:
+                    if len(digits) == 3:  # 12-05-2015
                         complete = True
-                        ## 19 February 2013 year 09:10
-                    elif (len(months) == 1) and (len(digits) == 2):
+                    elif (len(months) == 1) and (len(digits) == 2):  # 19 February 2013 year 09:10
                         complete = True
-                        
+
                     if not complete:
                         continue
 
@@ -173,7 +170,7 @@ class DateFinder(object):
                 match_str = match_str.strip(STRIP_CHARS)
 
                 ## Save sanitized source string
-                yield match_str, indices, captures
+                yield match_str, indices, captures            
 
 
 def find_dates(

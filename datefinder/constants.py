@@ -108,12 +108,10 @@ DATES_PATTERN = DATES_PATTERN.format(
 )
 
 RANGE_PATTERN = r"""
-(
-    (
-        (?P<date_1>{date_pattern}){{1,}}
-        (to|through){{1,}}
-        (?P<date_2>{date_pattern}){{1,}}
-    ){{1,}}
+(?:
+    (?P<dt1>{date_pattern})
+    [\s]?(to|through)[\s]?
+    (?P<dt2>{date_pattern})
 )
 """.format(date_pattern=DATES_PATTERN)
 
