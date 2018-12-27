@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.6.1',
+    version='0.6.2',
 
     description='Extract datetime objects from strings',
     long_description=long_description,
@@ -58,11 +58,10 @@ setup(
         # 'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         # Topics
         'Natural Language :: English',
     ],
@@ -72,24 +71,24 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    # packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests']),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
-    py_modules=['datefinder'],
+    # py_modules=['datefinder'],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['regex==2016.01.10', 'python-dateutil>=2.4.2', 'pytz'],
+    install_requires=['regex>=2017.02.08', 'python-dateutil>=2.4.2', 'pytz'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
+        'dev': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7', 'pylint==2.1.1'],
         'test': ['pytest>=2.8.5', 'mock', 'pytz>=2015.7'],
     },
 

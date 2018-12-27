@@ -1,6 +1,8 @@
-import datefinder
 from dateutil import tz
 import sys, logging
+
+from datefinder.constants import NA_TIMEZONES_PATTERN, TIMEZONES_PATTERN, TIMEZONE_REPLACEMENTS
+
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
@@ -14,12 +16,11 @@ def test_tz_gettz_for_all_patterns():
     """
     bad_tz_strings = []
     good_tz_strings = []
-    finder = datefinder.DateFinder()
-    test_tz_strings = finder.NA_TIMEZONES_PATTERN.split('|') + finder.TIMEZONES_PATTERN.split('|\s')
+    test_tz_strings = NA_TIMEZONES_PATTERN.split('|') + TIMEZONES_PATTERN.split(r'|\s')
     for tz_string in test_tz_strings:
-        if tz_string in finder.TIMEZONE_REPLACEMENTS.keys():
-            tz_string = finder.TIMEZONE_REPLACEMENTS[tz_string]
-        tz_object = tz.gettz(tz_string.replace('\s',''))
+        if tz_string in TIMEZONE_REPLACEMENTS.keys():
+            tz_string = TIMEZONE_REPLACEMENTS[tz_string]
+        tz_object = tz.gettz(tz_string.replace(r'\s',''))
         if tz_object is None:
             bad_tz_strings.append(tz_string)
         else:
