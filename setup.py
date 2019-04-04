@@ -14,26 +14,32 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+try:
+    with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+        long_description = f.read()
+except Exception as e:
+    long_description = "LexPredict LexNLP: A swiss-army knife library built for working with real, unstructured legal text."
 
 setup(
-    name='datefinder',
+    name='datefinder-lexpredict',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.6.2',
 
-    description='Extract datetime objects from strings',
+    description='Extract datetime objects from strings (LexPredict fork)',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/akoumjian/datefinder',
+    url='https://github.com/LexPredict/datefinder',
 
     # Author details
-    author='Alec Koumjian',
-    author_email='akoumjian@gmail.com',
+    #author='Alec Koumjian',
+    #author_email='akoumjian@gmail.com',
+    author='ContraxSuite, LLC',
+    author_email='support@contraxsuite.com',
+
 
     # Choose your license
     license='MIT',

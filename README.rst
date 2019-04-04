@@ -38,10 +38,6 @@ How to Use
 ----------
 
 
-.. automodule:: datefinder
-   :members: find_dates
-
-
 .. code-block:: python
 
     In [1]: string_with_dates = """
