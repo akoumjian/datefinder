@@ -20,6 +20,9 @@ def test_extract_date_strings(date_string, expected_match_date_string):
         assert actual_date_string == expected_match_date_string
         assert len(captures.get('timezones',[])) > 0
 
+# TODO: 'May 20th 2015 is nowhere near the other date' was not recognized as
+# a date string: this string produced no result, but there was no error
+# because for-loop didn't make this iteration (no result in dt.extract_date_strings)
 
 @pytest.mark.parametrize('date_string, expected_match_date_string', [
     ['the Friday after next Tuesday the 20th', ''], # no matches

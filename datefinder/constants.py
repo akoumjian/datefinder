@@ -106,7 +106,7 @@ DATES_PATTERN = """
         (?P<extra_tokens>{extra_tokens})
     ## We need at least three items to match for minimal datetime parsing
     ## ie 10pm
-    ){{3,}}
+    ){{1,1}}
 )
 """
 
@@ -124,15 +124,10 @@ DATES_PATTERN = DATES_PATTERN.format(
     extra_tokens=EXTRA_TOKENS_PATTERN,
 )
 
-RANGE_PATTERN = r"""
-(?:
-    (?P<dt1>{date_pattern})
-    [\s]?(to|through)[\s]?
-    (?P<dt2>{date_pattern})
-)
-""".format(
-    date_pattern=DATES_PATTERN
-)
+ALL_GROUPS = ['time', 'years', 'numbers', 'digits', 'digits_suffixes', 'days',
+              'months', 'delimiters', 'positionnal_tokens', 'extra_tokens',
+              'undelimited_stamps', 'hours', 'minutes', 'seconds', 'microseconds',
+              'time_periods', 'timezones']
 
 DATE_REGEX = re.compile(
     DATES_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE
@@ -140,10 +135,6 @@ DATE_REGEX = re.compile(
 
 TIME_REGEX = re.compile(
     TIME_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE
-)
-
-RANGE_REGEX = re.compile(
-    RANGE_PATTERN, re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL | re.VERBOSE
 )
 
 ## These tokens can be in original text but dateutil
@@ -171,3 +162,8 @@ TIMEZONE_REPLACEMENTS = {
 ## Characters that can be removed from ends of matched strings
 STRIP_CHARS = " \n\t:-.,_"
 
+# split ranges
+RANGE_SPLIT_PATTERN = r'\Wto\W|\Wthrough\W'
+
+RANGE_SPLIT_REGEX =  re.compile(RANGE_SPLIT_PATTERN,
+    re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL)
