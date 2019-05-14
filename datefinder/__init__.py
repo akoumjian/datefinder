@@ -2,8 +2,6 @@ import copy
 import logging
 import regex as re
 from dateutil import tz, parser
-from typing import List, Tuple, Dict
-
 from datefinder.date_fragment import DateFragment
 from .constants import (
     REPLACEMENTS,
@@ -123,14 +121,14 @@ class DateFinder(object):
                 as_dt = self._add_tzinfo(as_dt, tz_string)
         return as_dt
 
-    def extract_date_strings(self, text: str, strict=False):
+    def extract_date_strings(self, text, strict=False):
         """
         Scans text for possible datetime strings and extracts them
         :param strict: Strict mode will only return dates sourced with day, month, and year
         """
         return self.extract_date_strings_inner(text, text_start=0, strict=strict)
 
-    def extract_date_strings_inner(self, text: str, text_start: int = 0, strict=False):
+    def extract_date_strings_inner(self, text, text_start=0, strict=False):
         """
         Extends extract_date_strings by text_start parameter: used in recursive calls to
         store true text coordinates in output
@@ -186,14 +184,14 @@ class DateFinder(object):
             ## Save sanitized source string
             yield match_str, indices, captures
 
-    def tokenize_string(self, text: str) -> List[Tuple[str, str, Dict[str, List[str]]]]:
+    def tokenize_string(self, text):
         '''
         Get matches from source text. Method merge_tokens will later compose
         potential date strings out of these matches.
         :param text: source text like 'the big fight at 2p.m. mountain standard time on ufc.com'
         :return: [(match_text, match_group, {match.capturesdict()}), ...]
         '''
-        items = []  # type:List[Tuple[str, str, Dict[str, List[str]]]]
+        items = []
 
         last_index = 0
 
@@ -211,14 +209,14 @@ class DateFinder(object):
             items.append((text[last_index:len(text)], '', {}))
         return items
 
-    def merge_tokens(self, tokens: List[Tuple[str, str, Dict[str, List[str]]]]) -> List[DateFragment]:
+    def merge_tokens(self, tokens):
         '''
         Makes potential date strings out of matches, got from tokenize_string method.
         :param tokens: [(match_text, match_group, {match.capturesdict()}), ...]
         :return: potential date strings
         '''
         MIN_MATCHES = 3
-        fragments = []  # type:List[DateFragment]
+        fragments = []
         frag = DateFragment()
 
         start_char, total_chars = 0, 0
@@ -261,7 +259,7 @@ class DateFinder(object):
         return fragments
 
     @staticmethod
-    def get_token_group(captures: Dict[str, List[str]]) -> str:
+    def get_token_group(captures):
         for gr in ALL_GROUPS:
             lst = captures.get(gr)
             if lst and len(lst) > 0:
@@ -269,7 +267,7 @@ class DateFinder(object):
         return ''
 
     @staticmethod
-    def split_date_range(text: str) -> List[Tuple[str, Tuple[int, int]]]:
+    def split_date_range(text):
         st_matches = RANGE_SPLIT_REGEX.finditer(text)
         start = 0
         parts = []  # List[Tuple[str, Tuple[int, int]]]
