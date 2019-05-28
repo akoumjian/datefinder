@@ -10,6 +10,7 @@ from .constants import (
     DATE_REGEX,
     ALL_GROUPS,
     RANGE_SPLIT_REGEX,
+    POSSIBLE_YEARS
 )
 
 logger = logging.getLogger("datefinder")
@@ -133,7 +134,6 @@ class DateFinder(object):
         Extends extract_date_strings by text_start parameter: used in recursive calls to
         store true text coordinates in output
         """
-
         # Try to find ranges first
         rng = self.split_date_range(text)
         if rng and len(rng) > 1:
@@ -157,8 +157,9 @@ class DateFinder(object):
             # time = captures.get('time')
             digits = captures.get("digits")
             # digits_modifiers = captures.get('digits_modifiers')
-            # days = captures.get('days')
+            days = captures.get('days')
             months = captures.get("months")
+            years = captures.get("years")
             # timezones = captures.get('timezones')
             # delimiters = captures.get('delimiters')
             # time_periods = captures.get('time_periods')
@@ -168,11 +169,15 @@ class DateFinder(object):
                 complete = False
                 if len(digits) == 3:  # 12-05-2015
                     complete = True
-                elif (len(months) == 1) and (
-                        len(digits) == 2
-                ):  # 19 February 2013 year 09:10
+                elif len(months) == 1 and len(digits) == 2:  # 19 February 2013 year 09:10
                     complete = True
-
+                elif len(months) == 1 and len(years) == 1: # March 2019
+                    complete = True
+                elif len(months) == 1 and (len(days) == 1 or len(digits) == 1): # 31 March
+                    complete = True
+                elif len(years) == 1:
+                    complete = True
+                
                 if not complete:
                     continue
 
@@ -247,8 +252,10 @@ class DateFinder(object):
                     frag.captures[capt] = tok_capts[capt]
 
             start_char = total_chars
-
+        
         if frag.get_captures_count() >= MIN_MATCHES:  # frag.matches
+            fragments.append(frag)
+        elif any([int(year) in POSSIBLE_YEARS for year in frag.captures["years"]]):
             fragments.append(frag)
 
         for frag in fragments:

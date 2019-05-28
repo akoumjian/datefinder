@@ -1,4 +1,6 @@
 import regex as re
+import datetime
+
 
 NUMBERS_PATTERN = r"first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth"
 POSITIONNAL_TOKENS = r"next|last"
@@ -167,3 +169,6 @@ RANGE_SPLIT_PATTERN = r'\Wto\W|\Wthrough\W'
 
 RANGE_SPLIT_REGEX =  re.compile(RANGE_SPLIT_PATTERN,
     re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL)
+
+CURRENT_YEAR = datetime.datetime.now().year
+POSSIBLE_YEARS = list(range(CURRENT_YEAR-10, CURRENT_YEAR+10))
