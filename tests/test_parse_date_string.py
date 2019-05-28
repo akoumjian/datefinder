@@ -12,26 +12,29 @@ logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.parametrize('date_string, expected_parse_args, expected_parse_kwargs, expected_captures, expected_date', [
+@pytest.mark.parametrize('date_string, expected_parse_args, expected_parse_kwargs, expected_captures, is_day_first, expected_date', [
     (
         'due on Tuesday Jul 22, 2014 eastern standard time',
         ['tuesday jul 22, 2014',],
-        {'default': None},
+        {'default': None, 'dayfirst': False},
         { 'timezones': ['eastern'] },
+        False,
         datetime(2014, 7, 22).replace(tzinfo=tz.gettz('EST'))
     ),
     (
         'Friday pAcific stanDard time',
         ['friday',],
-        {'default': None},
+        {'default': None, 'dayfirst': False},
         { 'timezones': ['pacific'] },
+        False,
         parser.parse('friday').replace(tzinfo=tz.gettz('PST'))
     ),
     (
         '13/03/2014 Central Daylight Savings Time',
         ['13/03/2014',],
-        {'default': None},
+        {'default': None, 'dayfirst': False},
         { 'timezones': ['central'] },
+        False,
         datetime(2014, 3, 13).replace(tzinfo=tz.gettz('CST'))
     ),
     # assert dateutil.parse successfully
@@ -40,15 +43,24 @@ logger = logging.getLogger(__name__)
     (
         '12/24/2015 at 2pm',
         ['12/24/2015 at 2pm',],
-        {'default': None},
+        {'default': None, 'dayfirst': False},
         { 'timezones': [] },
+        False,
         datetime(2015, 12, 24, 14, 0)
     ),
+    (
+        '12/01/2015 at 2pm',
+        ['12/01/2015 at 2pm',],
+        {'default': None, 'dayfirst': True},
+        { 'timezones': [] },
+        True,
+        datetime(2015, 1, 12, 14, 0)
+    ),
 ])
-def test_parse_date_string_find_replace(date_string, expected_parse_args, expected_parse_kwargs, expected_captures, expected_date):
+def test_parse_date_string_find_replace(date_string, expected_parse_args, expected_parse_kwargs, expected_captures, is_day_first, expected_date):
     dt = datefinder.DateFinder()
     with mock.patch.object(parser, 'parse', wraps=parser.parse) as spy:
-        actual_datetime = dt.parse_date_string(date_string, expected_captures)
+        actual_datetime = dt.parse_date_string(date_string, expected_captures, is_day_first)
         spy.assert_called_with(*expected_parse_args, **expected_parse_kwargs)
         logger.debug("actual={}  expected={}".format(actual_datetime, expected_date))
         assert actual_datetime == expected_date
