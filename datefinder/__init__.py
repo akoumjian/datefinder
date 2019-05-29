@@ -255,7 +255,7 @@ class DateFinder(object):
         
         if frag.get_captures_count() >= MIN_MATCHES:  # frag.matches
             fragments.append(frag)
-        elif any([int(year) in POSSIBLE_YEARS for year in frag.captures["years"]]):
+        elif any([int(year) in POSSIBLE_YEARS for year in frag.captures.get("years", [])]):
             fragments.append(frag)
 
         for frag in fragments:
