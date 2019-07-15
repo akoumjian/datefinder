@@ -5,6 +5,7 @@ from dateutil import tz, parser
 from datefinder.date_fragment import DateFragment
 from .constants import (
     REPLACEMENTS,
+    PREPROCESSING_REPLACEMENT,
     TIMEZONE_REPLACEMENTS,
     STRIP_CHARS,
     DATE_REGEX,
@@ -24,12 +25,20 @@ class DateFinder(object):
     def __init__(self, base_date=None):
         self.base_date = base_date
 
-    def find_dates(self, text, source=False, index=False, strict=False, is_day_first=False):
+    @staticmethod
+    def _preprocess_text(date_string):
+        for regex, sub in PREPROCESSING_REPLACEMENT.items():
+            date_string = re.sub(regex, sub, date_string, flags=re.IGNORECASE)
+        return date_string
 
+    def find_dates(self, text, source=False, index=False, strict=False, is_day_first=False):
+        
+        text = self._preprocess_text(text)
+        
         for date_string, indices, captures in self.extract_date_strings(
             text, strict=strict
         ):
-
+            
             as_dt = self.parse_date_string(date_string, captures, is_day_first)
             if as_dt is None:
                 ## Dateutil couldn't make heads or tails of it
@@ -56,7 +65,7 @@ class DateFinder(object):
         cloned_replacements = copy.copy(REPLACEMENTS)  # don't mutate
         for tz_string in captures.get("timezones", []):
             cloned_replacements.update({tz_string: " "})
-
+        
         date_string = date_string.lower()
         for key, replacement in cloned_replacements.items():
             # we really want to match all permutations of the key surrounded by whitespace chars except one

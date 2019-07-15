@@ -154,6 +154,15 @@ REPLACEMENTS = {
     "day": " ",
 }
 
+PREPROCESSING_REPLACEMENT = {
+    "(?=\s|^)q1(?=(\s|\d{2}))": "31-03",
+    "(?=\s|^)q2(?=(\s|\d{2}))": "30-06",
+    "(?=\s|^)q3(?=(\s|\d{2}))": "30-09",
+    "(?=\s|^)q4(?=(\s|\d{2}))": "31-12",
+    "(?=\s|^)ye(?=(\s|\d{2}))": "31-12",
+}
+
+
 TIMEZONE_REPLACEMENTS = {
     "pacific": "PST",
     "eastern": "EST",
