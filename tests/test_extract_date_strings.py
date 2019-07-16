@@ -28,7 +28,7 @@ def test_extract_date_strings(date_string, expected_match_date_string):
     ['the Friday after next Tuesday the 20th', ''], # no matches
     ['This Tuesday March 2015 in the evening', ''], # no matches
     ['They said it was on 01-03-2015', 'on 01-03-2015'], # 3 digits strict match
-    ['May 20th 2015 is nowhere near the other date', 'May 20 2015'], # one month two digit match
+    ['May 20 2015 is nowhere near the other date', 'May 20 2015'], # one month two digit match
 ])
 def test_extract_date_strings_with_strict_option(date_string, expected_match_date_string):
     """

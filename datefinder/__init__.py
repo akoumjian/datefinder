@@ -173,8 +173,10 @@ class DateFinder(object):
                         len(digits) == 2
                 ):  # 19 February 2013 year 09:10
                     complete = True
+                elif (len(years)==1) and (len(digits)==2): #09/06/2018
+                    complete = True
 
-                elif (len(years)==1) and (len(digits) ==2): #09/06/2018
+                elif (len(years)==1) and (len(months)==1) and (len(digits)==1): # '19th day of May, 2015'
                     complete = True
 
                 if not complete:

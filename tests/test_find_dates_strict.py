@@ -14,7 +14,10 @@ today = datetime.today()
 
     ('June 2018', []),
     ('09/06/18',  datetime(2018, 9, 6)),
-    ('09/06/2018', datetime(2018, 9, 6))
+    ('09/06/2018', datetime(2018, 9, 6)),
+    ('recorded: 03/14/2008', datetime(2008, 3, 14)),
+    ('19th day of May, 2015', datetime(2015, 5, 19)),
+    ('19th day of May', [])
     
 ])
 def test_find_date_strings_strict(input_text, expected_date):
