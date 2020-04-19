@@ -5,11 +5,13 @@ from dateutil import tz, parser
 from datefinder.date_fragment import DateFragment
 from .constants import (
     REPLACEMENTS,
+    PREPROCESSING_REPLACEMENT,
     TIMEZONE_REPLACEMENTS,
     STRIP_CHARS,
     DATE_REGEX,
     ALL_GROUPS,
     RANGE_SPLIT_REGEX,
+    POSSIBLE_YEARS
 )
 
 logger = logging.getLogger("datefinder")
@@ -23,13 +25,21 @@ class DateFinder(object):
     def __init__(self, base_date=None):
         self.base_date = base_date
 
-    def find_dates(self, text, source=False, index=False, strict=False):
+    @staticmethod
+    def _preprocess_text(date_string):
+        for regex, sub in PREPROCESSING_REPLACEMENT.items():
+            date_string = re.sub(regex, sub, date_string, flags=re.IGNORECASE)
+        return date_string
 
+    def find_dates(self, text, source=False, index=False, strict=False, is_day_first=False):
+        
+        text = self._preprocess_text(text)
+        
         for date_string, indices, captures in self.extract_date_strings(
             text, strict=strict
         ):
-
-            as_dt = self.parse_date_string(date_string, captures)
+            
+            as_dt = self.parse_date_string(date_string, captures, is_day_first)
             if as_dt is None:
                 ## Dateutil couldn't make heads or tails of it
                 ## move on to next
@@ -55,7 +65,7 @@ class DateFinder(object):
         cloned_replacements = copy.copy(REPLACEMENTS)  # don't mutate
         for tz_string in captures.get("timezones", []):
             cloned_replacements.update({tz_string: " "})
-
+        
         date_string = date_string.lower()
         for key, replacement in cloned_replacements.items():
             # we really want to match all permutations of the key surrounded by whitespace chars except one
@@ -95,11 +105,11 @@ class DateFinder(object):
         tzinfo_match = tz.gettz(tz_string)
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
-    def parse_date_string(self, date_string, captures):
+    def parse_date_string(self, date_string, captures, is_day_first=False):
         # For well formatted string, we can already let dateutils parse them
         # otherwise self._find_and_replace method might corrupt them
         try:
-            as_dt = parser.parse(date_string, default=self.base_date)
+            as_dt = parser.parse(date_string, default=self.base_date, dayfirst=is_day_first)
         except ValueError:
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
@@ -113,7 +123,7 @@ class DateFinder(object):
 
             try:
                 logger.debug("Parsing {0} with dateutil".format(date_string))
-                as_dt = parser.parse(date_string, default=self.base_date)
+                as_dt = parser.parse(date_string, default=self.base_date, dayfirst=is_day_first)
             except Exception as e:
                 logger.debug(e)
                 as_dt = None
@@ -133,7 +143,6 @@ class DateFinder(object):
         Extends extract_date_strings by text_start parameter: used in recursive calls to
         store true text coordinates in output
         """
-
         # Try to find ranges first
         rng = self.split_date_range(text)
         if rng and len(rng) > 1:
@@ -157,8 +166,9 @@ class DateFinder(object):
             # time = captures.get('time')
             digits = captures.get("digits")
             # digits_modifiers = captures.get('digits_modifiers')
-            # days = captures.get('days')
+            days = captures.get('days')
             months = captures.get("months")
+            years = captures.get("years")
             # timezones = captures.get('timezones')
             # delimiters = captures.get('delimiters')
             # time_periods = captures.get('time_periods')
@@ -168,11 +178,15 @@ class DateFinder(object):
                 complete = False
                 if len(digits) == 3:  # 12-05-2015
                     complete = True
-                elif (len(months) == 1) and (
-                        len(digits) == 2
-                ):  # 19 February 2013 year 09:10
+                elif len(months) == 1 and len(digits) == 2:  # 19 February 2013 year 09:10
                     complete = True
-
+                elif len(months) == 1 and len(years) == 1: # March 2019
+                    complete = True
+                elif len(months) == 1 and (len(days) == 1 or len(digits) == 1): # 31 March
+                    complete = True
+                elif len(years) == 1:
+                    complete = True
+                
                 if not complete:
                     continue
 
@@ -247,8 +261,10 @@ class DateFinder(object):
                     frag.captures[capt] = tok_capts[capt]
 
             start_char = total_chars
-
+        
         if frag.get_captures_count() >= MIN_MATCHES:  # frag.matches
+            fragments.append(frag)
+        elif any([int(year) in POSSIBLE_YEARS for year in frag.captures.get("years", [])]):
             fragments.append(frag)
 
         for frag in fragments:
@@ -284,7 +300,7 @@ class DateFinder(object):
         return parts
 
 
-def find_dates(text, source=False, index=False, strict=False, base_date=None):
+def find_dates(text, source=False, index=False, strict=False, base_date=None, is_day_first=False):
     """
     Extract datetime strings from text
 
@@ -306,9 +322,15 @@ def find_dates(text, source=False, index=False, strict=False, base_date=None):
     :param base_date:
         Set a default base datetime when parsing incomplete dates
     :type base_date: datetime
+    :param is_day_first:
+        Whether to interpret the first value in an ambiguous 3-integer date
+        (e.g. 01/05/09) as the day (True) or month (False)
+    :type is_day_first: boolean
 
     :return: Returns a generator that produces :mod:`datetime.datetime` objects,
         or a tuple with the source text and index, if requested
     """
     date_finder = DateFinder(base_date=base_date)
-    return date_finder.find_dates(text, source=source, index=index, strict=strict)
+    return date_finder.find_dates(
+        text, source=source, index=index, strict=strict, is_day_first=is_day_first
+    )

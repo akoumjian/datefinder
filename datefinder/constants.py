@@ -1,4 +1,6 @@
 import regex as re
+import datetime
+
 
 NUMBERS_PATTERN = r"first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth"
 POSITIONNAL_TOKENS = r"next|last"
@@ -152,6 +154,15 @@ REPLACEMENTS = {
     "day": " ",
 }
 
+PREPROCESSING_REPLACEMENT = {
+    "(?=\s|^)q1(?=(\s|\d{2}))": "31-03",
+    "(?=\s|^)q2(?=(\s|\d{2}))": "30-06",
+    "(?=\s|^)q3(?=(\s|\d{2}))": "30-09",
+    "(?=\s|^)q4(?=(\s|\d{2}))": "31-12",
+    "(?=\s|^)ye(?=(\s|\d{2}))": "31-12",
+}
+
+
 TIMEZONE_REPLACEMENTS = {
     "pacific": "PST",
     "eastern": "EST",
@@ -167,3 +178,6 @@ RANGE_SPLIT_PATTERN = r'\Wto\W|\Wthrough\W'
 
 RANGE_SPLIT_REGEX =  re.compile(RANGE_SPLIT_PATTERN,
     re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL)
+
+CURRENT_YEAR = datetime.datetime.now().year
+POSSIBLE_YEARS = list(range(CURRENT_YEAR-10, CURRENT_YEAR+10))
