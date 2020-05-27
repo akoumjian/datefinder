@@ -22,7 +22,7 @@ A python module for locating dates inside text. Use this package to extract all 
 of date like strings from a document and turn them into datetime objects.
 
 This module finds the likely datetime strings and then uses  
-`dateutil`to convert to the datetime object.
+`dateutil` to convert to the datetime object.
 
 
 Installation
@@ -35,10 +35,6 @@ Installation
 
 How to Use
 ----------
-
-
-.. automodule:: datefinder
-   :members: find_dates
 
 
 .. code-block:: python
