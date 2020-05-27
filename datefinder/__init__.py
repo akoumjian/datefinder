@@ -100,7 +100,7 @@ class DateFinder(object):
         # otherwise self._find_and_replace method might corrupt them
         try:
             as_dt = parser.parse(date_string, default=self.base_date)
-        except ValueError:
+        except (ValueError, OverflowError):
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
 
