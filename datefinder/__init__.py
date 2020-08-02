@@ -20,8 +20,14 @@ class DateFinder(object):
     Locates dates in a text
     """
 
-    def __init__(self, base_date=None):
+    def __init__(self, base_date=None, first="month"):
         self.base_date = base_date
+        self.dayfirst = False
+        self.yearfirst = False
+        if first == "day":
+            self.dayfirst = True
+        if first == "year":
+            self.yearfirst = True
 
     def find_dates(self, text, source=False, index=False, strict=False):
 
@@ -99,7 +105,12 @@ class DateFinder(object):
         # For well formatted string, we can already let dateutils parse them
         # otherwise self._find_and_replace method might corrupt them
         try:
-            as_dt = parser.parse(date_string, default=self.base_date)
+            as_dt = parser.parse(
+                date_string,
+                default=self.base_date,
+                dayfirst=self.dayfirst,
+                yearfirst=self.yearfirst,
+            )
         except (ValueError, OverflowError):
             # replace tokens that are problematic for dateutil
             date_string, tz_string = self._find_and_replace(date_string, captures)
@@ -113,7 +124,12 @@ class DateFinder(object):
 
             try:
                 logger.debug("Parsing {0} with dateutil".format(date_string))
-                as_dt = parser.parse(date_string, default=self.base_date)
+                as_dt = parser.parse(
+                    date_string,
+                    default=self.base_date,
+                    dayfirst=self.dayfirst,
+                    yearfirst=self.yearfirst,
+                )
             except Exception as e:
                 logger.debug(e)
                 as_dt = None
@@ -139,9 +155,11 @@ class DateFinder(object):
         if rng and len(rng) > 1:
             range_strings = []
             for range_str in rng:
-                range_strings.extend(self.extract_date_strings_inner(range_str[0],
-                                                                     text_start=range_str[1][0],
-                                                                     strict=strict))
+                range_strings.extend(
+                    self.extract_date_strings_inner(
+                        range_str[0], text_start=range_str[1][0], strict=strict
+                    )
+                )
             for range_string in range_strings:
                 yield range_string
             return
@@ -169,7 +187,7 @@ class DateFinder(object):
                 if len(digits) == 3:  # 12-05-2015
                     complete = True
                 elif (len(months) == 1) and (
-                        len(digits) == 2
+                    len(digits) == 2
                 ):  # 19 February 2013 year 09:10
                     complete = True
 
@@ -185,12 +203,12 @@ class DateFinder(object):
             yield match_str, indices, captures
 
     def tokenize_string(self, text):
-        '''
+        """
         Get matches from source text. Method merge_tokens will later compose
         potential date strings out of these matches.
         :param text: source text like 'the big fight at 2p.m. mountain standard time on ufc.com'
         :return: [(match_text, match_group, {match.capturesdict()}), ...]
-        '''
+        """
         items = []
 
         last_index = 0
@@ -202,19 +220,19 @@ class DateFinder(object):
             group = self.get_token_group(captures)
 
             if indices[0] > last_index:
-                items.append((text[last_index:indices[0]], '', {}))
+                items.append((text[last_index : indices[0]], "", {}))
             items.append((match_str, group, captures))
             last_index = indices[1]
         if last_index < len(text):
-            items.append((text[last_index:len(text)], '', {}))
+            items.append((text[last_index : len(text)], "", {}))
         return items
 
     def merge_tokens(self, tokens):
-        '''
+        """
         Makes potential date strings out of matches, got from tokenize_string method.
         :param tokens: [(match_text, match_group, {match.capturesdict()}), ...]
         :return: potential date strings
-        '''
+        """
         MIN_MATCHES = 3
         fragments = []
         frag = DateFragment()
@@ -264,7 +282,7 @@ class DateFinder(object):
             lst = captures.get(gr)
             if lst and len(lst) > 0:
                 return gr
-        return ''
+        return ""
 
     @staticmethod
     def split_date_range(text):
@@ -284,7 +302,9 @@ class DateFinder(object):
         return parts
 
 
-def find_dates(text, source=False, index=False, strict=False, base_date=None):
+def find_dates(
+    text, source=False, index=False, strict=False, base_date=None, first="month"
+):
     """
     Extract datetime strings from text
 
@@ -306,9 +326,15 @@ def find_dates(text, source=False, index=False, strict=False, base_date=None):
     :param base_date:
         Set a default base datetime when parsing incomplete dates
     :type base_date: datetime
+    :param first:
+        Whether to interpret the the first value in an ambiguous 3-integer date 
+        (01/02/03) as the month, day, or year. Values can be `month`, `day`, `year`. 
+        Default is `month`.
+    :type first: str|unicode
+
 
     :return: Returns a generator that produces :mod:`datetime.datetime` objects,
         or a tuple with the source text and index, if requested
     """
-    date_finder = DateFinder(base_date=base_date)
+    date_finder = DateFinder(base_date=base_date, first=first)
     return date_finder.find_dates(text, source=source, index=index, strict=strict)
