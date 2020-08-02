@@ -104,6 +104,8 @@ today = datetime.today()
         ("01/02/03", datetime(2003, 1, 2, 0, 0, 0, 0), "month"),
         ("01/02/03", datetime(2003, 2, 1, 0, 0, 0, 0), "day"),
         ("01/02/03", datetime(2001, 2, 3, 0, 0, 0, 0), "year"),
+        ("02/05/2020", datetime(2020, 2, 5, 0, 0, 0, 0), "month"),
+        ("02/05/2020", datetime(2020, 5, 2, 0, 0, 0, 0), "day"),
     ],
 )
 def test_find_date_strings(input_text, expected_date, first):
