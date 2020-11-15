@@ -11,14 +11,18 @@ logger = logging.getLogger(__name__)
     ['March 20, 2015 3:30 pm ACWDT in the parking lot', 'March 20, 2015 3:30 pm ACWDT'],
     ['blah blah March 20, 2015 3pm MADMT for some thing', 'March 20, 2015 3pm MADMT'],
     ['we need it back on Friday 2p.m. central standard time', 'on Friday 2p.m. central standard time'],
-    ['the big fight at 2p.m. mountain standard time on ufc.com', 'at 2p.m. mountain standard time on']
+    ['the big fight at 2p.m. mountain standard time on ufc.com', 'at 2p.m. mountain standard time on'],
+
+    # issue: Thu not recognised by regex #138
+    ['starting Thursday 2020-11-05 13:50 GMT', 'Thursday 2020-11-05 13:50 GMT'],
+    ['starting Thu 2020-11-05 13:50 GMT', 'Thu 2020-11-05 13:50 GMT'],
 ])
 def test_extract_date_strings(date_string, expected_match_date_string):
     dt = datefinder.DateFinder()
     for actual_date_string, indexes, captures in dt.extract_date_strings(date_string):
         logger.debug("actual={}  expected={}".format(actual_date_string, expected_match_date_string))
         assert actual_date_string == expected_match_date_string
-        assert len(captures.get('timezones',[])) > 0
+        assert len(captures.get('timezones',[])) > 0, "timezone expected in result"
 
 # TODO: 'May 20th 2015 is nowhere near the other date' was not recognized as
 # a date string: this string produced no result, but there was no error
