@@ -15,21 +15,13 @@ today = datetime.today()
     ("input_text", "expected_date", "first"),
     [
         ## English Dates
-        # ('[Sept] 04, 2014.', datetime(2014, 9, 4), "month"),
         ("Tuesday Jul 22, 2014", datetime(2014, 7, 22), "month"),
-        # ('10:04am EDT', datetime(2012, 11, 13, 14, 4), "month"),
-        # ('Friday', datetime(2012, 11, 9), "month"),
-        # ('November 19, 2014 at noon', datetime(2014, 11, 19, 12, 0), "month"),
-        ("December 13, 2014 at midnight", datetime(2014, 12, 13, 0, 0), "month"),
-        # ('Nov 25 2014 10:17 pm EST', datetime(2014, 11, 26, 3, 17), "month"),
-        # ('Wed Aug 05 12:00:00 EDT 2015', datetime(2015, 8, 5, 16, 0), "month"),
         ("April 9, 2013 at 6:11 a.m.", datetime(2013, 4, 9, 6, 11), "month"),
         ("Aug. 9, 2012 at 2:57 p.m.", datetime(2012, 8, 9, 14, 57), "month"),
         ("December 10, 2014, 11:02:21 pm", datetime(2014, 12, 10, 23, 2, 21), "month"),
         ("8:25 a.m. Dec. 12, 2014", datetime(2014, 12, 12, 8, 25), "month"),
         ("2:21 p.m., December 11, 2014", datetime(2014, 12, 11, 14, 21), "month"),
         ("Fri, 12 Dec 2014 10:55:50", datetime(2014, 12, 12, 10, 55, 50), "month"),
-        # ('20 Mar 2013 10h11', datetime(2013, 3, 20, 10, 11), "month"),
         ("10:06am Dec 11, 2014", datetime(2014, 12, 11, 10, 6), "month"),
         ("September 2nd, 1998", datetime(1998, 9, 2), "month"),
         (
@@ -37,7 +29,6 @@ today = datetime.today()
             [datetime(2010, 5, 5), datetime(2011, 7, 10)],
             "month",
         ),
-        # ('19 February 2013 year 09:10', datetime(2013, 2, 19, 9, 10), "month"),
         # Numeric dates
         ("06-17-2014", datetime(2014, 6, 17), "month"),
         ("13/03/2014", datetime(2014, 3, 13), "month"),
@@ -46,7 +37,6 @@ today = datetime.today()
             datetime(2016, 2, 4, 20, 16, 26, tzinfo=pytz.utc),
             "month",
         ),
-        # ('11. 12. 2014, 08:45:39', datetime(2014, 11, 12, 8, 45, 39)),
         (
             "2017-02-03T09:04:08Z to 2017-02-03T09:04:09Z",
             [
