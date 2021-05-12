@@ -18,7 +18,7 @@ datefinder - extract dates from text
     :alt: gitter chat
 
 
-A python module for locating dates inside text. Use this package to extract all sorts 
+A Python module for locating dates inside text. Use this package to extract all sorts 
 of date like strings from a document and turn them into datetime objects.
 
 This module finds the likely datetime strings and then uses  
@@ -61,5 +61,5 @@ How to Use
 Support
 -------
 
-You can talk to us on `Gitter <https://gitter.im/datefinder/Lobby>`_ or just submit an issue on `github <https://github.com/akoumjian/datefinder/issues/>`_. 
+You can talk to us on `Gitter <https://gitter.im/datefinder/Lobby>`_ or just submit an issue on `GitHub <https://github.com/akoumjian/datefinder/issues/>`_. 
 
