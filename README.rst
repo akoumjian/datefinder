@@ -17,9 +17,10 @@ datefinder - extract dates from text
     :target: https://gitter.im/datefinder/Lobby
     :alt: gitter chat
 
-.. image:: https://anaconda.org/conda-forge/datefinder/badges/version.svg
+.. image:: https://img.shields.io/conda/v/conda-forge/datefinder?color=blue&logo=anaconda
     :target: https://anaconda.org/conda-forge/datefinder
     :alt: conda version
+
 
 A python module for locating dates inside text. Use this package to extract all sorts 
 of date like strings from a document and turn them into datetime objects.
