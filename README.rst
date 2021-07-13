@@ -28,10 +28,17 @@ This module finds the likely datetime strings and then uses
 Installation
 ------------
 
+**With pip**
+
 .. code-block:: sh
 
     pip install datefinder
 
+**With conda**
+
+.. code-block:: sh
+
+    conda install -c conda-forge datefinder
 
 How to Use
 ----------
