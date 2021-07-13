@@ -69,6 +69,14 @@ How to Use
     2005-01-15 00:00:00
 
 
+Demo
+----
+
+-  🎞️ `Video demo`_ by Calmcode.io. :star: 
+
+.. _Video demo: https://calmcode.io/shorts/datefinder.py.html
+
+
 Support
 -------
 
