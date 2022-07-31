@@ -177,6 +177,7 @@ class DateFinder(object):
             # digits_modifiers = captures.get('digits_modifiers')
             # days = captures.get('days')
             months = captures.get("months")
+            years = captures.get("years")
             # timezones = captures.get('timezones')
             # delimiters = captures.get('delimiters')
             # time_periods = captures.get('time_periods')
@@ -189,6 +190,11 @@ class DateFinder(object):
                 elif (len(months) == 1) and (
                     len(digits) == 2
                 ):  # 19 February 2013 year 09:10
+                    complete = True
+                elif (len(years)==1) and (len(digits)==2): #09/06/2018
+                    complete = True
+
+                elif (len(years)==1) and (len(months)==1) and (len(digits)==1): # '19th day of May, 2015'
                     complete = True
 
                 if not complete:
