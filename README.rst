@@ -1,9 +1,9 @@
 datefinder - extract dates from text
 ====================================
 
-.. image:: https://img.shields.io/travis/akoumjian/datefinder/master.svg
-    :target: https://travis-ci.org/akoumjian/datefinder
-    :alt: travis build status
+.. image:: https://github.com/akoumjian/datefinder/actions/workflows/python-package.yml/badge.svg
+    :target: https://github.com/akoumjian/datefinder
+    :alt: Build Status
 
 .. image:: https://img.shields.io/pypi/dm/datefinder.svg
     :target: https://pypi.python.org/pypi/datefinder/
@@ -12,10 +12,6 @@ datefinder - extract dates from text
 .. image:: https://img.shields.io/pypi/v/datefinder.svg
     :target: https://pypi.python.org/pypi/datefinder
     :alt: pypi version
-
-.. image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg
-    :target: https://gitter.im/datefinder/Lobby
-    :alt: gitter chat
 
 .. image:: https://img.shields.io/conda/v/conda-forge/datefinder?color=blue&logo=anaconda
     :target: https://anaconda.org/conda-forge/datefinder
@@ -75,10 +71,4 @@ Demo
 -  🎞️ `Video demo`_ by Calmcode.io. :star: 
 
 .. _Video demo: https://calmcode.io/shorts/datefinder.py.html
-
-
-Support
--------
-
-You can talk to us on `Gitter <https://gitter.im/datefinder/Lobby>`_ or just submit an issue on `github <https://github.com/akoumjian/datefinder/issues/>`_. 
 
