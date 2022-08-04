@@ -10,7 +10,6 @@ TIMEZONES_PATTERN = "ACDT|ACST|ACT|ACWDT|ACWST|ADDT|ADMT|ADT|AEDT|AEST|AFT|AHDT|
 ## explicit north american timezones that get replaced
 NA_TIMEZONES_PATTERN = "pacific|eastern|mountain|central"
 ALL_TIMEZONES_PATTERN = TIMEZONES_PATTERN + "|" + NA_TIMEZONES_PATTERN
-DELIMITERS_PATTERN = r"[/\:\-\,\s\_\+\@]+"
 
 # Allows for straightforward datestamps e.g 2017, 201712, 20171223. Created with:
 #  YYYYMM_PATTERN = '|'.join(['19\d\d'+'{:0>2}'.format(mon)+'|20\d\d'+'{:0>2}'.format(mon) for mon in range(1, 13)])

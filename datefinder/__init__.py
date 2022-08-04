@@ -5,6 +5,7 @@ from dateutil import tz, parser
 from datefinder.date_fragment import DateFragment
 from .constants import (
     REPLACEMENTS,
+    DELIMITERS_PATTERN,
     TIMEZONE_REPLACEMENTS,
     STRIP_CHARS,
     DATE_REGEX,
@@ -70,8 +71,14 @@ class DateFinder(object):
             # 2. match ' to'
             # 3. match ' to '
             # but never match r'(\s|)to(\s|)' which would make 'october' > 'ocber'
+            # but also include delimiters, like this 'date: '
+            full_match_pattern = (
+                r"(^|{delimiters_pattern}){key}($|{delimiters_pattern})".format(
+                    delimiters_pattern=DELIMITERS_PATTERN, key=key
+                )
+            )
             date_string = re.sub(
-                r"(^|\s)" + key + r"(\s|$)",
+                full_match_pattern,
                 replacement,
                 date_string,
                 flags=re.IGNORECASE,
@@ -191,10 +198,12 @@ class DateFinder(object):
                     len(digits) == 2
                 ):  # 19 February 2013 year 09:10
                     complete = True
-                elif (len(years)==1) and (len(digits)==2): #09/06/2018
+                elif (len(years) == 1) and (len(digits) == 2):  # 09/06/2018
                     complete = True
 
-                elif (len(years)==1) and (len(months)==1) and (len(digits)==1): # '19th day of May, 2015'
+                elif (
+                    (len(years) == 1) and (len(months) == 1) and (len(digits) == 1)
+                ):  # '19th day of May, 2015'
                     complete = True
 
                 if not complete:
@@ -333,8 +342,8 @@ def find_dates(
         Set a default base datetime when parsing incomplete dates
     :type base_date: datetime
     :param first:
-        Whether to interpret the the first value in an ambiguous 3-integer date 
-        (01/02/03) as the month, day, or year. Values can be `month`, `day`, `year`. 
+        Whether to interpret the the first value in an ambiguous 3-integer date
+        (01/02/03) as the month, day, or year. Values can be `month`, `day`, `year`.
         Default is `month`.
     :type first: str|unicode
 
