@@ -13,10 +13,6 @@ datefinder - extract dates from text
     :target: https://pypi.python.org/pypi/datefinder
     :alt: pypi version
 
-.. image:: https://img.shields.io/conda/v/conda-forge/datefinder?color=blue&logo=anaconda
-    :target: https://anaconda.org/conda-forge/datefinder
-    :alt: conda version
-
 
 A python module for locating dates inside text. Use this package to extract all sorts 
 of date like strings from a document and turn them into datetime objects.
@@ -34,11 +30,7 @@ Installation
 
     pip install datefinder
 
-**With conda**
-
-.. code-block:: sh
-
-    conda install -c conda-forge datefinder
+**Note:  I do not publish the version on conda forge and cannot verify its integrity.**
 
 How to Use
 ----------
