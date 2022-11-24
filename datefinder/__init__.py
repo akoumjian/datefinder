@@ -321,7 +321,7 @@ class DateFinder(object):
 
 
 def find_dates(
-    text, source=False, index=False, strict=False, base_date=None, first="month"
+    text, source=False, index=False, strict=False, base_date=None, first="month", tzinfos=None
 ):
     """
     Extract datetime strings from text
@@ -354,5 +354,5 @@ def find_dates(
     :return: Returns a generator that produces :mod:`datetime.datetime` objects,
         or a tuple with the source text and index, if requested
     """
-    date_finder = DateFinder(base_date=base_date, first=first)
+    date_finder = DateFinder(base_date=base_date, first=first, tzinfos=tzinfos)
     return date_finder.find_dates(text, source=source, index=index, strict=strict)
