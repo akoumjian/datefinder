@@ -72,6 +72,11 @@ today = datetime.today()
             [datetime(2012, 8, 31), datetime(2013, 8, 30)],
             "month",
         ),
+        (
+            "31 Oct 2021 - 28 Nov 2021",
+            [datetime(2021, 10, 31), datetime(2021, 11, 28)],
+            "day"
+        ),
         # Z dates with and without millis, from https://github.com/akoumjian/datefinder/issues/37
         (
             "2017-02-03T09:04:08.001Z",
