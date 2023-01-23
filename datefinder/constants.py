@@ -162,7 +162,7 @@ TIMEZONE_REPLACEMENTS = {
 STRIP_CHARS = " \n\t:-.,_"
 
 # split ranges
-RANGE_SPLIT_PATTERN = r'\Wto\W|\Wthrough\W'
+RANGE_SPLIT_PATTERN = r'\Wto\W|\Wthrough\W|\W-\W'
 
 RANGE_SPLIT_REGEX =  re.compile(RANGE_SPLIT_PATTERN,
     re.IGNORECASE | re.MULTILINE | re.UNICODE | re.DOTALL)
