@@ -21,9 +21,10 @@ class DateFinder(object):
     Locates dates in a text
     """
 
-    def __init__(self, base_date=None, first="month"):
+    def __init__(self, base_date=None, first="month", tzinfos=None):
         self.base_date = base_date
         self.dayfirst = False
+        self.tzinfos = tzinfos
         self.yearfirst = False
         if first == "day":
             self.dayfirst = True
@@ -117,6 +118,7 @@ class DateFinder(object):
                 default=self.base_date,
                 dayfirst=self.dayfirst,
                 yearfirst=self.yearfirst,
+                tzinfos=self.tzinfos,
             )
         except (ValueError, OverflowError):
             # replace tokens that are problematic for dateutil
@@ -136,6 +138,7 @@ class DateFinder(object):
                     default=self.base_date,
                     dayfirst=self.dayfirst,
                     yearfirst=self.yearfirst,
+                    tzinfos=self.tzinfos,
                 )
             except Exception as e:
                 logger.debug(e)
@@ -318,7 +321,7 @@ class DateFinder(object):
 
 
 def find_dates(
-    text, source=False, index=False, strict=False, base_date=None, first="month"
+    text, source=False, index=False, strict=False, base_date=None, first="month", tzinfos=None
 ):
     """
     Extract datetime strings from text
@@ -351,5 +354,5 @@ def find_dates(
     :return: Returns a generator that produces :mod:`datetime.datetime` objects,
         or a tuple with the source text and index, if requested
     """
-    date_finder = DateFinder(base_date=base_date, first=first)
+    date_finder = DateFinder(base_date=base_date, first=first, tzinfos=tzinfos)
     return date_finder.find_dates(text, source=source, index=index, strict=strict)
