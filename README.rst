@@ -48,7 +48,7 @@ How to Use
 
     In [2]: import datefinder
 
-    In [3]: matches = datefinder.find_dates(string_with_dates)
+    In [3]: matches = datefinder.find_dates(string_with_dates, locale="en_US")
 
     In [4]: for match in matches:
        ...:     print match
@@ -56,6 +56,7 @@ How to Use
     2017-01-04 20:00:00
     2005-01-15 00:00:00
 
+**Note: The `locale` parameter is optional. If you do not specify a locale, the default is `en_US`.**
 
 Demo
 ----

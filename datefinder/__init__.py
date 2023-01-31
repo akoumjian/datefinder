@@ -1,4 +1,6 @@
 import copy
+import datetime
+from locale import setlocale, LC_ALL
 import logging
 import regex as re
 from dateutil import tz, parser
@@ -21,7 +23,7 @@ class DateFinder(object):
     Locates dates in a text
     """
 
-    def __init__(self, base_date=None, first="month"):
+    def __init__(self, base_date=None, first="month", locale="en_US"):
         self.base_date = base_date
         self.dayfirst = False
         self.yearfirst = False
@@ -29,6 +31,12 @@ class DateFinder(object):
             self.dayfirst = True
         if first == "year":
             self.yearfirst = True
+
+
+        setlocale(LC_ALL, locale) 
+        from datefinder.local_parser_info import LocaleParserInfo
+        self.parserinfo = LocaleParserInfo()
+
 
     def find_dates(self, text, source=False, index=False, strict=False):
 
@@ -117,6 +125,7 @@ class DateFinder(object):
                 default=self.base_date,
                 dayfirst=self.dayfirst,
                 yearfirst=self.yearfirst,
+                parserinfo=self.parserinfo
             )
         except (ValueError, OverflowError):
             # replace tokens that are problematic for dateutil
@@ -136,6 +145,7 @@ class DateFinder(object):
                     default=self.base_date,
                     dayfirst=self.dayfirst,
                     yearfirst=self.yearfirst,
+                    parserinfo=self.parserinfo
                 )
             except Exception as e:
                 logger.debug(e)
@@ -318,7 +328,7 @@ class DateFinder(object):
 
 
 def find_dates(
-    text, source=False, index=False, strict=False, base_date=None, first="month"
+    text, source=False, index=False, strict=False, base_date=None, first="month", locale=None
 ):
     """
     Extract datetime strings from text
@@ -351,5 +361,5 @@ def find_dates(
     :return: Returns a generator that produces :mod:`datetime.datetime` objects,
         or a tuple with the source text and index, if requested
     """
-    date_finder = DateFinder(base_date=base_date, first=first)
+    date_finder = DateFinder(base_date=base_date, first=first, locale=locale)
     return date_finder.find_dates(text, source=source, index=index, strict=strict)
