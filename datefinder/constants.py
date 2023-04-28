@@ -31,7 +31,7 @@ ISO8601_PATTERN = r"(?P<years>-?(\:[1-9][0-9]*)?[0-9]{4})\-(?P<months>1[0-2]|0[1
 UNDELIMITED_STAMPS_PATTERN = "|".join(
     [YYYYMMDDHHMMSS_PATTERN, YYYYMMDD_PATTERN, YYYYMM_PATTERN, ISO8601_PATTERN]
 )
-DELIMITERS_PATTERN = r"[/\:\-\,\.\s\_\+\@]+"
+DELIMITERS_PATTERN = r"[\/\:\-\,\.\s\_\+\@]+"
 TIME_PERIOD_PATTERN = r"a\.m\.|am|p\.m\.|pm"
 ## can be in date strings but not recognized by dateutils
 EXTRA_TOKENS_PATTERN = r"due|by|on|during|standard|daylight|savings|time|date|dated|of|to|through|between|until|at|day"
@@ -51,8 +51,8 @@ TIME_PATTERN = r"""
         (?P<hours>\d{{1,2}})
         \:
         (?P<minutes>\d{{1,2}})
-        (\:(?<seconds>\d{{1,2}}))?
-        ([\.\,](?<microseconds>\d{{1,6}}))?
+        (\:(?P<seconds>\d{{1,2}}))?
+        ([\.\,](?P<microseconds>\d{{1,6}}))?
         \s*
         (?P<time_periods>{time_periods})?
         \s*
