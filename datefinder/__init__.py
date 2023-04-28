@@ -16,6 +16,17 @@ from .constants import (
 logger = logging.getLogger("datefinder")
 
 
+# Patch: function to check for possibility of proper fractions
+from fractions import Fraction
+def is_positive_proper_fraction(s):
+    try:
+        f = Fraction(s)
+        a = str(f) == s.strip(STRIP_CHARS)  # Reduced
+        b = 0 < f.numerator < f.denominator  # In open unit interval
+        return a and b
+    except ValueError:
+        return False
+
 class DateFinder(object):
     """
     Locates dates in a text
@@ -111,6 +122,12 @@ class DateFinder(object):
     def parse_date_string(self, date_string, captures):
         # For well formatted string, we can already let dateutils parse them
         # otherwise self._find_and_replace method might corrupt them
+
+        # PATCH: Handle years marked as missing
+        if 9999 in captures['years']:
+            date_string += ' 9999'
+        # END PATCH
+
         try:
             as_dt = parser.parse(
                 date_string,
@@ -192,22 +209,42 @@ class DateFinder(object):
 
             if strict:
                 complete = False
-                if len(digits) == 3:  # 12-05-2015
+                #PATCH
+                if len(digits) == 3 and not {',', ', ', '.', '. '} & set(captures['delimiters']):  # 12-05-2015 but not $3,021,123
                     complete = True
                 elif (len(months) == 1) and (
                     len(digits) == 2
-                ):  # 19 February 2013 year 09:10
+                ) and not {',', ', ', '.', '. ', '-', '- '} & set(captures['delimiters']):  # 19 February 2013 year 09:10
                     complete = True
-                elif (len(years) == 1) and (len(digits) == 2):  # 09/06/2018
+                # END PATCH
+                elif (len(years)==1) and (len(digits)==2): #09/06/2018
                     complete = True
 
-                elif (
-                    (len(years) == 1) and (len(months) == 1) and (len(digits) == 1)
-                ):  # '19th day of May, 2015'
+                elif (len(years)==1) and (len(months)==1) and (len(digits)==1): # '19th day of May, 2015'
                     complete = True
+
+                # Patch: Don't require a year
+                elif not years:
+                    case_1 = (len(digits)==2
+                          and (int(digits[0]) <= 12 and int(digits[1]) <= 31
+                               or int(digits[1]) <= 12 and int(digits[0]) <= 31)
+                          and not (set('-.,') | {' -'}) & set(captures['delimiters'])  # Exclude certain delimiters
+                          and not '24/7' in match_str
+                          and not captures['digits_suffixes']  # Don't allow 'th', 'rd', etc. in this case
+                          and not 'to' in captures['extra_tokens']  # Similar to excluding hyphen, don't want a number range
+                          and ({'of', 'on'} & set(captures['extra_tokens']) or not is_positive_proper_fraction(match_str))
+                    )
+                    case_2 = (len(months) == 1) and (len(digits) == 1) and int(digits[0]) <= 31 and not {',', ', ', '.', '. ', '-', '- '} & set(captures['delimiters'])  # '19th day of May'
+                    if case_1 or case_2:
+                        complete = True
+                        captures['years'].append(9999)  # MARK YEAR AS UNKNOWN
 
                 if not complete:
                     continue
+
+                if 'may' in match_str or 'march' in match_str:  # In my setting, lowercase months don't happen often
+                    continue
+                # END PATCH
 
             ## sanitize date string
             ## replace unhelpful whitespace characters with single whitespace
