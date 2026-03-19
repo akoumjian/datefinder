@@ -1,192 +1,49 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Run ID from "Build Python Distributions"
+        required: true
+        type: string
+      artifact_name:
+        description: Artifact bundle name from build workflow
+        required: true
+        default: python-dist
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
-  build-wheels:
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Linux (glibc)
-          - runner: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            manylinux: manylinux2014
-          - runner: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            manylinux: manylinux2014
-          # Linux (musl / Alpine)
-          - runner: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-            manylinux: musllinux_1_2
-          - runner: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-            manylinux: musllinux_1_2
-          # macOS
-          - runner: macos-14
-            target: x86_64-apple-darwin
-            manylinux: off
-          - runner: macos-14
-            target: aarch64-apple-darwin
-            manylinux: off
-          # Windows
-          - runner: windows-latest
-            target: x86_64-pc-windows-msvc
-            manylinux: off
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Build Linux wheels
-        if: ${{ startsWith(matrix.runner, 'ubuntu') }}
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.target }}
-          manylinux: ${{ matrix.manylinux }}
-          args: --release --out dist
-          rust-toolchain: stable
-      - name: Build macOS/Windows wheels
-        if: ${{ !startsWith(matrix.runner, 'ubuntu') }}
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.target }}
-          args: --release --out dist
-          rust-toolchain: stable
-      - name: Install wheel inspection tools (Linux)
-        if: ${{ matrix.target == 'x86_64-unknown-linux-gnu' }}
-        run: python -m pip install --upgrade pip auditwheel
-      - name: Install wheel inspection tools (macOS)
-        if: ${{ startsWith(matrix.runner, 'macos') }}
-        run: python -m pip install --upgrade pip delocate
-      - name: Install wheel inspection tools (Windows)
-        if: ${{ startsWith(matrix.runner, 'windows') }}
-        run: python -m pip install --upgrade pip delvewheel
-      - name: Inspect wheel dependencies (Linux)
-        if: ${{ matrix.target == 'x86_64-unknown-linux-gnu' }}
-        run: auditwheel show dist/*.whl
-      - name: Inspect wheel dependencies (macOS)
-        if: ${{ startsWith(matrix.runner, 'macos') }}
-        run: delocate-listdeps dist/*.whl
-      - name: Inspect wheel dependencies (Windows)
-        if: ${{ startsWith(matrix.runner, 'windows') }}
-        run: delvewheel show dist/*.whl
-      - name: Set up QEMU for Linux aarch64 smoke
-        if: ${{ startsWith(matrix.runner, 'ubuntu') && contains(matrix.target, 'aarch64') }}
-        uses: docker/setup-qemu-action@v3
-      - name: Wheel runtime smoke (Linux container target)
-        if: ${{ startsWith(matrix.runner, 'ubuntu') }}
-        shell: bash
-        run: |
-          IMAGE=""
-          case "${{ matrix.manylinux }}-${{ matrix.target }}" in
-            manylinux2014-x86_64-unknown-linux-gnu) IMAGE="quay.io/pypa/manylinux2014_x86_64" ;;
-            manylinux2014-aarch64-unknown-linux-gnu) IMAGE="quay.io/pypa/manylinux2014_aarch64" ;;
-            musllinux_1_2-x86_64-unknown-linux-musl) IMAGE="quay.io/pypa/musllinux_1_2_x86_64" ;;
-            musllinux_1_2-aarch64-unknown-linux-musl) IMAGE="quay.io/pypa/musllinux_1_2_aarch64" ;;
-            *) echo "Unsupported Linux target: ${{ matrix.target }} / ${{ matrix.manylinux }}"; exit 1 ;;
-          esac
-          docker run --rm -v "$PWD/dist:/dist" "$IMAGE" sh -lc '
-            PYBIN="$(ls -d /opt/python/cp312*/bin/python 2>/dev/null | head -n1)"
-            if [ -z "$PYBIN" ]; then
-              PYBIN="$(ls -d /opt/python/cp3*/bin/python 2>/dev/null | head -n1)"
-            fi
-            test -n "$PYBIN"
-            "$PYBIN" -m pip install --upgrade pip >/dev/null
-            "$PYBIN" -m pip install regex python-dateutil pytz >/dev/null
-            "$PYBIN" -m pip install --only-binary=:all: --no-index --find-links /dist --no-deps datefinder==1.0.0rc1 >/dev/null
-            "$PYBIN" -c "import datefinder, datefinder._kernel; from datetime import datetime, timezone; out=list(datefinder.find_dates(\"tomorrow and 2024-12-10\", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc))); assert len(out) >= 2; print(\"linux target smoke ok\", len(out))"
-          '
-      - name: Wheel runtime smoke (macOS/Windows native)
-        if: ${{ !startsWith(matrix.runner, 'ubuntu') && !(startsWith(matrix.runner, 'macos') && matrix.target == 'x86_64-apple-darwin') }}
-        shell: bash
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install regex python-dateutil pytz
-          python - <<'PY'
-          import glob
-          import subprocess
-          import sys
-          wheels = sorted(glob.glob("dist/*.whl"))
-          assert wheels, "no wheels found"
-          subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", "--no-deps", wheels[0]])
-          PY
-          TMPDIR="$(mktemp -d)"
-          cd "$TMPDIR"
-          python - <<'PY'
-          import datefinder
-          import datefinder._kernel
-          from datetime import datetime, timezone
-          out = list(datefinder.find_dates("tomorrow and 2024-12-10", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc)))
-          assert len(out) >= 2
-          print("runtime smoke ok", len(out))
-          PY
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-${{ matrix.runner }}-${{ matrix.target }}-${{ matrix.manylinux }}
-          path: dist/*.whl
-
-  build-sdist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install maturin
-        run: python -m pip install --upgrade pip maturin
-      - name: Build source distribution
-        run: maturin sdist --out dist
-      - name: Source build smoke
-        shell: bash
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip uninstall -y datefinder || true
-          python -m pip install --no-binary=:all: dist/*.tar.gz
-          TMPDIR="$(mktemp -d)"
-          cd "$TMPDIR"
-          python - <<'PY'
-          import datefinder
-          import datefinder._kernel
-          from datetime import datetime, timezone
-          out = list(datefinder.find_dates("tomorrow and 2024-12-10", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc)))
-          assert len(out) >= 2
-          print("source smoke ok", len(out))
-          PY
-      - name: Upload sdist
-        uses: actions/upload-artifact@v4
-        with:
-          name: sdist
-          path: dist/*.tar.gz
-
   deploy-python:
-    needs: [build-wheels, build-sdist]
     runs-on: ubuntu-latest
+    environment: pypi
     steps:
-      - name: Download distribution artifacts
+      - name: Download distribution bundle from build run
         uses: actions/download-artifact@v4
         with:
+          run-id: ${{ inputs.build_run_id }}
+          name: ${{ inputs.artifact_name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path: dist
-          merge-multiple: true
-      - name: Validate artifact metadata
+      - name: Verify distributions
+        shell: bash
         run: |
-          python -m pip install --upgrade pip twine
-          twine check dist/* || echo "twine check reported non-blocking metadata warnings"
           ls -lah dist
+          test -n "$(ls dist/*.whl 2>/dev/null)"
+          test -n "$(ls dist/*.tar.gz 2>/dev/null)"
+          if [ -f dist/SHA256SUMS ]; then
+            (cd dist && sha256sum -c SHA256SUMS)
+          fi
+          python -m pip install --upgrade pip twine
+          twine check dist/*.whl dist/*.tar.gz || echo "twine check reported non-blocking metadata warnings"
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          skip_existing: true
           packages_dir: dist
