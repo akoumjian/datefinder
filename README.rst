@@ -61,6 +61,28 @@ How to Use
     2017-01-04 20:00:00
     2005-01-15 00:00:00
 
+CLI
+---
+
+The package now includes a CLI entrypoint:
+
+.. code-block:: sh
+
+    datefinder --json "tomorrow and 2024-12-10"
+
+You can also run it as a module:
+
+.. code-block:: sh
+
+    python -m datefinder --engine extract --json --reference "2026-03-18T00:00:00+00:00" "in 3 days"
+
+Engine options:
+
+- ``default``: ``find_dates(...)`` (v2 compatibility default)
+- ``legacy``: ``find_dates_legacy(...)``
+- ``compat``: ``find_dates_compat(...)``
+- ``extract``: typed ``extract(...)`` output
+
 
 Demo
 ----

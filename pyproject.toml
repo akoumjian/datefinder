@@ -37,6 +37,9 @@ test = ["pytest>=7.0"]
 [project.urls]
 Homepage = "https://github.com/akoumjian/datefinder"
 
+[project.scripts]
+datefinder = "datefinder.cli:main"
+
 [tool.maturin]
 manifest-path = "rust/datefinder-kernel/Cargo.toml"
 module-name = "datefinder._kernel"
