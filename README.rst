@@ -116,14 +116,6 @@ Relative and duration values:
   - ``duration`` includes ``total_seconds`` and normalized components.
 
 
-Demo
-----
-
--  🎞️ `Video demo`_ by Calmcode.io. :star: 
-
-.. _Video demo: https://calmcode.io/shorts/datefinder.py.html
-
-
 V2 Typed API
 ------------
 
