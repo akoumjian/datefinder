@@ -57,6 +57,8 @@ jobs:
         run: |
           python -m pip uninstall -y datefinder || true
           python -m pip install --only-binary=:all: --no-index --find-links dist --no-deps datefinder==1.0.0rc1
+          TMPDIR="$(mktemp -d)"
+          cd "$TMPDIR"
           python - <<'PY'
           import datefinder
           import datefinder._kernel
@@ -75,6 +77,8 @@ jobs:
         run: |
           python -m pip uninstall -y datefinder || true
           python -m pip install --no-binary=:all: --no-deps dist/*.tar.gz
+          TMPDIR="$(mktemp -d)"
+          cd "$TMPDIR"
           python - <<'PY'
           import datefinder
           import datefinder._kernel
@@ -183,6 +187,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install regex python-dateutil pytz
           python -m pip install --only-binary=:all: --no-index --find-links dist --no-deps datefinder==1.0.0rc1
+          TMPDIR="$(mktemp -d)"
+          cd "$TMPDIR"
           python - <<'PY'
           import datefinder
           import datefinder._kernel

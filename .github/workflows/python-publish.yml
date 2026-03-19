@@ -118,6 +118,8 @@ jobs:
           assert wheels, "no wheels found"
           subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", "--no-deps", wheels[0]])
           PY
+          TMPDIR="$(mktemp -d)"
+          cd "$TMPDIR"
           python - <<'PY'
           import datefinder
           import datefinder._kernel
@@ -152,6 +154,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip uninstall -y datefinder || true
           python -m pip install --no-binary=:all: dist/*.tar.gz
+          TMPDIR="$(mktemp -d)"
+          cd "$TMPDIR"
           python - <<'PY'
           import datefinder
           import datefinder._kernel
