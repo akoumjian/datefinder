@@ -37,6 +37,61 @@ from source and requires a Rust toolchain.
 
 **Note:  I do not publish the version on conda forge and cannot verify its integrity.**
 
+What You Can Do With datefinder
+-------------------------------
+
+``datefinder`` is a Python date parser for extracting dates from unstructured text.
+It is useful when your data is not already normalized, for example:
+
+- emails, tickets, and support conversations
+- contracts, policies, and legal text
+- logs, reports, and markdown/wiki pages
+- scraped HTML and mixed-format documents
+
+You can use it to:
+
+- parse explicit calendar dates like ``January 4th, 2017`` or ``2024-11-03 18:00``
+- parse relative expressions like ``tomorrow``, ``yesterday``, and ``in 3 days``
+- parse multiple date formats in one pass (month-name, slash, ISO, hyphen)
+- anchor relative parsing to a reference/base date
+- return either compatibility datetimes or typed structured match objects
+
+In short: if you need to find and parse dates from text in Python, especially
+inside large documents with mixed formatting, ``datefinder`` is designed for that.
+
+Common workflows:
+
+- migration from legacy date extraction code:
+  use ``find_dates_legacy(...)`` for parity, then move to ``find_dates(...)``
+- modern typed extraction:
+  use ``extract(...)`` to get match kinds, spans, confidence, and structured values
+- command line processing:
+  use ``datefinder --engine extract --json`` in shell pipelines
+
+Example (Python):
+
+.. code-block:: python
+
+    import datefinder
+    from datetime import datetime, timezone
+
+    text = "Meeting tomorrow; launch on 2024-11-03 18:00 UTC."
+    ref = datetime(2026, 3, 19, 12, 0, tzinfo=timezone.utc)
+
+    # Compatibility datetimes
+    print(list(datefinder.find_dates(text, base_date=ref)))
+
+    # Typed extraction
+    for match in datefinder.extract(text, reference_dt=ref):
+        print(match.kind, match.text, match.value)
+
+Example (CLI):
+
+.. code-block:: sh
+
+    datefinder --reference "2026-03-19T12:00:00+00:00" --json \
+      "Meeting tomorrow; launch on 2024-11-03 18:00 UTC."
+
 How to Use
 ----------
 
