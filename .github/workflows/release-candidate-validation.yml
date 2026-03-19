@@ -1,41 +1,110 @@
-name: Upload Python Package
+name: Release Candidate Validation
 
 on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
 
 jobs:
-  build-wheels:
+  package-install-smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.8", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build wheel and sdist
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: Install wheel inspection tools (Linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: python -m pip install --upgrade pip auditwheel
+      - name: Install wheel inspection tools (macOS)
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        run: python -m pip install --upgrade pip delocate
+      - name: Install wheel inspection tools (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: python -m pip install --upgrade pip delvewheel
+      - name: Inspect wheel dependencies (Linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: auditwheel show dist/*.whl
+      - name: Inspect wheel dependencies (macOS)
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        run: delocate-listdeps dist/*.whl
+      - name: Inspect wheel dependencies (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: delvewheel show dist/*.whl
+
+      - name: Install wheel and smoke test
+        shell: bash
+        run: |
+          python -m pip uninstall -y datefinder || true
+          python -m pip install --only-binary=:all: --no-index --find-links dist datefinder==1.0.0rc1
+          python - <<'PY'
+          import datefinder
+          import datefinder._kernel
+          from datetime import datetime, timezone
+
+          assert datefinder.__version__ == "1.0.0rc1"
+          out_default = list(datefinder.find_dates("tomorrow and 2024-12-10", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc)))
+          assert len(out_default) >= 2
+          out_legacy = list(datefinder.find_dates("June 2018", engine="legacy"))
+          assert len(out_legacy) >= 1
+          print("wheel smoke ok")
+          PY
+
+      - name: Install sdist and smoke test
+        shell: bash
+        run: |
+          python -m pip uninstall -y datefinder || true
+          python -m pip install --no-binary=:all: dist/*.tar.gz
+          python - <<'PY'
+          import datefinder
+          import datefinder._kernel
+          out = list(datefinder.find_dates("created 01/15/2005 by ACME"))
+          assert out
+          print("sdist smoke ok")
+          PY
+
+  wheel-target-validation:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux (glibc)
           - runner: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             manylinux: manylinux2014
           - runner: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             manylinux: manylinux2014
-          # Linux (musl / Alpine)
           - runner: ubuntu-latest
             target: x86_64-unknown-linux-musl
             manylinux: musllinux_1_2
           - runner: ubuntu-latest
             target: aarch64-unknown-linux-musl
             manylinux: musllinux_1_2
-          # macOS
           - runner: macos-13
             target: x86_64-apple-darwin
             manylinux: off
           - runner: macos-14
             target: aarch64-apple-darwin
             manylinux: off
-          # Windows
           - runner: windows-latest
             target: x86_64-pc-windows-msvc
             manylinux: off
@@ -108,79 +177,12 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          python - <<'PY'
-          import glob
-          import subprocess
-          import sys
-          wheels = sorted(glob.glob("dist/*.whl"))
-          assert wheels, "no wheels found"
-          subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", wheels[0]])
-          PY
+          python -m pip install --only-binary=:all: --no-index --find-links dist datefinder==1.0.0rc1
           python - <<'PY'
           import datefinder
           import datefinder._kernel
           from datetime import datetime, timezone
           out = list(datefinder.find_dates("tomorrow and 2024-12-10", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc)))
           assert len(out) >= 2
-          print("runtime smoke ok", len(out))
+          print("target smoke ok", len(out))
           PY
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-${{ matrix.runner }}-${{ matrix.target }}-${{ matrix.manylinux }}
-          path: dist/*.whl
-
-  build-sdist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install maturin
-        run: python -m pip install --upgrade pip maturin
-      - name: Build source distribution
-        run: maturin sdist --manifest-path rust/datefinder-kernel/Cargo.toml --out dist
-      - name: Source build smoke
-        shell: bash
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip uninstall -y datefinder || true
-          python -m pip install --no-binary=:all: dist/*.tar.gz
-          python - <<'PY'
-          import datefinder
-          import datefinder._kernel
-          from datetime import datetime, timezone
-          out = list(datefinder.find_dates("tomorrow and 2024-12-10", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc)))
-          assert len(out) >= 2
-          print("source smoke ok", len(out))
-          PY
-      - name: Upload sdist
-        uses: actions/upload-artifact@v4
-        with:
-          name: sdist
-          path: dist/*.tar.gz
-
-  deploy-python:
-    needs: [build-wheels, build-sdist]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download distribution artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-          merge-multiple: true
-      - name: Validate artifact metadata
-        run: |
-          python -m pip install --upgrade pip twine
-          twine check dist/*
-          ls -lah dist
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          packages-dir: dist

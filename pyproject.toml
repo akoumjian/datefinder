@@ -1,0 +1,44 @@
+[build-system]
+requires = ["maturin>=1.8,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "datefinder"
+version = "1.0.0rc1"
+description = "Extract datetime objects from natural language text"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Alec Koumjian", email = "akoumjian@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Natural Language :: English",
+]
+dependencies = [
+    "regex>=2017.02.08",
+    "python-dateutil>=2.4.2",
+    "pytz",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pylint==2.1.1"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/akoumjian/datefinder"
+
+[tool.maturin]
+manifest-path = "rust/datefinder-kernel/Cargo.toml"
+module-name = "datefinder._kernel"
+python-source = "."

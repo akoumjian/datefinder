@@ -14,11 +14,11 @@ datefinder - extract dates from text
     :alt: pypi version
 
 
-A python module for locating dates inside text. Use this package to extract all sorts 
-of date like strings from a document and turn them into datetime objects.
+A python module for locating dates inside text. Use this package to extract date-like
+strings from documents and turn them into useful datetime/temporal objects.
 
-This module finds the likely datetime strings and then uses  
-`dateutil` to convert to the datetime object.
+As of ``1.0.0rc1``, ``find_dates(...)`` defaults to the v2 compatibility engine.
+The original engine remains available as ``find_dates_legacy(...)``.
 
 
 Installation
@@ -29,6 +29,9 @@ Installation
 .. code-block:: sh
 
     pip install datefinder
+
+If a compatible prebuilt wheel is unavailable for your platform, pip will build
+from source and requires a Rust toolchain.
 
 **Note:  I do not publish the version on conda forge and cannot verify its integrity.**
 
@@ -51,7 +54,7 @@ How to Use
     In [3]: matches = datefinder.find_dates(string_with_dates)
 
     In [4]: for match in matches:
-       ...:     print match
+       ...:     print(match)
        ...:
     2017-01-04 20:00:00
     2005-01-15 00:00:00
@@ -64,3 +67,122 @@ Demo
 
 .. _Video demo: https://calmcode.io/shorts/datefinder.py.html
 
+
+V2 Typed API
+------------
+
+This repository includes a v2 extraction API with typed match objects and
+first-class support for relative expressions and durations.
+
+.. code-block:: python
+
+    import datefinder
+    from datetime import datetime, timezone
+
+    matches = datefinder.extract(
+        "in 3 days we deploy on 2024-11-03 18:00",
+        reference_dt=datetime.now(timezone.utc),
+    )
+    for m in matches:
+        print(m.kind, m.text, m.value)
+
+There is also a compatibility helper for migrating existing code:
+
+.. code-block:: python
+
+    for dt in datefinder.find_dates_compat("tomorrow and 2024-12-10"):
+        print(dt)
+
+If you need the original parser behavior exactly:
+
+.. code-block:: python
+
+    for dt in datefinder.find_dates_legacy("April 9, 2013 at 6:11 a.m."):
+        print(dt)
+
+Rust kernel source is under ``rust/datefinder-kernel`` and is required for v2/default
+runtime behavior.
+
+Rust Portability
+----------------
+
+- Compiled Rust extensions are platform-specific, they do not run on every system by default.
+- Release wheel targets:
+  - Linux glibc: ``x86_64`` and ``aarch64`` (manylinux2014)
+  - Linux musl: ``x86_64`` and ``aarch64`` (musllinux_1_2)
+  - macOS: ``x86_64`` and ``arm64``
+  - Windows: ``x86_64``
+- If no compatible wheel is available, ``pip`` builds from source and requires a Rust toolchain.
+
+
+Conformance and Ambiguity Reports
+---------------------------------
+
+Build a reproducible corpus from legacy tests and generate differential reports
+between legacy behavior and ``find_dates_compat``:
+
+.. code-block:: sh
+
+    python scripts/build_conformance_corpus.py
+    python scripts/diff_legacy_v2.py
+
+This writes:
+
+- ``conformance/legacy_parity_cases.jsonl``
+- ``conformance/reports/legacy_v2_diff_report.md``
+- ``conformance/reports/ambiguity_showcase.md``
+- ``conformance/reports/behavior_change_changelog.md``
+
+The ambiguity showcase also supports interpretation judgments in
+``conformance/interpretation_judgments.jsonl`` to assess whether legacy
+behavior is semantically preferable for ambiguous real-world cases.
+
+See also:
+
+- ``CONTRIBUTING.md`` for developer setup and validation commands.
+- ``RELEASE.md`` for release checklist.
+
+
+Benchmark Snapshot
+------------------
+
+The command below generates a local benchmark snapshot comparing:
+
+- ``v2``: ``datefinder.extract(...)``
+- ``legacy``: ``datefinder.find_dates_legacy(...)``
+- ``dateparser``: ``dateparser.search.search_dates``
+- ``duckling_http``: Duckling ``POST /parse``
+
+Run:
+
+.. code-block:: sh
+
+    # optional: run duckling locally
+    docker run --rm -p 8000:8000 rasa/duckling:latest
+
+    python bench/bench_readme_compare.py \
+      --iterations-small 12 \
+      --iterations-large 2
+
+Latest local snapshot (2026-03-19 UTC):
+
++------------------+--------+---------------+-------------------+----------------------+-------------------------+---------------+------------------+----------------------+
+| dataset          | size   | v2 median (s) | legacy median (s) | dateparser median (s)| duckling_http median (s)| v2 vs legacy  | v2 vs dateparser | v2 vs duckling_http  |
++==================+========+===============+===================+======================+=========================+===============+==================+======================+
+| core_corpus      | 498    | 0.000267      | 0.003094          | 0.181080             | n/a                     | 11.59x        | 678.35x          | n/a                  |
++------------------+--------+---------------+-------------------+----------------------+-------------------------+---------------+------------------+----------------------+
+| seattle_html_76k | 74838  | 0.020826      | 0.287495          | 0.750812             | n/a                     | 13.80x        | 36.05x           | n/a                  |
++------------------+--------+---------------+-------------------+----------------------+-------------------------+---------------+------------------+----------------------+
+| test_data_560k   | 552301 | 0.253541      | 2.875369          | n/a                  | n/a                     | 11.34x        | n/a              | n/a                  |
++------------------+--------+---------------+-------------------+----------------------+-------------------------+---------------+------------------+----------------------+
+
+Notes:
+
+- ``n/a`` means unavailable/failed for that dataset in this run.
+- Match counts differ across engines because behavior targets differ (e.g. relative/duration support and false-positive tolerance).
+- Results are hardware/environment dependent and should be treated as directional.
+
+Release Notes
+-------------
+
+- ``docs/releases/1.0.0rc1.md`` documents RC scope, behavior changes, and migration.

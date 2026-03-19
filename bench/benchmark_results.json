@@ -1,0 +1,44 @@
+{
+  "timestamp_utc": "2026-03-19 12:43:01Z",
+  "rows": [
+    {
+      "dataset": "core_corpus",
+      "size_bytes": 498,
+      "iterations": 6,
+      "v2_median_s": 0.0002669410314410925,
+      "v2_matches": 16,
+      "legacy_median_s": 0.003094358486123383,
+      "legacy_matches": 8,
+      "dateparser_median_s": 0.18108017550548539,
+      "dateparser_matches": 14,
+      "duckling_http_median_s": null,
+      "duckling_http_matches": null
+    },
+    {
+      "dataset": "seattle_html_76k",
+      "size_bytes": 74838,
+      "iterations": 1,
+      "v2_median_s": 0.02082628000061959,
+      "v2_matches": 54,
+      "legacy_median_s": 0.28749500098638237,
+      "legacy_matches": 126,
+      "dateparser_median_s": 0.7508124350570142,
+      "dateparser_matches": 90,
+      "duckling_http_median_s": null,
+      "duckling_http_matches": null
+    },
+    {
+      "dataset": "test_data_560k",
+      "size_bytes": 552301,
+      "iterations": 1,
+      "v2_median_s": 0.253541485988535,
+      "v2_matches": 349,
+      "legacy_median_s": 2.8753687139833346,
+      "legacy_matches": 2321,
+      "dateparser_median_s": null,
+      "dateparser_matches": null,
+      "duckling_http_median_s": null,
+      "duckling_http_matches": null
+    }
+  ]
+}

@@ -1,4 +1,7 @@
-import regex as re
+try:
+    import regex as re
+except Exception:  # pragma: no cover
+    import re  # type: ignore
 
 NUMBERS_PATTERN = r"first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth"
 POSITIONNAL_TOKENS = r"next|last"

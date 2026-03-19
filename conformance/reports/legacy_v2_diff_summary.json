@@ -1,0 +1,9 @@
+{
+  "total": 36,
+  "legacy_matches_expected": 31,
+  "v2_matches_expected": 31,
+  "v2_matches_legacy": 36,
+  "legacy_expected_mismatches": 5,
+  "v2_expected_mismatches": 5,
+  "v2_legacy_mismatches": 0
+}
