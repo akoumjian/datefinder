@@ -92,6 +92,19 @@ deactivate
 
 ## 7. Publish
 
+- Preflight publish to TestPyPI before final PyPI release:
+  - Set repo secret: `TEST_PYPI_API_TOKEN`
+  - Run workflow: `Upload Python Package (TestPyPI)` via `workflow_dispatch`
+  - Confirm package and wheels at `https://test.pypi.org/project/datefinder/`
+  - Validate install on clean machine:
+    ```bash
+    python -m pip install -U pip
+    python -m pip install \
+      --index-url https://test.pypi.org/simple/ \
+      --extra-index-url https://pypi.org/simple \
+      --only-binary=datefinder \
+      --pre datefinder==1.0.0rc1
+    ```
 - Tag release (`v1.0.0rc1`).
 - Create GitHub release.
 - Ensure workflows complete:
