@@ -1,0 +1,19 @@
+[package]
+name = "datefinder-kernel"
+version = "1.0.0-rc.1"
+edition = "2021"
+description = "Temporal extraction kernel for datefinder v2"
+license = "MIT"
+homepage = "https://github.com/akoumjian/datefinder"
+repository = "https://github.com/akoumjian/datefinder"
+documentation = "https://github.com/akoumjian/datefinder"
+
+[lib]
+name = "_kernel"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+aho-corasick = "1.1"
+chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }
+pyo3 = { version = "0.22.6", features = ["extension-module", "abi3-py39"] }
+regex = "1.11.3"

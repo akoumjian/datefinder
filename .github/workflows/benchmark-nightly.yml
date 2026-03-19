@@ -1,0 +1,59 @@
+name: Monthly Benchmarks
+
+on:
+  schedule:
+    - cron: "15 3 1 * *"
+  workflow_dispatch:
+
+jobs:
+  benchmark_snapshot:
+    runs-on: ubuntu-latest
+    services:
+      duckling:
+        image: rasa/duckling:latest
+        ports:
+          - 8000:8000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install regex python-dateutil pytz dateparser maturin
+          python -m pip install .
+
+      - name: Wait for Duckling
+        run: |
+          for i in {1..30}; do
+            if curl -s -o /dev/null http://localhost:8000/; then
+              echo "Duckling is reachable"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Duckling service did not become reachable"
+          exit 1
+
+      - name: Generate benchmark snapshot
+        run: |
+          python bench/bench_readme_compare.py \
+            --iterations-small 12 \
+            --iterations-large 2 \
+            --duckling-url http://localhost:8000/parse
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-snapshot-${{ github.run_id }}
+          path: |
+            bench/benchmark_results.json
+            bench/benchmark_results.md

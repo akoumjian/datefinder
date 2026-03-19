@@ -115,11 +115,11 @@ today = datetime.today()
 )
 def test_find_date_strings(input_text, expected_date, first):
     if isinstance(expected_date, list):
-        matches = list(datefinder.find_dates(input_text, first=first))
+        matches = list(datefinder.find_dates_legacy(input_text, first=first))
         assert matches == expected_date
     else:
         return_date = None
-        for return_date in datefinder.find_dates(input_text, first=first):
+        for return_date in datefinder.find_dates_legacy(input_text, first=first):
             assert return_date == expected_date
         assert return_date is not None, 'Did not find date for test line: "{}"'.format(
             input_text

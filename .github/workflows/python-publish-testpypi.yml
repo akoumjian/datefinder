@@ -1,8 +1,7 @@
-name: Upload Python Package
+name: Upload Python Package (TestPyPI)
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -170,9 +169,10 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
-  deploy-python:
+  deploy-testpypi:
     needs: [build-wheels, build-sdist]
     runs-on: ubuntu-latest
+    environment: testpypi
     steps:
       - name: Download distribution artifacts
         uses: actions/download-artifact@v4
@@ -184,9 +184,11 @@ jobs:
           python -m pip install --upgrade pip twine
           twine check dist/*
           ls -lah dist
-      - name: Publish package
+      - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         with:
           user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
           packages-dir: dist

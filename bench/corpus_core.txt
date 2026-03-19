@@ -1,0 +1,13 @@
+entries are due by January 4th, 2017 at 8:00pm
+created 01/15/2005 by ACME Inc. and associates
+we shipped on 2024-11-03 18:00 and archived on 2024-11-09
+tomorrow at noon we start phase two
+in 3 days we will finalize results
+we waited 20 days for delivery
+ayer recibimos el pago y mañana enviamos el contrato
+dans 2 jours la reunion est planifiee
+31/08/2012 to 30/08/2013
+Date: Tue, 23 Apr 1996 13:28:27 -0400
+CR is 0 for the past 40 minutes
+French 75 is a cocktail and should not be parsed as a date
+

@@ -1,0 +1,44 @@
+{
+  "timestamp_utc": "2026-03-19 17:48:32Z",
+  "rows": [
+    {
+      "dataset": "core_corpus",
+      "size_bytes": 498,
+      "iterations": 10,
+      "v2_median_s": 0.00023553601931780577,
+      "v2_matches": 16,
+      "legacy_median_s": 0.003041740506887436,
+      "legacy_matches": 8,
+      "dateparser_median_s": 0.18059561104746535,
+      "dateparser_matches": 14,
+      "duckling_http_median_s": 0.05026638403069228,
+      "duckling_http_matches": 19
+    },
+    {
+      "dataset": "seattle_html_76k",
+      "size_bytes": 74838,
+      "iterations": 1,
+      "v2_median_s": 0.03743647295050323,
+      "v2_matches": 54,
+      "legacy_median_s": 0.2814661000156775,
+      "legacy_matches": 126,
+      "dateparser_median_s": 0.7717124860500917,
+      "dateparser_matches": 90,
+      "duckling_http_median_s": 25.35359495494049,
+      "duckling_http_matches": 1170
+    },
+    {
+      "dataset": "test_data_560k",
+      "size_bytes": 552301,
+      "iterations": 1,
+      "v2_median_s": 0.2393905590288341,
+      "v2_matches": 349,
+      "legacy_median_s": 2.8408450769493356,
+      "legacy_matches": 2321,
+      "dateparser_median_s": null,
+      "dateparser_matches": null,
+      "duckling_http_median_s": null,
+      "duckling_http_matches": null
+    }
+  ]
+}

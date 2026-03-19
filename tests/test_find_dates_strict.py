@@ -22,11 +22,11 @@ today = datetime.today()
 ])
 def test_find_date_strings_strict(input_text, expected_date):
     if isinstance(expected_date,list):
-        matches = list(datefinder.find_dates(input_text, strict=True))
+        matches = list(datefinder.find_dates_legacy(input_text, strict=True))
         assert matches == expected_date
 
     else:
         return_date = None
-        for return_date in datefinder.find_dates(input_text, strict=True):
+        for return_date in datefinder.find_dates_legacy(input_text, strict=True):
             assert return_date == expected_date
         assert return_date is not None, 'Did not find date for test line: "{}"'.format(input_text) # handles dates 

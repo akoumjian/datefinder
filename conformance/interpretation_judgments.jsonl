@@ -1,0 +1,35 @@
+{"id":"amb_001","preferred":"both","rationale":"Ambiguous numeric date should follow caller 'first' preference; both agree."}
+{"id":"amb_002","preferred":"both","rationale":"Ambiguous numeric date should follow caller 'first' preference; both agree."}
+{"id":"amb_003","preferred":"both","rationale":"Ambiguous numeric date should follow caller 'first' preference; both agree."}
+{"id":"amb_005","preferred":"v2_compat","rationale":"`results = 3.8, 10` is typically not a date in strict extraction contexts."}
+{"id":"amb_006","preferred":"both","rationale":"Money should not parse as date in this sentence."}
+{"id":"amb_007","preferred":"v2_compat","rationale":"`French 75` should not infer year 2075."}
+{"id":"amb_008","preferred":"v2_compat","rationale":"`pre-qualification may` should not infer a month date."}
+{"id":"amb_009","preferred":"both","rationale":"RFC822-like timestamp should resolve with full time/offset context."}
+{"id":"amb_010","preferred":"both","rationale":"ISO date adjacent to token should still parse."}
+{"id":"amb_011","preferred":"v2_compat","rationale":"`9/15/27 144A` should still recover the date token."}
+{"id":"amb_012","preferred":"both","rationale":"Malformed separators should not parse."}
+{"id":"amb_013","preferred":"v2_compat","rationale":"Relative date phrase should be interpreted as relative datetime."}
+{"id":"amb_014","preferred":"v2_compat","rationale":"`in 2 weeks` should be relative, not a month/day fallback."}
+{"id":"amb_015","preferred":"v2_compat","rationale":"`20 days ago` should resolve relative to reference date."}
+{"id":"amb_016","preferred":"v2_typed","rationale":"Duration phrase is useful as duration object even if not legacy datetime."}
+{"id":"amb_017","preferred":"v2_compat","rationale":"Spanish relative keyword should resolve as relative date."}
+{"id":"amb_018","preferred":"v2_compat","rationale":"Spanish tomorrow keyword should resolve as relative date."}
+{"id":"amb_019","preferred":"v2_typed","rationale":"French `dans 2 jours` is best represented as relative or duration, not spurious absolute date."}
+{"id":"amb_020","preferred":"v2_compat","rationale":"French today keyword should resolve as relative date."}
+{"id":"amb_021","preferred":"v2_compat","rationale":"German today keyword should resolve as relative date."}
+{"id":"amb_022","preferred":"v2_compat","rationale":"German tomorrow keyword should resolve as relative date."}
+{"id":"amb_023","preferred":"v2_compat","rationale":"Portuguese today keyword should resolve as relative date."}
+{"id":"amb_024","preferred":"v2_compat","rationale":"Portuguese tomorrow keyword should resolve as relative date."}
+{"id":"amb_025","preferred":"v2_compat","rationale":"Italian today keyword should resolve as relative date."}
+{"id":"amb_026","preferred":"v2_compat","rationale":"Italian tomorrow keyword should resolve as relative date."}
+{"id":"amb_027","preferred":"v2_compat","rationale":"Day-first Romance month-name date should parse."}
+{"id":"amb_028","preferred":"both","rationale":"Canonical month-name date should parse."}
+{"id":"amb_029","preferred":"both","rationale":"Simple date range text should parse both endpoints."}
+{"id":"amb_030","preferred":"both","rationale":"ISO UTC timestamps should parse with second precision."}
+{"id":"amb_031","preferred":"v2_typed","rationale":"`40 minutes` should be duration signal; legacy 2040 date is misleading."}
+{"id":"amb_033","preferred":"both","rationale":"Strict mode should reject incomplete month/year phrase."}
+{"id":"amb_034","preferred":"both","rationale":"Strict complete numeric date should parse."}
+{"id":"amb_035","preferred":"both","rationale":"Strict ordinal day phrase should parse."}
+{"id":"amb_037","preferred":"v2_compat","rationale":"Year-only sentence can reasonably infer current month/day anchor if enabled."}
+{"id":"amb_040","preferred":"v2_compat","rationale":"OCR superscript noise should not force a legacy-style date hallucination."}

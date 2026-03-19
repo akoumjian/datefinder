@@ -1,0 +1,40 @@
+{"id":"amb_001","text":"01/02/03","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Ambiguous numeric date (MDY preference)."}
+{"id":"amb_002","text":"01/02/03","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Ambiguous numeric date (DMY preference)."}
+{"id":"amb_003","text":"01/02/03","first":"year","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Ambiguous numeric date (YMD-like preference)."}
+{"id":"amb_004","text":"9.6 20:30","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Known ambiguity from open issue history."}
+{"id":"amb_005","text":"results = 3.8, 10","first":"month","strict":true,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Strict-mode false-positive candidate."}
+{"id":"amb_006","text":"This is to inform you that an amount of Rs. 123.45 has been debited.","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Money should usually not parse as a date."}
+{"id":"amb_007","text":"French 75 is my favorite cocktail.","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Number-containing phrase, not a date."}
+{"id":"amb_008","text":"pre-qualification may proceed after review.","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Month-name token inside non-date phrase."}
+{"id":"amb_009","text":"Date: Tue, 23 Apr 1996 13:28:27 -0400","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"RFC822-like timestamp."}
+{"id":"amb_010","text":"2023-10-04 decision","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"ISO date followed by token."}
+{"id":"amb_011","text":"9/15/27 144A","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Date followed by alphanumeric token."}
+{"id":"amb_012","text":"25/7//2023","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Malformed separator case."}
+{"id":"amb_013","text":"tomorrow at noon","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"English relative expression."}
+{"id":"amb_014","text":"in 2 weeks we launch","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"English relative by quantity."}
+{"id":"amb_015","text":"20 days ago","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Relative offset expression."}
+{"id":"amb_016","text":"we need a 20 day notice period","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Duration extraction candidate."}
+{"id":"amb_017","text":"hoy cerramos el trimestre","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Spanish relative keyword."}
+{"id":"amb_018","text":"mañana enviaremos el contrato","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Spanish tomorrow keyword."}
+{"id":"amb_019","text":"dans 2 jours on valide","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"French relative phrase."}
+{"id":"amb_020","text":"aujourd'hui est la date limite","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"French today keyword."}
+{"id":"amb_021","text":"heute ist der stichtag","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"German today keyword."}
+{"id":"amb_022","text":"morgen liefern wir","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"German tomorrow keyword."}
+{"id":"amb_023","text":"hoje fechamos o trimestre","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Portuguese today keyword."}
+{"id":"amb_024","text":"amanhã revisaremos o relatório","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Portuguese tomorrow keyword."}
+{"id":"amb_025","text":"oggi è la scadenza","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Italian today keyword."}
+{"id":"amb_026","text":"domani inviamo i documenti","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Italian tomorrow keyword."}
+{"id":"amb_027","text":"20 marzo 2015","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Day-first month-name date (Romance language)."}
+{"id":"amb_028","text":"March 20, 2015","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"English month-name date."}
+{"id":"amb_029","text":"31/08/2012 to 30/08/2013","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Range-like text with day-first values."}
+{"id":"amb_030","text":"2017-02-03T09:04:08Z to 2017-02-03T09:04:09Z","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"ISO timestamps with UTC suffix."}
+{"id":"amb_031","text":"CR is 0 for the past 40 minutes","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Numeric + duration phrase near known issue theme."}
+{"id":"amb_032","text":"1:00 pm is recognized but 1:00pm too","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Time formatting variants."}
+{"id":"amb_033","text":"June 2018","first":"month","strict":true,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Incomplete date under strict mode."}
+{"id":"amb_034","text":"09/06/2018","first":"month","strict":true,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Strict complete numeric date."}
+{"id":"amb_035","text":"19th day of May, 2015","first":"month","strict":true,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Ordinal day phrase under strict mode."}
+{"id":"amb_036","text":"On February 10, 2012, system event happened.","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Mixed prose and valid date."}
+{"id":"amb_037","text":"report generated in 2004","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Year-only parse behavior."}
+{"id":"amb_038","text":"Wed Aug 05 12:00:00 EDT 2015","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Timezone abbreviation handling."}
+{"id":"amb_039","text":"11:59 PM PST","first":"month","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Time + tz without explicit date."}
+{"id":"amb_040","text":"A unicode superscript like 12²/03/2020 appears in OCR.","first":"day","strict":false,"reference_dt":"2026-03-18T12:00:00+00:00","note":"Unicode-noise OCR style token."}

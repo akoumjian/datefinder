@@ -1,0 +1,9 @@
+[flake8]
+exclude =
+    .venv,
+    .tox,
+    build,
+    dist,
+    docs/_build,
+    target
+max-line-length = 127

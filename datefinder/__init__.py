@@ -1,19 +1,58 @@
 import copy
 import logging
-import regex as re
-from dateutil import tz, parser
-from datefinder.date_fragment import DateFragment
-from .constants import (
-    REPLACEMENTS,
-    DELIMITERS_PATTERN,
-    TIMEZONE_REPLACEMENTS,
-    STRIP_CHARS,
-    DATE_REGEX,
-    ALL_GROUPS,
-    RANGE_SPLIT_REGEX,
-)
+import os
+try:
+    import regex as re
+except Exception:  # pragma: no cover
+    import re  # type: ignore
+
+try:
+    from dateutil import tz, parser
+except Exception:  # pragma: no cover
+    tz = None
+    parser = None
+
+_LEGACY_IMPORT_ERROR = None
+try:
+    from datefinder.date_fragment import DateFragment
+    from .constants import (
+        REPLACEMENTS,
+        DELIMITERS_PATTERN,
+        TIMEZONE_REPLACEMENTS,
+        STRIP_CHARS,
+        DATE_REGEX,
+        ALL_GROUPS,
+        RANGE_SPLIT_REGEX,
+    )
+except Exception as exc:  # pragma: no cover
+    _LEGACY_IMPORT_ERROR = exc
+    DateFragment = None  # type: ignore
+    REPLACEMENTS = {}
+    DELIMITERS_PATTERN = r"\s+"
+    TIMEZONE_REPLACEMENTS = {}
+    STRIP_CHARS = " \n\t:-.,_"
+    DATE_REGEX = None
+    ALL_GROUPS = []
+    RANGE_SPLIT_REGEX = None
 
 logger = logging.getLogger("datefinder")
+__version__ = "1.0.0rc1"
+
+
+def _require_dateutil():
+    if parser is None or tz is None:
+        raise RuntimeError(
+            "Legacy datefinder API requires python-dateutil. Install dependencies "
+            "or use the v2 API via datefinder.extract(...)."
+        )
+
+
+def _require_legacy_engine():
+    if _LEGACY_IMPORT_ERROR is not None:
+        raise RuntimeError(
+            "Legacy datefinder regex engine is unavailable in this environment. "
+            "Install `regex` and legacy dependencies or use datefinder.extract(...)."
+        ) from _LEGACY_IMPORT_ERROR
 
 
 class DateFinder(object):
@@ -22,6 +61,7 @@ class DateFinder(object):
     """
 
     def __init__(self, base_date=None, first="month"):
+        _require_legacy_engine()
         self.base_date = base_date
         self.dayfirst = False
         self.yearfirst = False
@@ -105,10 +145,12 @@ class DateFinder(object):
         if datetime_obj is None:
             return None
 
+        _require_dateutil()
         tzinfo_match = tz.gettz(tz_string)
         return datetime_obj.replace(tzinfo=tzinfo_match)
 
     def parse_date_string(self, date_string, captures):
+        _require_dateutil()
         # For well formatted string, we can already let dateutils parse them
         # otherwise self._find_and_replace method might corrupt them
         try:
@@ -317,7 +359,7 @@ class DateFinder(object):
         return parts
 
 
-def find_dates(
+def find_dates_legacy(
     text, source=False, index=False, strict=False, base_date=None, first="month"
 ):
     """
@@ -353,3 +395,104 @@ def find_dates(
     """
     date_finder = DateFinder(base_date=base_date, first=first)
     return date_finder.find_dates(text, source=source, index=index, strict=strict)
+
+
+def _coerce_compat_datetime(value, dt, base_date):
+    timezone_source = getattr(value, "timezone_source", None)
+    if base_date is not None:
+        if getattr(base_date, "tzinfo", None) is None and getattr(dt, "tzinfo", None) is not None:
+            return dt.replace(tzinfo=None)
+        return dt
+    if timezone_source == "explicit":
+        return dt
+    if getattr(dt, "tzinfo", None) is not None:
+        return dt.replace(tzinfo=None)
+    return dt
+
+
+def find_dates(
+    text,
+    source=False,
+    index=False,
+    strict=False,
+    base_date=None,
+    first="month",
+    engine=None,
+):
+    """
+    Extract datetime strings from text.
+
+    Engine defaults to v2 compatibility for the 1.x release line.
+    Set ``engine="legacy"`` or ``DATEFINDER_DEFAULT_ENGINE=legacy`` to force
+    the original regex+dateutil implementation.
+    """
+    selected_engine = (engine or os.environ.get("DATEFINDER_DEFAULT_ENGINE", "v2")).lower()
+
+    if selected_engine == "legacy":
+        for item in find_dates_legacy(
+            text,
+            source=source,
+            index=index,
+            strict=strict,
+            base_date=base_date,
+            first=first,
+        ):
+            yield item
+        return
+
+    if selected_engine not in {"v2", "compat"}:
+        raise ValueError("Unknown engine '{}'. Use 'v2' or 'legacy'.".format(selected_engine))
+
+    for match in extract(
+        text,
+        reference_dt=base_date,
+        strict=strict,
+        first=first,
+        stream=True,
+    ):
+        dt = None
+        if match.kind == "absolute":
+            dt = _coerce_compat_datetime(match.value, match.value.datetime_value, base_date)
+        elif match.kind == "relative":
+            dt = _coerce_compat_datetime(match.value, match.value.resolved_datetime, base_date)
+        elif match.kind == "interval":
+            dt = _coerce_compat_datetime(match.value, match.value.start, base_date)
+
+        if dt is None:
+            continue
+
+        returnables = (dt,)
+        if source:
+            returnables = returnables + (match.text,)
+        if index:
+            returnables = returnables + ((match.start, match.end),)
+
+        if len(returnables) == 1:
+            returnables = returnables[0]
+        yield returnables
+
+
+# v2 typed API
+from .v2 import (  # noqa: E402
+    extract,
+    find_dates_compat,
+    Match,
+    AbsoluteValue,
+    RelativeValue,
+    DurationValue,
+    IntervalValue,
+)
+
+__all__ = [
+    "__version__",
+    "DateFinder",
+    "find_dates",
+    "find_dates_legacy",
+    "find_dates_compat",
+    "extract",
+    "Match",
+    "AbsoluteValue",
+    "RelativeValue",
+    "DurationValue",
+    "IntervalValue",
+]

@@ -1,0 +1,36 @@
+{"id": "legacy_find_001", "text": "Tuesday Jul 22, 2014", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-07-22T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_002", "text": "December 13, 2014 at midnight", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-12-13T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_003", "text": "April 9, 2013 at 6:11 a.m.", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2013-04-09T06:11:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_004", "text": "Aug. 9, 2012 at 2:57 p.m.", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2012-08-09T14:57:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_005", "text": "December 10, 2014, 11:02:21 pm", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-12-10T23:02:21"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_006", "text": "8:25 a.m. Dec. 12, 2014", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-12-12T08:25:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_007", "text": "2:21 p.m., December 11, 2014", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-12-11T14:21:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_008", "text": "Fri, 12 Dec 2014 10:55:50", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-12-12T10:55:50"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_009", "text": "10:06am Dec 11, 2014", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-12-11T10:06:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_010", "text": "September 2nd, 1998", "first": "month", "strict": false, "base_date": null, "expected_iso": ["1998-09-02T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_011", "text": "May 5, 2010 to July 10, 2011", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2010-05-05T00:00:00", "2011-07-10T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_012", "text": "06-17-2014", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-06-17T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_013", "text": "13/03/2014", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2014-03-13T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_014", "text": "2016-02-04T20:16:26+00:00", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2016-02-04T20:16:26+00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_015", "text": "2017-02-03T09:04:08Z to 2017-02-03T09:04:09Z", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2017-02-03T09:04:08+00:00", "2017-02-03T09:04:09+00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_016", "text": "i am looking for a date june 4th 1996 to july 3rd 2013", "first": "month", "strict": false, "base_date": null, "expected_iso": ["1996-06-04T00:00:00", "2013-07-03T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_017", "text": "october 27 1994 to be put into effect on june 1 1995", "first": "month", "strict": false, "base_date": null, "expected_iso": ["1994-10-27T00:00:00", "1995-06-01T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_018", "text": "31/08/2012 to 30/08/2013", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2012-08-31T00:00:00", "2013-08-30T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_019", "text": "31 Oct 2021 - 28 Nov 2021", "first": "day", "strict": false, "base_date": null, "expected_iso": ["2021-10-31T00:00:00", "2021-11-28T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_020", "text": "2017-02-03T09:04:08.001Z", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2017-02-03T09:04:08.001000+00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_021", "text": "2017-02-03T09:04:08,00123Z", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2017-02-03T09:04:08.001230+00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_022", "text": "2017-02-03T09:04:08Z", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2017-02-03T09:04:08+00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_023", "text": "Dutta is the recipient of Femina Miss India Universe title in 2004.", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2004-03-19T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_024", "text": "she said that she hit depression after being traumatized on the sets of \"Horn OK\" in 2008.", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2008-03-19T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_025", "text": "12th day of December, 2001", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2001-12-12T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_026", "text": "01/02/03", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2003-01-02T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_027", "text": "01/02/03", "first": "day", "strict": false, "base_date": null, "expected_iso": ["2003-02-01T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_028", "text": "01/02/03", "first": "year", "strict": false, "base_date": null, "expected_iso": ["2001-02-03T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_029", "text": "02/05/2020", "first": "month", "strict": false, "base_date": null, "expected_iso": ["2020-02-05T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_find_030", "text": "02/05/2020", "first": "day", "strict": false, "base_date": null, "expected_iso": ["2020-05-02T00:00:00"], "source": "tests/test_find_dates.py"}
+{"id": "legacy_strict_031", "text": "June 2018", "first": "month", "strict": true, "base_date": null, "expected_iso": [], "source": "tests/test_find_dates_strict.py"}
+{"id": "legacy_strict_032", "text": "09/06/18", "first": "month", "strict": true, "base_date": null, "expected_iso": ["2018-09-06T00:00:00"], "source": "tests/test_find_dates_strict.py"}
+{"id": "legacy_strict_033", "text": "09/06/2018", "first": "month", "strict": true, "base_date": null, "expected_iso": ["2018-09-06T00:00:00"], "source": "tests/test_find_dates_strict.py"}
+{"id": "legacy_strict_034", "text": "recorded: 03/14/2008", "first": "month", "strict": true, "base_date": null, "expected_iso": ["2008-03-14T00:00:00"], "source": "tests/test_find_dates_strict.py"}
+{"id": "legacy_strict_035", "text": "19th day of May, 2015", "first": "month", "strict": true, "base_date": null, "expected_iso": ["2015-05-19T00:00:00"], "source": "tests/test_find_dates_strict.py"}
+{"id": "legacy_strict_036", "text": "19th day of May", "first": "month", "strict": true, "base_date": null, "expected_iso": [], "source": "tests/test_find_dates_strict.py"}
