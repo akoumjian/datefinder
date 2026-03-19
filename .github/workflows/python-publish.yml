@@ -100,7 +100,8 @@ jobs:
             fi
             test -n "$PYBIN"
             "$PYBIN" -m pip install --upgrade pip >/dev/null
-            "$PYBIN" -m pip install --only-binary=:all: --no-index --find-links /dist datefinder==1.0.0rc1 >/dev/null
+            "$PYBIN" -m pip install regex python-dateutil pytz >/dev/null
+            "$PYBIN" -m pip install --only-binary=:all: --no-index --find-links /dist --no-deps datefinder==1.0.0rc1 >/dev/null
             "$PYBIN" -c "import datefinder, datefinder._kernel; from datetime import datetime, timezone; out=list(datefinder.find_dates(\"tomorrow and 2024-12-10\", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc))); assert len(out) >= 2; print(\"linux target smoke ok\", len(out))"
           '
       - name: Wheel runtime smoke (macOS/Windows native)
@@ -108,13 +109,14 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
+          python -m pip install regex python-dateutil pytz
           python - <<'PY'
           import glob
           import subprocess
           import sys
           wheels = sorted(glob.glob("dist/*.whl"))
           assert wheels, "no wheels found"
-          subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", wheels[0]])
+          subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", "--no-deps", wheels[0]])
           PY
           python - <<'PY'
           import datefinder
