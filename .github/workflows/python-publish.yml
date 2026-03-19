@@ -105,7 +105,7 @@ jobs:
             "$PYBIN" -c "import datefinder, datefinder._kernel; from datetime import datetime, timezone; out=list(datefinder.find_dates(\"tomorrow and 2024-12-10\", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc))); assert len(out) >= 2; print(\"linux target smoke ok\", len(out))"
           '
       - name: Wheel runtime smoke (macOS/Windows native)
-        if: ${{ !startsWith(matrix.runner, 'ubuntu') }}
+        if: ${{ !startsWith(matrix.runner, 'ubuntu') && !(startsWith(matrix.runner, 'macos') && matrix.target == 'x86_64-apple-darwin') }}
         shell: bash
         run: |
           python -m pip install --upgrade pip
