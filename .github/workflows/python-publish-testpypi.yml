@@ -37,6 +37,7 @@ jobs:
           test -n "$(ls dist/*.tar.gz 2>/dev/null)"
           if [ -f dist/SHA256SUMS ]; then
             (cd dist && sha256sum -c SHA256SUMS)
+            rm -f dist/SHA256SUMS
           fi
           python -m pip install --upgrade pip twine
           twine check dist/*.whl dist/*.tar.gz || echo "twine check reported non-blocking metadata warnings"
