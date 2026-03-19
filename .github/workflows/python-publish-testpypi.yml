@@ -28,7 +28,7 @@ jobs:
             target: aarch64-unknown-linux-musl
             manylinux: musllinux_1_2
           # macOS
-          - runner: macos-13
+          - runner: macos-14
             target: x86_64-apple-darwin
             manylinux: off
           - runner: macos-14
