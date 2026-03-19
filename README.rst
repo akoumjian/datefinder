@@ -83,6 +83,38 @@ Engine options:
 - ``compat``: ``find_dates_compat(...)``
 - ``extract``: typed ``extract(...)`` output
 
+Common options:
+
+- ``--reference <ISO8601>``: anchor for relative dates/times (equivalent to ``base_date``/``reference_dt``)
+- ``--first {month,day,year}``: disambiguation for numeric dates
+- ``--strict``: stricter matching
+- ``--json`` / ``--pretty``: machine-readable output
+- ``--source`` / ``--index``: include source span details (``default``/``legacy`` only)
+- ``--locale <code>``: locale hint for ``extract`` (repeatable)
+
+Examples:
+
+.. code-block:: sh
+
+    # default engine (v2 compatibility), anchored relative parsing
+    datefinder --reference "2026-03-19T12:00:00+00:00" --json "tomorrow and 2024-12-10"
+
+    # explicit legacy behavior, include source text and indices
+    datefinder --engine legacy --source --index --json "created 01/15/2005 by ACME"
+
+    # typed extract output with locale hints
+    datefinder --engine extract --locale en --locale fr --pretty --json "in 3 days and demain"
+
+    # read long input from stdin
+    cat document.txt | datefinder --engine extract --json
+
+Relative and duration values:
+
+- ``default`` / ``legacy`` / ``compat`` engines emit datetimes.
+- ``extract`` emits typed values:
+  - ``relative`` includes both ``resolved_datetime`` and ``delta_seconds``.
+  - ``duration`` includes ``total_seconds`` and normalized components.
+
 
 Demo
 ----
