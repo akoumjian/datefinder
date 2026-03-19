@@ -24,6 +24,8 @@ The original engine remains available as ``find_dates_legacy(...)``.
 Installation
 ------------
 
+Requires Python 3.9+.
+
 **With pip**
 
 .. code-block:: sh

@@ -15,5 +15,5 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 aho-corasick = "1.1"
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }
-pyo3 = { version = "0.22.6", features = ["extension-module", "abi3-py38"] }
+pyo3 = { version = "0.22.6", features = ["extension-module", "abi3-py39"] }
 regex = "1.11.3"
