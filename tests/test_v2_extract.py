@@ -88,3 +88,44 @@ def test_find_dates_source_and_index_in_v2_default():
     assert dt.year == 2024
     assert text == "2024-12-10"
     assert idx == (8, 18)
+
+
+def test_issue_59_ymd_slash_with_time():
+    ref = datetime(2026, 3, 20, tzinfo=timezone.utc)
+    out = list(datefinder.find_dates("handpunched on 2017/08/27 @ 7:24 AM", base_date=ref))
+    assert out == [datetime(2017, 8, 27, 7, 24, tzinfo=timezone.utc)]
+
+
+def test_issue_202_weekday_month_day_without_year():
+    ref = datetime(2026, 3, 20, tzinfo=timezone.utc)
+    out = list(datefinder.find_dates("Tuesday, April 30, Wednesday, May 1", base_date=ref))
+    assert len(out) == 2
+    assert (out[0].month, out[0].day) == (4, 30)
+    assert (out[1].month, out[1].day) == (5, 1)
+
+
+def test_issue_179_dot_dates_in_filename():
+    ref = datetime(2026, 3, 20, tzinfo=timezone.utc)
+    out = list(datefinder.find_dates("07.11.2022_-_11.11.2022.pdf", base_date=ref, first="day"))
+    assert out == [
+        datetime(2022, 11, 7, tzinfo=timezone.utc),
+        datetime(2022, 11, 11, tzinfo=timezone.utc),
+    ]
+
+
+def test_issue_176_year_day_month_name():
+    ref = datetime(2026, 3, 20, tzinfo=timezone.utc)
+    out = list(datefinder.find_dates("2020,31,August", base_date=ref, first="year"))
+    assert out == [datetime(2020, 8, 31, tzinfo=timezone.utc)]
+
+
+def test_issue_160_day_of_month_name_phrase():
+    ref = datetime(2026, 3, 20, tzinfo=timezone.utc)
+    out = list(datefinder.find_dates("At 13:14 on the 23 of october 2020", base_date=ref))
+    assert out == [datetime(2020, 10, 23, 13, 14, tzinfo=timezone.utc)]
+
+
+def test_issue_170_next_weekday_relative():
+    ref = datetime(2026, 3, 20, tzinfo=timezone.utc)  # Friday
+    out = list(datefinder.find_dates("next Friday", base_date=ref))
+    assert out == [datetime(2026, 3, 27, tzinfo=timezone.utc)]

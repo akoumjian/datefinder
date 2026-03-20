@@ -1,5 +1,8 @@
 use aho_corasick::AhoCorasick;
-use chrono::{DateTime, Datelike, Duration, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Timelike, Utc};
+use chrono::{
+    DateTime, Datelike, Duration, FixedOffset, NaiveDate, NaiveDateTime, NaiveTime, TimeZone,
+    Timelike, Utc,
+};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 use regex::Regex;
@@ -49,17 +52,30 @@ fn iso_re() -> &'static Regex {
 
 fn slash_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"\b(?P<a>\d{1,2})/(?P<b>\d{1,2})/(?P<c>\d{2,4})\b").expect("valid regex"))
+    RE.get_or_init(|| {
+        Regex::new(r"(?P<a>\d{1,4})/(?P<b>\d{1,2})/(?P<c>\d{1,4})").expect("valid regex")
+    })
 }
 
 fn hyphen_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"\b(?P<a>\d{1,2})-(?P<b>\d{1,2})-(?P<c>\d{2,4})\b").expect("valid regex"))
+    RE.get_or_init(|| {
+        Regex::new(r"(?P<a>\d{1,4})-(?P<b>\d{1,2})-(?P<c>\d{1,4})").expect("valid regex")
+    })
+}
+
+fn dot_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        Regex::new(r"(?P<a>\d{1,4})\.(?P<b>\d{1,2})\.(?P<c>\d{1,4})").expect("valid regex")
+    })
 }
 
 fn year_only_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"(?i)\b(?:in|during|on)\s+(?P<year>19\d\d|20\d\d)\b").expect("valid regex"))
+    RE.get_or_init(|| {
+        Regex::new(r"(?i)\b(?:in|during|on)\s+(?P<year>19\d\d|20\d\d)\b").expect("valid regex")
+    })
 }
 
 fn relative_word_re() -> &'static Regex {
@@ -72,19 +88,33 @@ fn relative_word_re() -> &'static Regex {
     })
 }
 
+fn relative_weekday_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        Regex::new(r"(?i)\b(?P<dir>next|last)\s+(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b")
+            .expect("valid regex")
+    })
+}
+
 fn in_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"(?i)\bin\s+(?P<num>\d+)\s+(?P<unit>[a-zà-ÿ]+)\b").expect("valid regex"))
+    RE.get_or_init(|| {
+        Regex::new(r"(?i)\bin\s+(?P<num>\d+)\s+(?P<unit>[a-zà-ÿ]+)\b").expect("valid regex")
+    })
 }
 
 fn ago_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"(?i)\b(?P<num>\d+)\s+(?P<unit>[a-zà-ÿ]+)\s+ago\b").expect("valid regex"))
+    RE.get_or_init(|| {
+        Regex::new(r"(?i)\b(?P<num>\d+)\s+(?P<unit>[a-zà-ÿ]+)\s+ago\b").expect("valid regex")
+    })
 }
 
 fn duration_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"(?i)\b(?P<num>\d+)\s*(?P<unit>[a-zà-ÿ]+)\b").expect("valid regex"))
+    RE.get_or_init(|| {
+        Regex::new(r"(?i)\b(?P<num>\d+)\s*(?P<unit>[a-zà-ÿ]+)\b").expect("valid regex")
+    })
 }
 
 fn month_aliases() -> &'static [(&'static str, u32)] {
@@ -216,7 +246,45 @@ fn day_first_re() -> &'static Regex {
             .collect::<Vec<String>>()
             .join("|");
         let pattern = format!(
-            r"(?i)\b(?P<day>\d{{1,2}})(?:st|nd|rd|th)?(?:\s+day\s+of|\s+de)?\s+(?P<month>{})\.?(?:,)?\s+(?P<year>\d{{4}})\b",
+            r"(?i)\b(?P<day>\d{{1,2}})(?:st|nd|rd|th)?(?:\s+day\s+of|\s+de|\s+of)?\s+(?P<month>{})\.?(?:,)?\s+(?P<year>\d{{4}})\b",
+            escaped
+        );
+        Regex::new(&pattern).expect("valid regex")
+    })
+}
+
+fn year_day_month_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        let mut aliases: Vec<&str> = month_aliases().iter().map(|(m, _)| *m).collect();
+        aliases.sort_by_key(|m| std::cmp::Reverse(m.len()));
+        aliases.dedup();
+        let escaped = aliases
+            .into_iter()
+            .map(regex::escape)
+            .collect::<Vec<String>>()
+            .join("|");
+        let pattern = format!(
+            r"(?i)(?P<year>\d{{4}})\s*[,/\-]\s*(?P<day>\d{{1,2}})(?:st|nd|rd|th)?\s*[,/\-]\s*(?P<month>{})\.?",
+            escaped
+        );
+        Regex::new(&pattern).expect("valid regex")
+    })
+}
+
+fn weekday_month_day_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
+        let mut aliases: Vec<&str> = month_aliases().iter().map(|(m, _)| *m).collect();
+        aliases.sort_by_key(|m| std::cmp::Reverse(m.len()));
+        aliases.dedup();
+        let escaped = aliases
+            .into_iter()
+            .map(regex::escape)
+            .collect::<Vec<String>>()
+            .join("|");
+        let pattern = format!(
+            r"(?i)\b(?P<weekday>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s*,?\s*(?P<month>{})\.?\s+(?P<day>\d{{1,2}})(?:st|nd|rd|th)?\b",
             escaped
         );
         Regex::new(&pattern).expect("valid regex")
@@ -237,28 +305,29 @@ fn relative_word_days(token: &str) -> Option<i64> {
     match token.to_lowercase().as_str() {
         "today" | "hoy" | "aujourd'hui" | "aujourdhui" | "heute" | "hoje" | "oggi" => Some(0),
         "yesterday" | "ayer" | "hier" | "gestern" | "ontem" | "ieri" => Some(-1),
-        "tomorrow" | "mañana" | "manana" | "demain" | "morgen" | "amanhã" | "amanha" | "domani" => Some(1),
+        "tomorrow" | "mañana" | "manana" | "demain" | "morgen" | "amanhã" | "amanha" | "domani" => {
+            Some(1)
+        }
         _ => None,
     }
 }
 
 fn unit_seconds(unit: &str) -> Option<i64> {
     match unit.to_lowercase().as_str() {
-        "second" | "seconds" | "sec" | "segundo" | "segundos" | "seconde" | "secondes" | "sekunde"
-        | "sekunden" | "secondo" | "secondi" => Some(1),
+        "second" | "seconds" | "sec" | "segundo" | "segundos" | "seconde" | "secondes"
+        | "sekunde" | "sekunden" | "secondo" | "secondi" => Some(1),
         "minute" | "minutes" | "minuto" | "minutos" | "minuti" => Some(60),
-        "hour" | "hours" | "hora" | "horas" | "heure" | "heures" | "stunde" | "stunden" | "ora" | "ore" => {
-            Some(3600)
-        }
-        "day" | "days" | "dia" | "dias" | "día" | "días" | "jour" | "jours" | "tag" | "tage" | "giorno"
-        | "giorni" => Some(86_400),
+        "hour" | "hours" | "hora" | "horas" | "heure" | "heures" | "stunde" | "stunden" | "ora"
+        | "ore" => Some(3600),
+        "day" | "days" | "dia" | "dias" | "día" | "días" | "jour" | "jours" | "tag" | "tage"
+        | "giorno" | "giorni" => Some(86_400),
         "week" | "weeks" | "semana" | "semanas" | "semaine" | "semaines" | "woche" | "wochen"
         | "settimana" | "settimane" => Some(604_800),
         "month" | "months" | "mes" | "meses" | "mois" | "monat" | "monate" | "mese" | "mesi" => {
             Some(2_592_000)
         }
-        "year" | "years" | "año" | "años" | "an" | "ans" | "année" | "années" | "jahr" | "jahre" | "ano"
-        | "anos" | "anno" | "anni" => Some(31_536_000),
+        "year" | "years" | "año" | "años" | "an" | "ans" | "année" | "années" | "jahr"
+        | "jahre" | "ano" | "anos" | "anno" | "anni" => Some(31_536_000),
         _ => None,
     }
 }
@@ -344,11 +413,19 @@ fn normalize_microseconds(raw: &str) -> u32 {
     s.parse().unwrap_or(0)
 }
 
-fn parse_time_capture(caps: &regex::Captures<'_>) -> Option<(u32, u32, u32, u32, Option<FixedOffset>)> {
+fn parse_time_capture(
+    caps: &regex::Captures<'_>,
+) -> Option<(u32, u32, u32, u32, Option<FixedOffset>)> {
     let mut hour: u32 = caps.name("h")?.as_str().parse().ok()?;
     let minute: u32 = caps.name("min")?.as_str().parse().ok()?;
-    let second: u32 = caps.name("s").and_then(|m| m.as_str().parse().ok()).unwrap_or(0);
-    let micro: u32 = caps.name("us").map(|m| normalize_microseconds(m.as_str())).unwrap_or(0);
+    let second: u32 = caps
+        .name("s")
+        .and_then(|m| m.as_str().parse().ok())
+        .unwrap_or(0);
+    let micro: u32 = caps
+        .name("us")
+        .map(|m| normalize_microseconds(m.as_str()))
+        .unwrap_or(0);
     let ampm = caps
         .name("ampm")
         .map(|m| m.as_str().to_ascii_lowercase().replace('.', ""))
@@ -364,7 +441,38 @@ fn parse_time_capture(caps: &regex::Captures<'_>) -> Option<(u32, u32, u32, u32,
     Some((hour, minute, second, micro, offset))
 }
 
-fn find_nearby_time(text: &str, start: usize, end: usize) -> Option<(u32, u32, u32, u32, Option<FixedOffset>)> {
+fn is_digit_bounded(text: &str, start: usize, end: usize) -> bool {
+    let prev_is_digit = text[..start]
+        .chars()
+        .next_back()
+        .map(|c| c.is_ascii_digit())
+        .unwrap_or(false);
+    let next_is_digit = text[end..]
+        .chars()
+        .next()
+        .map(|c| c.is_ascii_digit())
+        .unwrap_or(false);
+    !prev_is_digit && !next_is_digit
+}
+
+fn weekday_index(token: &str) -> Option<u32> {
+    match token.to_lowercase().as_str() {
+        "monday" => Some(0),
+        "tuesday" => Some(1),
+        "wednesday" => Some(2),
+        "thursday" => Some(3),
+        "friday" => Some(4),
+        "saturday" => Some(5),
+        "sunday" => Some(6),
+        _ => None,
+    }
+}
+
+fn find_nearby_time(
+    text: &str,
+    start: usize,
+    end: usize,
+) -> Option<(u32, u32, u32, u32, Option<FixedOffset>)> {
     let window_start = start.saturating_sub(20);
     let window_end = (end + 30).min(text.len());
     let window = &text[window_start..window_end];
@@ -404,7 +512,12 @@ fn build_datetime(
     offset.from_local_datetime(&ndt).single()
 }
 
-fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: bool) -> Vec<RawMatch> {
+fn parse_raw(
+    text: &str,
+    reference: DateTime<FixedOffset>,
+    first: &str,
+    strict: bool,
+) -> Vec<RawMatch> {
     let mut out: Vec<RawMatch> = Vec::new();
     let reference_offset = *reference.offset();
 
@@ -416,9 +529,18 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
         let year: i32 = caps["y"].parse().unwrap_or_default();
         let month: u32 = caps["m"].parse().unwrap_or_default();
         let day: u32 = caps["d"].parse().unwrap_or_default();
-        let hour: u32 = caps.name("h").map(|x| x.as_str().parse().unwrap_or(0)).unwrap_or(0);
-        let minute: u32 = caps.name("min").map(|x| x.as_str().parse().unwrap_or(0)).unwrap_or(0);
-        let second: u32 = caps.name("s").map(|x| x.as_str().parse().unwrap_or(0)).unwrap_or(0);
+        let hour: u32 = caps
+            .name("h")
+            .map(|x| x.as_str().parse().unwrap_or(0))
+            .unwrap_or(0);
+        let minute: u32 = caps
+            .name("min")
+            .map(|x| x.as_str().parse().unwrap_or(0))
+            .unwrap_or(0);
+        let second: u32 = caps
+            .name("s")
+            .map(|x| x.as_str().parse().unwrap_or(0))
+            .unwrap_or(0);
         let micro: u32 = caps
             .name("us")
             .map(|x| normalize_microseconds(x.as_str()))
@@ -446,12 +568,15 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
         });
     }
 
-    for re in [slash_re(), hyphen_re()] {
+    for re in [slash_re(), hyphen_re(), dot_re()] {
         for caps in re.captures_iter(text) {
             let all = match caps.get(0) {
                 Some(m) => m,
                 None => continue,
             };
+            if !is_digit_bounded(text, all.start(), all.end()) {
+                continue;
+            }
             let a: i32 = caps["a"].parse().unwrap_or_default();
             let b: i32 = caps["b"].parse().unwrap_or_default();
             let c: i32 = caps["c"].parse().unwrap_or_default();
@@ -468,7 +593,9 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
 
             if let Some((h, mi, s, us, offset)) = find_nearby_time(text, all.start(), all.end()) {
                 let tz = offset.unwrap_or(reference_offset);
-                if let Some(with_time) = build_datetime(tz, dt.year(), dt.month(), dt.day(), h, mi, s, us) {
+                if let Some(with_time) =
+                    build_datetime(tz, dt.year(), dt.month(), dt.day(), h, mi, s, us)
+                {
                     dt = with_time;
                 }
             }
@@ -479,7 +606,13 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
                 start: all.start(),
                 end: all.end(),
                 locale: "und".to_string(),
-                grain: if dt.time().second() > 0 { "second" } else if dt.time().hour() > 0 || dt.time().minute() > 0 { "minute" } else { "day" },
+                grain: if dt.time().second() > 0 {
+                    "second"
+                } else if dt.time().hour() > 0 || dt.time().minute() > 0 {
+                    "minute"
+                } else {
+                    "day"
+                },
                 value: RawValue::Absolute {
                     datetime: dt.to_rfc3339(),
                     timezone_source: None,
@@ -523,7 +656,13 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
                 start: all.start(),
                 end: all.end(),
                 locale: "und".to_string(),
-                grain: if dt.time().second() > 0 { "second" } else if dt.time().hour() > 0 || dt.time().minute() > 0 { "minute" } else { "day" },
+                grain: if dt.time().second() > 0 {
+                    "second"
+                } else if dt.time().hour() > 0 || dt.time().minute() > 0 {
+                    "minute"
+                } else {
+                    "day"
+                },
                 value: RawValue::Absolute {
                     datetime: dt.to_rfc3339(),
                     timezone_source: None,
@@ -534,12 +673,115 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
         }
     }
 
+    // Year-day-month name variants like "2020,31,August".
+    for caps in year_day_month_re().captures_iter(text) {
+        let all = match caps.get(0) {
+            Some(m) => m,
+            None => continue,
+        };
+        if !is_digit_bounded(text, all.start(), all.end()) {
+            continue;
+        }
+        let month_token = match caps.name("month") {
+            Some(m) => m.as_str().to_lowercase().trim_end_matches('.').to_string(),
+            None => continue,
+        };
+        let Some(month) = month_lookup().get(month_token.as_str()).copied() else {
+            continue;
+        };
+        let day: u32 = caps["day"].parse().unwrap_or_default();
+        let year: i32 = caps["year"].parse().unwrap_or_default();
+        let mut dt = match build_datetime(reference_offset, year, month, day, 0, 0, 0, 0) {
+            Some(x) => x,
+            None => continue,
+        };
+        if let Some((h, mi, s, us, offset)) = find_nearby_time(text, all.start(), all.end()) {
+            let tz = offset.unwrap_or(reference_offset);
+            if let Some(with_time) = build_datetime(tz, year, month, day, h, mi, s, us) {
+                dt = with_time;
+            }
+        }
+        out.push(RawMatch {
+            kind: "absolute",
+            text: all.as_str().to_string(),
+            start: all.start(),
+            end: all.end(),
+            locale: "und".to_string(),
+            grain: if dt.time().second() > 0 {
+                "second"
+            } else if dt.time().hour() > 0 || dt.time().minute() > 0 {
+                "minute"
+            } else {
+                "day"
+            },
+            value: RawValue::Absolute {
+                datetime: dt.to_rfc3339(),
+                timezone_source: None,
+            },
+            confidence: 0.94,
+            warnings: vec![],
+        });
+    }
+
+    // Weekday + month/day without year, infer reference year.
+    for caps in weekday_month_day_re().captures_iter(text) {
+        let all = match caps.get(0) {
+            Some(m) => m,
+            None => continue,
+        };
+        let month_token = match caps.name("month") {
+            Some(m) => m.as_str().to_lowercase().trim_end_matches('.').to_string(),
+            None => continue,
+        };
+        let Some(month) = month_lookup().get(month_token.as_str()).copied() else {
+            continue;
+        };
+        let day: u32 = caps["day"].parse().unwrap_or_default();
+        let year: i32 = reference.year();
+        let mut dt = match build_datetime(reference_offset, year, month, day, 0, 0, 0, 0) {
+            Some(x) => x,
+            None => continue,
+        };
+        if let Some((h, mi, s, us, offset)) = find_nearby_time(text, all.start(), all.end()) {
+            let tz = offset.unwrap_or(reference_offset);
+            if let Some(with_time) = build_datetime(tz, year, month, day, h, mi, s, us) {
+                dt = with_time;
+            }
+        }
+        out.push(RawMatch {
+            kind: "absolute",
+            text: all.as_str().to_string(),
+            start: all.start(),
+            end: all.end(),
+            locale: "und".to_string(),
+            grain: if dt.time().second() > 0 {
+                "second"
+            } else if dt.time().hour() > 0 || dt.time().minute() > 0 {
+                "minute"
+            } else {
+                "day"
+            },
+            value: RawValue::Absolute {
+                datetime: dt.to_rfc3339(),
+                timezone_source: None,
+            },
+            confidence: 0.84,
+            warnings: vec!["inferred_year".to_string()],
+        });
+    }
+
     if !strict {
         for caps in year_only_re().captures_iter(text) {
             let all = match caps.get(0) {
                 Some(m) => m,
                 None => continue,
             };
+            if out
+                .iter()
+                .any(|m| m.kind == "absolute" && all.start() < m.end && all.end() > m.start)
+            {
+                continue;
+            }
             let year: i32 = caps["year"].parse().unwrap_or_default();
             let month = reference.month();
             let day = reference.day();
@@ -592,6 +834,55 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
                     anchor: "reference".to_string(),
                 },
                 confidence: 0.92,
+                warnings: vec![],
+            });
+            consumed.push((all.start(), all.end()));
+        }
+
+        for caps in relative_weekday_re().captures_iter(text) {
+            let all = match caps.get(0) {
+                Some(m) => m,
+                None => continue,
+            };
+            let direction = caps
+                .name("dir")
+                .map(|m| m.as_str().to_lowercase())
+                .unwrap_or_default();
+            let weekday_token = match caps.name("weekday") {
+                Some(m) => m.as_str(),
+                None => continue,
+            };
+            let Some(target_wd) = weekday_index(weekday_token) else {
+                continue;
+            };
+            let current_wd = reference.weekday().num_days_from_monday();
+            let delta_days = if direction == "next" {
+                let mut d = (target_wd as i64 - current_wd as i64).rem_euclid(7);
+                if d == 0 {
+                    d = 7;
+                }
+                d
+            } else {
+                let mut d = (current_wd as i64 - target_wd as i64).rem_euclid(7);
+                if d == 0 {
+                    d = 7;
+                }
+                -d
+            };
+            let resolved = reference + Duration::days(delta_days);
+            out.push(RawMatch {
+                kind: "relative",
+                text: all.as_str().to_string(),
+                start: all.start(),
+                end: all.end(),
+                locale: "und".to_string(),
+                grain: "day",
+                value: RawValue::Relative {
+                    resolved_datetime: resolved.to_rfc3339(),
+                    delta_seconds: delta_days * 86_400,
+                    anchor: "reference".to_string(),
+                },
+                confidence: 0.90,
                 warnings: vec![],
             });
             consumed.push((all.start(), all.end()));
@@ -702,7 +993,9 @@ fn parse_raw(text: &str, reference: DateTime<FixedOffset>, first: &str, strict: 
         a.kind.cmp(b.kind)
     });
 
-    out.dedup_by(|a, b| a.kind == b.kind && a.start == b.start && a.end == b.end && a.text == b.text);
+    out.dedup_by(|a, b| {
+        a.kind == b.kind && a.start == b.start && a.end == b.end && a.text == b.text
+    });
     out
 }
 
