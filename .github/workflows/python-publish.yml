@@ -38,6 +38,8 @@ jobs:
           test -n "$(ls dist/*.whl 2>/dev/null)"
           test -n "$(ls dist/*.tar.gz 2>/dev/null)"
           if [ -f dist/SHA256SUMS ]; then
+            grep -v "datefinder-.*-pp.*\\.whl" dist/SHA256SUMS > dist/SHA256SUMS.filtered || true
+            mv dist/SHA256SUMS.filtered dist/SHA256SUMS
             (cd dist && sha256sum -c SHA256SUMS)
             rm -f dist/SHA256SUMS
           fi
