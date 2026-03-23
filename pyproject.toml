@@ -44,3 +44,4 @@ datefinder = "datefinder.cli:main"
 manifest-path = "rust/datefinder-kernel/Cargo.toml"
 module-name = "datefinder._kernel"
 python-source = "."
+include = ["LICENSE"]
