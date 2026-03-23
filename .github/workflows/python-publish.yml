@@ -33,6 +33,8 @@ jobs:
         shell: bash
         run: |
           ls -lah dist
+          # Keep publish set aligned to supported artifacts for this release line.
+          find dist -type f -name "datefinder-*-pp*.whl" -print -delete || true
           test -n "$(ls dist/*.whl 2>/dev/null)"
           test -n "$(ls dist/*.tar.gz 2>/dev/null)"
           if [ -f dist/SHA256SUMS ]; then
