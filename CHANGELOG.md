@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0rc3 - 2026-03-23
+
+### Fixed
+
+- Release packaging pipeline now filters unsupported PyPy wheel artifacts before publish.
+- Publish checksum verification now excludes filtered artifacts so upload validation remains deterministic.
+
+### Notes
+
+- `1.0.0rc3` supersedes `1.0.0rc2` for release-candidate validation and installation guidance.
+
 ## 1.0.0rc2 - 2026-03-23
 
 ### Added
