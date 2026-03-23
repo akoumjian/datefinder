@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.0.0rc2 - 2026-03-23
+
+### Added
+
+- Added compatibility flags for v2/default engine:
+  - `allow_month_only` (default `True`)
+  - `allow_compact_numeric` (default `False`)
+  - `allow_multiline` (default `True`)
+- Added matching CLI flags:
+  - `--no-month-only`
+  - `--compact-numeric`
+  - `--no-multiline`
+- Added expanded regression coverage for issue-driven edge cases and new flags.
+
+### Changed
+
+- Month-only parsing is now enabled by default in v2 compatibility mode and resolves to first day of month.
+- Compact 8-digit numeric parsing (e.g. `20240315`) is now opt-in only.
+- Multiline matching can now be disabled to force line-scoped extraction.
+
+### Fixed
+
+- Prevented false positives where `month + day` was incorrectly extracted from dotted time ranges (e.g. `April 09.00`).
+
 ## 1.0.0rc1 - 2026-03-19
 
 ### Breaking / Behavioral Changes

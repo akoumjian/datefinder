@@ -126,6 +126,21 @@ def build_parser() -> argparse.ArgumentParser:
         default="month",
         help="Disambiguation strategy for numeric dates.",
     )
+    parser.add_argument(
+        "--no-month-only",
+        action="store_true",
+        help="Disable month-only parsing (e.g. 'July' -> YYYY-07-01).",
+    )
+    parser.add_argument(
+        "--compact-numeric",
+        action="store_true",
+        help="Enable opt-in compact numeric parsing (e.g. 08082018).",
+    )
+    parser.add_argument(
+        "--no-multiline",
+        action="store_true",
+        help="Disable cross-line matching; parse each line independently.",
+    )
     parser.add_argument("--strict", action="store_true", help="Enable strict date matching.")
     parser.add_argument("--source", action="store_true", help="Include source substring (default/legacy only).")
     parser.add_argument("--index", action="store_true", help="Include match indices (default/legacy only).")
@@ -175,7 +190,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 0
 
     if args.engine == "compat":
-        rows = list(find_dates_compat(text, reference_dt=reference, strict=args.strict, first=args.first))
+        rows = list(
+            find_dates_compat(
+                text,
+                reference_dt=reference,
+                strict=args.strict,
+                first=args.first,
+                allow_month_only=not args.no_month_only,
+                allow_compact_numeric=args.compact_numeric,
+                allow_multiline=not args.no_multiline,
+            )
+        )
         if args.json:
             json.dump([{"datetime": dt.isoformat()} for dt in rows], sys.stdout, indent=2 if args.pretty else None)
             sys.stdout.write("\n")
@@ -192,6 +217,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 locales=tuple(args.locale) if args.locale else None,
                 strict=args.strict,
                 first=args.first,
+                allow_month_only=not args.no_month_only,
+                allow_compact_numeric=args.compact_numeric,
+                allow_multiline=not args.no_multiline,
                 stream=False,
             )
         )
@@ -211,6 +239,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             strict=args.strict,
             base_date=reference,
             first=args.first,
+            allow_month_only=not args.no_month_only,
+            allow_compact_numeric=args.compact_numeric,
+            allow_multiline=not args.no_multiline,
         )
     )
     if args.json:

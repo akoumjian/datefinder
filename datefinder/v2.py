@@ -167,12 +167,17 @@ _ISO_RE = re.compile(
 )
 _SLASH_RE = re.compile(r"\b(?P<a>\d{1,2})/(?P<b>\d{1,2})/(?P<c>\d{2,4})\b")
 _HYPHEN_RE = re.compile(r"\b(?P<a>\d{1,2})-(?P<b>\d{1,2})-(?P<c>\d{2,4})\b")
+_DOT_RE = re.compile(r"\b(?P<a>\d{1,4})\.(?P<b>\d{1,2})\.(?P<c>\d{1,4})\b")
 _MONTH_FIRST_RE = re.compile(
     rf"\b(?P<month>{_MONTH_PATTERN})\.?\s+(?P<day>\d{{1,2}})(?:st|nd|rd|th)?(?:,)?\s+(?P<year>\d{{4}})\b",
     re.IGNORECASE,
 )
+_MONTH_FIRST_HYPHEN_RE = re.compile(
+    rf"\b(?P<month>{_MONTH_PATTERN})-(?P<day>\d{{1,2}})(?:st|nd|rd|th)?-(?P<year>\d{{4}})\b",
+    re.IGNORECASE,
+)
 _DAY_FIRST_RE = re.compile(
-    rf"\b(?P<day>\d{{1,2}})(?:st|nd|rd|th)?(?:\s+day\s+of|\s+de)?\s+(?P<month>{_MONTH_PATTERN})\.?(?:,)?\s+(?P<year>\d{{4}})\b",
+    rf"\b(?P<day>\d{{1,2}})(?:st|nd|rd|th)?(?:\s+day\s+of|\s+de)?\s+(?P<month>{_MONTH_PATTERN})\.?(?:\s+de)?(?:,)?\s+(?P<year>\d{{4}})\b",
     re.IGNORECASE,
 )
 _YEAR_ONLY_RE = re.compile(r"\b(?:in|during|on)\s+(?P<year>19\d\d|20\d\d)\b", re.IGNORECASE)
@@ -470,9 +475,9 @@ def _strict_keep(item: dict) -> bool:
     text = item.get("text", "")
     if _ISO_RE.search(text):
         return True
-    if _SLASH_RE.search(text) or _HYPHEN_RE.search(text):
+    if _SLASH_RE.search(text) or _HYPHEN_RE.search(text) or _DOT_RE.search(text):
         return True
-    if _MONTH_FIRST_RE.search(text) or _DAY_FIRST_RE.search(text):
+    if _MONTH_FIRST_RE.search(text) or _MONTH_FIRST_HYPHEN_RE.search(text) or _DAY_FIRST_RE.search(text):
         return True
     return False
 
@@ -526,19 +531,43 @@ def _extract_raw(
     locales: Sequence[str],
     strict: bool,
     first: str,
+    two_digit_year_pivot: Optional[int],
+    allow_month_only: bool,
+    allow_compact_numeric: bool,
+    allow_multiline: bool,
 ) -> List[dict]:
     if _kernel is None:
         raise RuntimeError(
             "datefinder Rust kernel is unavailable. Install a compatible wheel or build from source "
             "with Rust toolchain support."
         )
-    kernel_raw = _kernel.extract(
-        text=text,
-        reference_dt=reference_dt.isoformat(),
-        locales=list(locales),
-        strict=bool(strict),
-        first=first,
-    )
+    def _kernel_extract(chunk: str) -> List[dict]:
+        return _kernel.extract(
+            text=chunk,
+            reference_dt=reference_dt.isoformat(),
+            locales=list(locales),
+            strict=bool(strict),
+            first=first,
+            two_digit_year_pivot=two_digit_year_pivot,
+            allow_month_only=allow_month_only,
+            allow_compact_numeric=allow_compact_numeric,
+        )
+
+    if allow_multiline:
+        kernel_raw = _kernel_extract(text)
+    else:
+        kernel_raw = []
+        offset = 0
+        for line in text.splitlines(keepends=True):
+            content = line.rstrip("\r\n")
+            if content:
+                line_raw = _kernel_extract(content)
+                for item in line_raw:
+                    item["start"] = int(item["start"]) + offset
+                    item["end"] = int(item["end"]) + offset
+                kernel_raw.extend(line_raw)
+            offset += len(line)
+
     merged = _serialize_matches(kernel_raw)
     if strict:
         merged = [item for item in merged if _strict_keep(item)]
@@ -553,12 +582,26 @@ def extract(
     timezone_name: Optional[str] = None,
     strict: bool = False,
     first: Literal["month", "day", "year"] = "month",
+    two_digit_year_pivot: Optional[int] = None,
+    allow_month_only: bool = True,
+    allow_compact_numeric: bool = False,
+    allow_multiline: bool = True,
     stream: bool = False,
 ) -> Union[List[Match], Iterator[Match]]:
     del timezone_name  # reserved for timezone database integration
     ref = _as_utc(reference_dt)
     requested_locales = tuple(locales or ("en", "es", "fr", "de", "pt", "it"))
-    raw = _extract_raw(text, ref, requested_locales, strict, first)
+    raw = _extract_raw(
+        text,
+        ref,
+        requested_locales,
+        strict,
+        first,
+        two_digit_year_pivot,
+        allow_month_only,
+        allow_compact_numeric,
+        allow_multiline,
+    )
     iterator = _matches_from_raw(raw)
     if stream:
         return iterator
@@ -571,12 +614,20 @@ def find_dates_compat(
     reference_dt: Optional[datetime] = None,
     strict: bool = False,
     first: Literal["month", "day", "year"] = "month",
+    two_digit_year_pivot: Optional[int] = None,
+    allow_month_only: bool = True,
+    allow_compact_numeric: bool = False,
+    allow_multiline: bool = True,
 ) -> Iterator[datetime]:
     matches = extract(
         text,
         reference_dt=reference_dt,
         strict=strict,
         first=first,
+        two_digit_year_pivot=two_digit_year_pivot,
+        allow_month_only=allow_month_only,
+        allow_compact_numeric=allow_compact_numeric,
+        allow_multiline=allow_multiline,
         stream=True,
     )
     for match in matches:

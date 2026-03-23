@@ -67,3 +67,32 @@ def test_cli_invalid_source_for_extract():
     result = _run_cli("--engine", "extract", "--source", "today")
     assert result.returncode != 0
     assert "--source/--index are only supported" in result.stderr
+
+
+def test_cli_no_month_only():
+    result = _run_cli(
+        "--json",
+        "--no-month-only",
+        "--reference",
+        "2026-03-18T00:00:00+00:00",
+        "in May",
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload == []
+
+
+def test_cli_compact_numeric_opt_in():
+    result = _run_cli(
+        "--json",
+        "--compact-numeric",
+        "--first",
+        "year",
+        "--reference",
+        "2026-03-18T00:00:00+00:00",
+        "invoice 20240315 generated",
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload
+    assert payload[0]["datetime"].startswith("2024-03-15")

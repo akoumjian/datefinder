@@ -36,7 +36,7 @@ except Exception as exc:  # pragma: no cover
     RANGE_SPLIT_REGEX = None
 
 logger = logging.getLogger("datefinder")
-__version__ = "1.0.0rc1"
+__version__ = "1.0.0rc2"
 
 
 def _require_dateutil():
@@ -417,6 +417,10 @@ def find_dates(
     strict=False,
     base_date=None,
     first="month",
+    two_digit_year_pivot=None,
+    allow_month_only=True,
+    allow_compact_numeric=False,
+    allow_multiline=True,
     engine=None,
 ):
     """
@@ -448,6 +452,10 @@ def find_dates(
         reference_dt=base_date,
         strict=strict,
         first=first,
+        two_digit_year_pivot=two_digit_year_pivot,
+        allow_month_only=allow_month_only,
+        allow_compact_numeric=allow_compact_numeric,
+        allow_multiline=allow_multiline,
         stream=True,
     ):
         dt = None

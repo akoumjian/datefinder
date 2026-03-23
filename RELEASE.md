@@ -1,6 +1,6 @@
 # Release Checklist
 
-Release target in this cycle: `v1.0.0rc1`
+Release target in this cycle: `v1.0.0rc2`
 
 ## 1. Validate Code and Parser Behavior
 
@@ -62,7 +62,7 @@ maturin sdist --manifest-path rust/datefinder-kernel/Cargo.toml --out dist
 python -m venv /tmp/datefinder-rc-smoke
 . /tmp/datefinder-rc-smoke/bin/activate
 python -m pip install --upgrade pip
-python -m pip install dist/datefinder-1.0.0rc1*.whl
+python -m pip install dist/datefinder-1.0.0rc2*.whl
 python - <<'PY'
 import datefinder
 print(list(datefinder.find_dates("tomorrow and 2024-12-10")))
@@ -75,7 +75,7 @@ Source-build smoke (requires Rust toolchain):
 ```bash
 . /tmp/datefinder-rc-smoke/bin/activate
 python -m pip uninstall -y datefinder
-python -m pip install dist/datefinder-1.0.0rc1.tar.gz
+python -m pip install dist/datefinder-1.0.0rc2.tar.gz
 python - <<'PY'
 import datefinder
 print(list(datefinder.find_dates("created 01/15/2005 by ACME")))
@@ -88,7 +88,7 @@ deactivate
 - Summarize parser behavior changes from `behavior_change_changelog.md`.
 - Include conformance and benchmark numbers.
 - Document known limitations and planned follow-ups.
-- Update `docs/releases/1.0.0rc1.md`.
+- Update `docs/releases/1.0.0rc2.md`.
 
 ## 7. Publish
 
@@ -103,9 +103,9 @@ deactivate
       --index-url https://test.pypi.org/simple/ \
       --extra-index-url https://pypi.org/simple \
       --only-binary=datefinder \
-      --pre datefinder==1.0.0rc1
+      --pre datefinder==1.0.0rc2
     ```
-- Tag release (`v1.0.0rc1`).
+- Tag release (`v1.0.0rc2`).
 - Create GitHub release.
 - Ensure workflows complete:
   - Python tests + conformance artifacts

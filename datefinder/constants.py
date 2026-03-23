@@ -3,7 +3,7 @@ try:
 except Exception:  # pragma: no cover
     import re  # type: ignore
 
-NUMBERS_PATTERN = r"first|second|third|fourth|fifth|sixth|seventh|eighth|nineth|tenth"
+NUMBERS_PATTERN = r"first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|nineth|tenth"
 POSITIONNAL_TOKENS = r"next|last"
 DIGITS_PATTERN = r"\d+"
 DIGITS_SUFFIXES = r"st|th|rd|nd"
