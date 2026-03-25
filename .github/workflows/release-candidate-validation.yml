@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: |
           python -m pip uninstall -y datefinder || true
-          python -m pip install --only-binary=:all: --no-index --find-links dist --no-deps datefinder==1.0.0rc3
+          python -m pip install --only-binary=:all: --no-index --find-links dist --no-deps datefinder==1.0.0
           TMPDIR="$(mktemp -d)"
           cd "$TMPDIR"
           python - <<'PY'
@@ -64,7 +64,7 @@ jobs:
           import datefinder._kernel
           from datetime import datetime, timezone
 
-          assert datefinder.__version__ == "1.0.0rc3"
+          assert datefinder.__version__ == "1.0.0"
           out_default = list(datefinder.find_dates("tomorrow and 2024-12-10", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc)))
           assert len(out_default) >= 2
           out_legacy = list(datefinder.find_dates("June 2018", engine="legacy"))
@@ -177,7 +177,7 @@ jobs:
             test -n "$PYBIN"
             "$PYBIN" -m pip install --upgrade pip >/dev/null
             "$PYBIN" -m pip install regex python-dateutil pytz >/dev/null
-            "$PYBIN" -m pip install --only-binary=:all: --no-index --find-links /dist --no-deps datefinder==1.0.0rc3 >/dev/null
+            "$PYBIN" -m pip install --only-binary=:all: --no-index --find-links /dist --no-deps datefinder==1.0.0 >/dev/null
             "$PYBIN" -c "import datefinder, datefinder._kernel; from datetime import datetime, timezone; out=list(datefinder.find_dates(\"tomorrow and 2024-12-10\", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc))); assert len(out) >= 2; print(\"linux target smoke ok\", len(out))"
           '
       - name: Wheel runtime smoke (macOS/Windows native)
@@ -186,7 +186,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install regex python-dateutil pytz
-          python -m pip install --only-binary=:all: --no-index --find-links dist --no-deps datefinder==1.0.0rc3
+          python -m pip install --only-binary=:all: --no-index --find-links dist --no-deps datefinder==1.0.0
           TMPDIR="$(mktemp -d)"
           cd "$TMPDIR"
           python - <<'PY'

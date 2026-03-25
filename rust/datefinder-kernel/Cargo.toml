@@ -1,6 +1,6 @@
 [package]
 name = "datefinder-kernel"
-version = "1.0.0-rc.3"
+version = "1.0.0"
 edition = "2021"
 description = "Temporal extraction kernel for datefinder v2"
 license = "MIT"

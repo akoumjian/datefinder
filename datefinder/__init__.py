@@ -36,7 +36,7 @@ except Exception as exc:  # pragma: no cover
     RANGE_SPLIT_REGEX = None
 
 logger = logging.getLogger("datefinder")
-__version__ = "1.0.0rc3"
+__version__ = "1.0.0"
 
 
 def _require_dateutil():

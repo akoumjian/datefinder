@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0 - 2026-03-25
+
+### Changed
+
+- Promoted the `1.0.0rc3` release-candidate line to final `1.0.0`.
+- `find_dates(...)` remains defaulted to the v2 compatibility engine, with legacy behavior available via `find_dates_legacy(...)` or `engine="legacy"`.
+
+### Packaging
+
+- Published final cross-platform wheels and source distribution for `1.0.0`.
+- Kept source-build install path for platforms without a matching wheel (Rust toolchain required).
+
 ## 1.0.0rc3 - 2026-03-23
 
 ### Fixed

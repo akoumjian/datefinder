@@ -17,7 +17,7 @@ datefinder - extract dates from text
 A python module for locating dates inside text. Use this package to extract date-like
 strings from documents and turn them into useful datetime/temporal objects.
 
-As of ``1.0.0rc3``, ``find_dates(...)`` defaults to the v2 compatibility engine.
+As of ``1.0.0``, ``find_dates(...)`` defaults to the v2 compatibility engine.
 The original engine remains available as ``find_dates_legacy(...)``.
 
 
@@ -292,4 +292,4 @@ Notes:
 Release Notes
 -------------
 
-- ``docs/releases/1.0.0rc3.md`` documents RC scope, behavior changes, and migration.
+- ``docs/releases/1.0.0.md`` documents GA scope, behavior changes, and migration.
