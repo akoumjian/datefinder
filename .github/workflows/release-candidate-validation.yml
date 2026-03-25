@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: |
           python -m pip uninstall -y datefinder || true
-          python -m pip install --no-binary=:all: --no-deps dist/*.tar.gz
+          python -m pip install --no-binary=datefinder --no-deps dist/*.tar.gz
           TMPDIR="$(mktemp -d)"
           cd "$TMPDIR"
           python - <<'PY'

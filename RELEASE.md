@@ -120,7 +120,7 @@ deactivate
     - macOS: `delocate-listdeps`
     - Windows: `delvewheel show`
     - wheel install smoke (`--only-binary=:all:`), including Linux target-container runtime smoke (QEMU for `aarch64`)
-    - sdist source-build smoke (`--no-binary=:all:`)
+    - sdist source-build smoke (`--no-binary=datefinder`)
   - PyPI publish job
 
 Before final publish, run `Release Candidate Validation` with `workflow_dispatch` to execute full wheel target validation matrix.
