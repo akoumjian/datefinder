@@ -1545,7 +1545,10 @@ fn parse_raw(
                 }
                 -d
             };
-            let Some(resolved) = resolve_offset(reference, delta_days.saturating_mul(86_400)) else {
+            let Some(delta_seconds) = delta_days.checked_mul(86_400) else {
+                continue;
+            };
+            let Some(resolved) = resolve_offset(reference, delta_seconds) else {
                 continue;
             };
             out.push(RawMatch {
@@ -1557,7 +1560,7 @@ fn parse_raw(
                 grain: "day",
                 value: RawValue::Relative {
                     resolved_datetime: resolved.to_rfc3339(),
-                    delta_seconds: delta_days * 86_400,
+                    delta_seconds,
                     anchor: "reference".to_string(),
                 },
                 confidence: 0.90,
