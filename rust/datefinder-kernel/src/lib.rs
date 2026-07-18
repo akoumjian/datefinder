@@ -606,6 +606,19 @@ fn unit_seconds(unit: &str) -> Option<i64> {
     }
 }
 
+/// Skip unresolvable relative offsets instead of panicking on chrono overflow.
+fn resolve_offset(
+    reference: DateTime<FixedOffset>,
+    delta_seconds: i64,
+) -> Option<DateTime<FixedOffset>> {
+    let resolved = reference.checked_add_signed(Duration::seconds(delta_seconds))?;
+    // Python datetime.fromisoformat only accepts years 1..9999.
+    if !(1..=9999).contains(&resolved.year()) {
+        return None;
+    }
+    Some(resolved)
+}
+
 fn parse_reference(reference_dt: Option<&str>) -> DateTime<FixedOffset> {
     if let Some(raw) = reference_dt {
         if let Ok(dt) = DateTime::parse_from_rfc3339(raw) {
@@ -1477,7 +1490,9 @@ fn parse_raw(
             let Some(days) = relative_word_days(all.as_str()) else {
                 continue;
             };
-            let resolved = reference + Duration::days(days);
+            let Some(resolved) = resolve_offset(reference, days.saturating_mul(86_400)) else {
+                continue;
+            };
             out.push(RawMatch {
                 kind: "relative",
                 text: all.as_str().to_string(),
@@ -1526,7 +1541,9 @@ fn parse_raw(
                 }
                 -d
             };
-            let resolved = reference + Duration::days(delta_days);
+            let Some(resolved) = resolve_offset(reference, delta_days.saturating_mul(86_400)) else {
+                continue;
+            };
             out.push(RawMatch {
                 kind: "relative",
                 text: all.as_str().to_string(),
@@ -1554,8 +1571,12 @@ fn parse_raw(
             let Some(unit_s) = unit_seconds(&caps["unit"]) else {
                 continue;
             };
-            let delta = num * unit_s;
-            let resolved = reference + Duration::seconds(delta);
+            let Some(delta) = num.checked_mul(unit_s) else {
+                continue;
+            };
+            let Some(resolved) = resolve_offset(reference, delta) else {
+                continue;
+            };
             out.push(RawMatch {
                 kind: "relative",
                 text: all.as_str().to_string(),
@@ -1583,8 +1604,12 @@ fn parse_raw(
             let Some(unit_s) = unit_seconds(&caps["unit"]) else {
                 continue;
             };
-            let delta = -(num * unit_s);
-            let resolved = reference + Duration::seconds(delta);
+            let Some(delta) = num.checked_mul(unit_s).and_then(|d| d.checked_neg()) else {
+                continue;
+            };
+            let Some(resolved) = resolve_offset(reference, delta) else {
+                continue;
+            };
             out.push(RawMatch {
                 kind: "relative",
                 text: all.as_str().to_string(),
@@ -1618,7 +1643,9 @@ fn parse_raw(
             let Some(unit_s) = unit_seconds(&caps["unit"]) else {
                 continue;
             };
-            let total = num * unit_s;
+            let Some(total) = num.checked_mul(unit_s) else {
+                continue;
+            };
             let mut components = HashMap::new();
             components.insert(caps["unit"].to_lowercase(), num);
             out.push(RawMatch {

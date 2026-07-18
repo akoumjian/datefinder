@@ -283,3 +283,14 @@ def test_issue_84_allow_multiline_flag_controls_cross_line_extraction():
         )
         == []
     )
+
+
+def test_relative_delta_overflow_skips_unresolvable():
+    ref = datetime(2026, 3, 19, 12, 0, tzinfo=timezone.utc)
+    # Chrono panics / Python fromisoformat rejects these without a checked resolve.
+    assert list(datefinder.find_dates("in 292000 years", base_date=ref)) == []
+    assert list(datefinder.find_dates("in 10000 years", base_date=ref)) == []
+    assert list(datefinder.find_dates("1000000000000000 years ago", base_date=ref)) == []
+    assert list(datefinder.find_dates("in 3 days", base_date=ref)) == [
+        datetime(2026, 3, 22, 12, 0, tzinfo=timezone.utc)
+    ]
