@@ -291,6 +291,10 @@ def test_relative_delta_overflow_skips_unresolvable():
     assert list(datefinder.find_dates("in 292000 years", base_date=ref)) == []
     assert list(datefinder.find_dates("in 10000 years", base_date=ref)) == []
     assert list(datefinder.find_dates("1000000000000000 years ago", base_date=ref)) == []
+    # Seconds product fits in i64 but exceeds TimeDelta::seconds bounds.
+    assert list(datefinder.find_dates("in 999999999999 days", base_date=ref)) == []
+    assert list(datefinder.find_dates("999999999999 days ago", base_date=ref)) == []
+    assert list(datefinder.find_dates("in 999999999999 weeks", base_date=ref)) == []
     assert list(datefinder.find_dates("in 3 days", base_date=ref)) == [
         datetime(2026, 3, 22, 12, 0, tzinfo=timezone.utc)
     ]

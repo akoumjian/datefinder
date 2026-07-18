@@ -611,7 +611,8 @@ fn resolve_offset(
     reference: DateTime<FixedOffset>,
     delta_seconds: i64,
 ) -> Option<DateTime<FixedOffset>> {
-    let resolved = reference.checked_add_signed(Duration::seconds(delta_seconds))?;
+    let duration = Duration::try_seconds(delta_seconds)?;
+    let resolved = reference.checked_add_signed(duration)?;
     // Python datetime.fromisoformat only accepts years 1..9999.
     if !(1..=9999).contains(&resolved.year()) {
         return None;
@@ -1490,7 +1491,10 @@ fn parse_raw(
             let Some(days) = relative_word_days(all.as_str()) else {
                 continue;
             };
-            let Some(resolved) = resolve_offset(reference, days.saturating_mul(86_400)) else {
+            let Some(delta_seconds) = days.checked_mul(86_400) else {
+                continue;
+            };
+            let Some(resolved) = resolve_offset(reference, delta_seconds) else {
                 continue;
             };
             out.push(RawMatch {
