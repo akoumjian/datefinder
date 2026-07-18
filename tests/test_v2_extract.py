@@ -297,6 +297,8 @@ def test_relative_delta_overflow_skips_unresolvable():
     assert list(datefinder.find_dates("in 999999999999 weeks", base_date=ref)) == []
     assert list(datefinder.find_dates("in 292471209 years", base_date=ref)) == []
     assert list(datefinder.find_dates("292471209 years ago", base_date=ref)) == []
+    # Digits that do not fit in i64 must not parse as 0 (false reference hit).
+    assert list(datefinder.find_dates("in 99999999999999999999 years", base_date=ref)) == []
     assert list(datefinder.find_dates("in 3 days", base_date=ref)) == [
         datetime(2026, 3, 22, 12, 0, tzinfo=timezone.utc)
     ]

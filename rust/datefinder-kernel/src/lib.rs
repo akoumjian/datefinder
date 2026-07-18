@@ -1574,7 +1574,9 @@ fn parse_raw(
                 Some(m) => m,
                 None => continue,
             };
-            let num: i64 = caps["num"].parse().unwrap_or_default();
+            let Ok(num) = caps["num"].parse::<i64>() else {
+                continue;
+            };
             let Some(unit_s) = unit_seconds(&caps["unit"]) else {
                 continue;
             };
@@ -1607,7 +1609,9 @@ fn parse_raw(
                 Some(m) => m,
                 None => continue,
             };
-            let num: i64 = caps["num"].parse().unwrap_or_default();
+            let Ok(num) = caps["num"].parse::<i64>() else {
+                continue;
+            };
             let Some(unit_s) = unit_seconds(&caps["unit"]) else {
                 continue;
             };
@@ -1646,7 +1650,9 @@ fn parse_raw(
             {
                 continue;
             }
-            let num: i64 = caps["num"].parse().unwrap_or_default();
+            let Ok(num) = caps["num"].parse::<i64>() else {
+                continue;
+            };
             let Some(unit_s) = unit_seconds(&caps["unit"]) else {
                 continue;
             };
