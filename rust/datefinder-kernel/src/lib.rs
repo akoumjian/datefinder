@@ -1506,7 +1506,7 @@ fn parse_raw(
                 grain: "day",
                 value: RawValue::Relative {
                     resolved_datetime: resolved.to_rfc3339(),
-                    delta_seconds: days * 86_400,
+                    delta_seconds,
                     anchor: "reference".to_string(),
                 },
                 confidence: 0.92,
