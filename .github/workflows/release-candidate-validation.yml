@@ -115,6 +115,9 @@ jobs:
           - runner: windows-latest
             target: x86_64-pc-windows-msvc
             manylinux: off
+          - runner: windows-11-arm
+            target: aarch64-pc-windows-msvc
+            manylinux: off
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
