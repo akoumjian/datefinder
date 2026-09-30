@@ -37,15 +37,18 @@ jobs:
             target: aarch64-unknown-linux-musl
             manylinux: musllinux_1_2
           # macOS
-          - runner: macos-14
+          - runner: macos-15-intel
             target: x86_64-apple-darwin
             manylinux: off
-          - runner: macos-14
+          - runner: macos-15
             target: aarch64-apple-darwin
             manylinux: off
           # Windows
           - runner: windows-latest
             target: x86_64-pc-windows-msvc
+            manylinux: off
+          - runner: windows-11-arm
+            target: aarch64-pc-windows-msvc
             manylinux: off
     steps:
       - uses: actions/checkout@v4
@@ -115,7 +118,7 @@ jobs:
             "$PYBIN" -c "import datefinder, datefinder._kernel; from datetime import datetime, timezone; out=list(datefinder.find_dates(\"tomorrow and 2024-12-10\", base_date=datetime(2026, 3, 18, tzinfo=timezone.utc))); assert len(out) >= 2; print(\"linux target smoke ok\", len(out))"
           '
       - name: Wheel runtime smoke (macOS/Windows native)
-        if: ${{ !startsWith(matrix.runner, 'ubuntu') && !(startsWith(matrix.runner, 'macos') && matrix.target == 'x86_64-apple-darwin') }}
+        if: ${{ !startsWith(matrix.runner, 'ubuntu') }}
         shell: bash
         run: |
           python -m pip install --upgrade pip

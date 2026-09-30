@@ -114,7 +114,7 @@ deactivate
     - manylinux2014: `x86_64-unknown-linux-gnu`, `aarch64-unknown-linux-gnu`
     - musllinux_1_2: `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`
     - macOS: `x86_64-apple-darwin`, `aarch64-apple-darwin`
-    - Windows: `x86_64-pc-windows-msvc`
+    - Windows: `x86_64-pc-windows-msvc`, `aarch64-pc-windows-msvc`
   - artifact inspection + smoke checks:
     - Linux: `auditwheel show`
     - macOS: `delocate-listdeps`
