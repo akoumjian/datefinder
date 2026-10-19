@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 import datefinder
+import pytest
 from datefinder.v2 import AbsoluteValue, DurationValue, RelativeValue
 
 
@@ -283,3 +284,33 @@ def test_issue_84_allow_multiline_flag_controls_cross_line_extraction():
         )
         == []
     )
+
+
+@pytest.mark.parametrize("base_date", [
+    None,
+    datetime(2026, 1, 1),
+    datetime(2026, 1, 1, tzinfo=timezone.utc),
+])
+@pytest.mark.parametrize("zone, hours", [("UTC", 0), ("GMT", 0), ("PST", -8), ("+0530", 5.5)])
+def test_find_dates_preserves_parsed_timezone(zone, hours, base_date):
+    text = "retry after 2024-12-09 10:16:41 {}: see https".format(zone)
+    expected = datetime(2024, 12, 9, 10, 16, 41, tzinfo=timezone(timedelta(hours=hours)))
+    matches = datefinder.extract(text, reference_dt=base_date)
+    assert matches[0].value.datetime_value == expected
+    assert matches[0].value.timezone_source in {"explicit", "abbreviation"}
+    assert list(datefinder.find_dates(text, base_date=base_date)) == [expected]
+    dt, source, index = list(datefinder.find_dates(text, base_date=base_date, source=True, index=True))[0]
+    assert dt == expected
+    assert source == text[index[0]:index[1]]
+
+
+@pytest.mark.parametrize("base_date, aware", [
+    (None, False),
+    (datetime(2026, 1, 1), False),
+    (datetime(2026, 1, 1, tzinfo=timezone.utc), True),
+])
+@pytest.mark.parametrize("text", ["2024-12-09 10:16:41", "tomorrow"])
+def test_find_dates_inferred_timezone_follows_base_date(text, base_date, aware):
+    result = list(datefinder.find_dates(text, base_date=base_date))
+    assert len(result) == 1
+    assert (result[0].tzinfo is not None) == aware

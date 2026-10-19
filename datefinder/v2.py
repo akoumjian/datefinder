@@ -422,7 +422,7 @@ def _serialize_matches(matches: List[dict]) -> List[dict]:
             text_value = value.get("datetime", "")
             if isinstance(text_value, str) and "T" in text_value:
                 base += 0.1
-            if isinstance(text_value, str) and ("+" in text_value or text_value.endswith("Z")):
+            if isinstance(text_value, str) and re.search(r"(?:[+-]\d{2}:\d{2}|Z)$", text_value):
                 base += 0.05
         return base
 
