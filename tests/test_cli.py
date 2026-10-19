@@ -96,3 +96,9 @@ def test_cli_compact_numeric_opt_in():
     payload = json.loads(result.stdout)
     assert payload
     assert payload[0]["datetime"].startswith("2024-03-15")
+
+
+def test_cli_preserves_utc_abbreviation():
+    result = _run_cli("--json", "retry after 2024-12-09 10:16:41 UTC: see https")
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == [{"datetime": "2024-12-09T10:16:41+00:00"}]

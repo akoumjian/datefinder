@@ -399,11 +399,11 @@ def find_dates_legacy(
 
 def _coerce_compat_datetime(value, dt, base_date):
     timezone_source = getattr(value, "timezone_source", None)
+    if timezone_source in {"explicit", "abbreviation"}:
+        return dt
     if base_date is not None:
         if getattr(base_date, "tzinfo", None) is None and getattr(dt, "tzinfo", None) is not None:
             return dt.replace(tzinfo=None)
-        return dt
-    if timezone_source == "explicit":
         return dt
     if getattr(dt, "tzinfo", None) is not None:
         return dt.replace(tzinfo=None)
